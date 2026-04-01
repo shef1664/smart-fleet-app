@@ -1,0 +1,3142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Умный автопарк</title>
+<style>
+:root {
+  --bg:#000;--bg1:#0a0a0a;--bg2:#111;--bg3:#1c1c1e;--bg4:#2c2c2e;--bg5:#3a3a3c;
+  --t1:#fff;--t2:rgba(235,235,245,.8);--t3:rgba(235,235,245,.6);--t4:rgba(235,235,245,.35);
+  --blue:#0a84ff;--green:#30d158;--orange:#ff9f0a;--red:#ff453a;--purple:#bf5af2;
+  --sep:rgba(255,255,255,.08);--r:14px;--r2:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* LAYOUT */
+.app{max-width:430px;margin:0 auto;padding:0 0 80px;}
+.screen{display:none;padding:16px 16px 0;animation:up .2s ease;}
+.screen.active{display:block;}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(0,0,0,.85);backdrop-filter:blur(20px);border-top:1px solid var(--sep);display:flex;z-index:100;padding:8px 0 max(8px,env(safe-area-inset-bottom));}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;border:none;background:transparent;color:var(--t4);font-size:10px;font-weight:500;cursor:pointer;transition:color .15s;}
+.nav-item.active{color:var(--blue);}
+.nav-icon{font-size:22px;line-height:1;}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;padding-top:8px;}
+.page-title{font-size:30px;font-weight:700;letter-spacing:-.5px;}
+.page-sub{font-size:14px;color:var(--t3);margin-top:3px;}
+.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+
+/* CARDS */
+.card{background:var(--bg3);border-radius:var(--r2);padding:18px;margin-bottom:10px;}
+.card-title{font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:14px;}
+
+/* BIG BUTTON */
+.big-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:var(--r2);padding:18px 20px;font-size:17px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:14px;margin-bottom:10px;transition:opacity .15s,transform .1s;text-align:left;}
+.big-btn:active{opacity:.8;transform:scale(.98);}
+.big-btn.green{background:var(--green);}
+.big-btn.orange{background:var(--orange);}
+.big-btn.red{background:var(--red);}
+.big-btn.purple{background:var(--purple);}
+.big-btn.dark{background:var(--bg3);}
+.btn-ico{width:44px;height:44px;background:rgba(255,255,255,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.dark .btn-ico{background:var(--bg4);}
+.btn-body{flex:1;}
+.btn-title{font-size:17px;font-weight:600;color:#fff;}
+.dark .btn-title{color:var(--t1);}
+.btn-sub{font-size:13px;opacity:.7;font-weight:400;margin-top:2px;color:#fff;}
+.dark .btn-sub{color:var(--t3);}
+.chevron{color:rgba(255,255,255,.5);font-size:16px;margin-left:auto;}
+.dark .chevron{color:var(--t4);}
+
+/* MENU GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.grid-item{background:var(--bg3);border-radius:var(--r2);padding:18px 16px;cursor:pointer;border:none;color:var(--t1);font-family:inherit;text-align:left;transition:opacity .15s,transform .1s;}
+.grid-item:active{opacity:.7;transform:scale(.97);}
+.gi-icon{font-size:28px;margin-bottom:10px;display:block;}
+.gi-label{font-size:15px;font-weight:600;display:block;}
+.gi-badge{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700;}
+.badge-red{background:rgba(255,69,58,.2);color:var(--red);}
+.badge-blue{background:rgba(10,132,255,.2);color:var(--blue);}
+.badge-green{background:rgba(48,209,88,.2);color:var(--green);}
+
+/* STATS */
+.stats2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.stat-box{background:var(--bg3);border-radius:var(--r2);padding:18px 16px;}
+.stat-val{font-size:28px;font-weight:700;letter-spacing:-.5px;}
+.stat-val.green{color:var(--green);}
+.stat-val.blue{color:var(--blue);}
+.stat-val.orange{color:var(--orange);}
+.stat-val.red{color:var(--red);}
+.stat-lbl{font-size:12px;color:var(--t3);margin-top:4px;}
+
+/* BIG STAT */
+.big-stat{background:var(--bg3);border-radius:var(--r2);padding:22px 18px;margin-bottom:10px;}
+.bs-lbl{font-size:13px;color:var(--t3);margin-bottom:6px;}
+.bs-val{font-size:40px;font-weight:700;letter-spacing:-1px;}
+.bs-val.green{color:var(--green);}
+.bs-delta{font-size:13px;color:var(--green);margin-top:4px;}
+
+/* LIST ROWS */
+.list-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--sep);}
+.list-row:last-child{border-bottom:none;}
+.row-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.dot-green{background:var(--green);}
+.dot-blue{background:var(--blue);}
+.dot-orange{background:var(--orange);}
+.dot-red{background:var(--red);}
+.row-info{flex:1;}
+.row-title{font-size:15px;font-weight:500;}
+.row-sub{font-size:13px;color:var(--t3);margin-top:2px;}
+.row-right{text-align:right;flex-shrink:0;}
+.row-val{font-size:15px;font-weight:600;}
+.row-time{font-size:12px;color:var(--t4);margin-top:2px;}
+
+/* PROGRESS */
+.prog-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--sep);}
+.prog-row:last-child{border-bottom:none;}
+.prog-lbl{font-size:14px;font-weight:500;width:115px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prog-track{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+.prog-count{font-size:13px;color:var(--t3);width:32px;text-align:right;flex-shrink:0;}
+
+/* ALERTS */
+.alert-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--sep);}
+.alert-row:last-child{border-bottom:none;}
+.alert-ico{font-size:20px;flex-shrink:0;}
+.alert-body{flex:1;}
+.alert-title{font-size:14px;font-weight:500;}
+.alert-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.alert-time{font-size:12px;color:var(--t4);flex-shrink:0;}
+
+/* SECTION LABEL */
+.sec-lbl{font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin:18px 0 10px 2px;}
+
+/* REPEAT CARD */
+.repeat-card{background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:opacity .15s;}
+.repeat-card:active{opacity:.7;}
+.rep-icon{width:46px;height:46px;background:var(--bg4);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.rep-info{flex:1;}
+.rep-title{font-size:15px;font-weight:600;}
+.rep-sub{font-size:13px;color:var(--t3);margin-top:2px;}
+.rep-btn{background:var(--blue);color:#fff;border:none;border-radius:20px;padding:8px 16px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;}
+
+/* BADGE PILL */
+.pill{display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:500;color:var(--t2);margin-bottom:16px;}
+.pill-dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
+
+/* FORM */
+.form-block{margin-bottom:18px;}
+.form-lbl{font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;padding-left:2px;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{background:var(--bg3);border:1.5px solid var(--bg5);color:var(--t2);border-radius:20px;padding:9px 16px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;transition:all .15s;}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+.chip:active{transform:scale(.96);}
+.chip.green.on{background:var(--green);border-color:var(--green);}
+.chip.orange.on{background:var(--orange);border-color:var(--orange);}
+.inp{width:100%;background:var(--bg3);border:1.5px solid var(--bg5);border-radius:var(--r);padding:14px 16px;font-size:16px;color:var(--t1);font-family:inherit;outline:none;transition:border-color .2s;}
+.inp:focus{border-color:var(--blue);}
+.inp::placeholder{color:var(--t4);}
+.auto-row{background:var(--bg3);border-radius:var(--r);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.auto-lbl{font-size:13px;color:var(--t3);}
+.auto-val{font-size:15px;font-weight:500;display:flex;align-items:center;gap:6px;}
+.auto-tag{font-size:10px;background:var(--green);color:#000;border-radius:5px;padding:2px 6px;font-weight:700;}
+.voice-row{width:100%;background:var(--bg3);border:1.5px dashed var(--bg5);border-radius:var(--r);padding:16px;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--t3);font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;transition:all .2s;}
+.voice-row:active{border-color:var(--blue);color:var(--blue);}
+.photo-zone{background:var(--bg3);border:1.5px dashed var(--bg5);border-radius:var(--r2);padding:28px 20px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:8px;}
+.photo-zone:active{border-color:var(--blue);}
+
+/* Дата */
+.date-display{background:var(--bg3);border-radius:var(--r);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.date-display .date-val{font-size:16px;font-weight:600;color:var(--t1);}
+.date-display .date-lbl{font-size:12px;color:var(--t3);}
+.calendar-wrap{background:var(--bg3);border-radius:var(--r2);padding:16px;margin-bottom:8px;display:none;}
+.calendar-wrap.show{display:block;}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.cal-nav{background:none;border:none;color:var(--blue);font-size:20px;cursor:pointer;padding:4px 8px;line-height:1;}
+.cal-month{font-size:15px;font-weight:600;color:var(--t1);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-day-name{font-size:11px;color:var(--t4);text-align:center;padding:4px 0;font-weight:500;}
+.cal-day{font-size:13px;text-align:center;padding:7px 2px;border-radius:8px;cursor:pointer;color:var(--t2);border:none;background:none;font-family:inherit;transition:background .15s;}
+.cal-day:hover{background:var(--bg4);}
+.cal-day.today{color:var(--blue);font-weight:700;}
+.cal-day.selected{background:var(--blue);color:#fff;font-weight:600;}
+.cal-day.other-month{color:var(--t4);}
+.cal-day:empty{pointer-events:none;}
+.pz-icon{font-size:30px;margin-bottom:8px;}
+.pz-title{font-size:15px;font-weight:500;color:var(--t2);}
+.pz-sub{font-size:13px;color:var(--t4);margin-top:3px;}
+.submit{width:100%;background:var(--blue);color:#fff;border:none;border-radius:var(--r2);padding:18px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:10px;transition:opacity .15s,transform .1s;}
+.submit:active{opacity:.8;transform:scale(.98);}
+.submit.green{background:var(--green);}
+.divider{height:1px;background:var(--sep);margin:4px 0 16px;}
+
+/* Дашборд директора */
+.period-btn{flex:1;background:var(--bg3);border:none;border-radius:20px;padding:8px 4px;font-size:13px;font-weight:500;color:var(--t3);font-family:inherit;cursor:pointer;transition:all .15s;}
+.period-btn.active{background:var(--blue);color:#fff;}
+.dir-card{background:var(--bg3);border-radius:var(--r2);padding:18px 16px;margin-bottom:0;}
+.dir-card-lbl{font-size:12px;color:var(--t3);margin-bottom:4px;}
+.dir-card-val{font-size:28px;font-weight:700;letter-spacing:-.5px;}
+.dir-card-val.green{color:var(--green);}
+.dir-card-val.red{color:var(--red);}
+.dir-card-val.blue{color:var(--blue);}
+.dir-card-val.orange{color:var(--orange);}
+.dir-card-delta{font-size:12px;color:var(--t3);margin-top:3px;}
+.dir-alerts-card{background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;}
+.dir-alert-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--sep);}
+.dir-alert-row:last-child{border-bottom:none;}
+.dir-alert-row.red .dir-alert-dot{background:var(--red);}
+.dir-alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dir-alert-body{flex:1;}
+.dir-alert-title{font-size:14px;font-weight:500;}
+.dir-alert-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.dir-alert-time{font-size:12px;color:var(--t4);flex-shrink:0;}
+.fleet-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--sep);}
+.fleet-row:last-child{border-bottom:none;}
+.fleet-num{font-size:14px;font-weight:700;width:32px;flex-shrink:0;color:var(--t1);}
+.fleet-type{font-size:11px;color:var(--t4);width:56px;flex-shrink:0;}
+.fleet-bar-wrap{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.fleet-bar{height:100%;border-radius:3px;}
+.fleet-stat{font-size:13px;font-weight:600;width:44px;text-align:right;flex-shrink:0;}
+.fleet-stat.green{color:var(--green);}
+.fleet-stat.blue{color:var(--blue);}
+.fleet-stat.orange{color:var(--orange);}
+.fleet-stat.red{color:var(--red);}
+.expense-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--sep);}
+.expense-row:last-child{border-bottom:none;}
+.expense-num{font-size:14px;font-weight:700;width:36px;flex-shrink:0;}
+.expense-bar-wrap{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.expense-bar{height:100%;border-radius:3px;}
+.expense-val{font-size:13px;font-weight:600;width:68px;text-align:right;flex-shrink:0;color:var(--t2);}
+.expense-val.red{color:var(--red);}
+.client-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--sep);}
+.client-rank{width:20px;height:20px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--t3);flex-shrink:0;}
+.client-info{flex:1;}
+.client-name{font-size:14px;font-weight:500;}
+.client-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.client-val{font-size:15px;font-weight:700;flex-shrink:0;}
+.client-val.green{color:var(--green);}
+.client-val.blue{color:var(--blue);}
+.client-val.orange{color:var(--orange);}
+.cash-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--sep);}
+.cash-row:last-child{border-bottom:none;}
+.cash-who{font-size:13px;font-weight:500;flex:1;}
+.cash-truck{font-size:12px;width:28px;flex-shrink:0;}
+.cash-amount{font-size:14px;font-weight:700;flex-shrink:0;}
+.cash-amount.green{color:var(--green);}
+.cash-amount.orange{color:var(--orange);}
+.cash-status{font-size:11px;width:64px;text-align:right;flex-shrink:0;}
+.cash-status.green{color:var(--green);}
+.cash-status.orange{color:var(--orange);}
+.other-input{display:none;margin-top:8px;}
+.other-input.show{display:block;}
+
+/* SUB SCREEN */
+.sub-screen{display:none;}
+.sub-screen.active{display:block;}
+.back-btn{background:none;border:none;color:var(--blue);font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px;}
+.role-btn{width:100%;background:var(--bg3);border:1px solid var(--sep);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;text-align:left;transition:background .15s;}
+.role-btn:active{background:var(--bg4);}
+.role-icon{font-size:24px;flex-shrink:0;}
+.role-info{flex:1;}
+.role-name{font-size:16px;font-weight:600;color:var(--t1);}
+.role-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══════════════════════════════ HOME ═══════════════════════════════ -->
+<div class="screen" id="s-home">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Добрый день</div>
+      <div class="page-sub">Иванов А.В. · КамАЗ А123БВ</div>
+    </div>
+    <div class="avatar" style="background:linear-gradient(135deg,#0a84ff,#30d158)">АИ</div>
+  </div>
+
+  <div class="pill"><span class="pill-dot"></span>Смена активна · 08:42</div>
+
+  <div class="sec-lbl">Быстрый старт</div>
+  <div class="repeat-card" onclick="go('s-tonary')">
+    <div class="rep-icon">🔁</div>
+    <div class="rep-info">
+      <div class="rep-title">Повторить прошлый рейс</div>
+      <div class="rep-sub">Щебень 20-40 · Карьер Северный → СтройГрупп · 32 т</div>
+    </div>
+    <button class="rep-btn">Старт</button>
+  </div>
+
+  <div class="sec-lbl">Разделы</div>
+  <button class="big-btn" onclick="go('s-tonary')">
+    <div class="btn-ico">🚛</div>
+    <div class="btn-body"><div class="btn-title">Тонары</div><div class="btn-sub">Новый рейс · история</div></div>
+    <span class="chevron">›</span>
+  </button>
+  <button class="big-btn green" onclick="go('s-mixer')">
+    <div class="btn-ico">🔄</div>
+    <div class="btn-body"><div class="btn-title">Миксеры</div><div class="btn-sub">Бетон · раствор · рейс</div></div>
+    <span class="chevron">›</span>
+  </button>
+  <button class="big-btn purple" onclick="go('s-dlinn')">
+    <div class="btn-ico">🚚</div>
+    <div class="btn-body"><div class="btn-title">Длинномеры</div><div class="btn-sub">Маршрут · груз · ТН</div></div>
+    <span class="chevron">›</span>
+  </button>
+
+  <div class="grid2">
+    <button class="grid-item" onclick="go('s-dt')">
+      <span class="gi-icon">⛽</span>
+      <span class="gi-label">Топливо (ДТ)</span>
+      <span class="gi-badge badge-blue">+заправка</span>
+    </button>
+    <button class="grid-item" onclick="go('s-expense')">
+      <span class="gi-icon">🧾</span>
+      <span class="gi-label">Расходы</span>
+      <span class="gi-badge badge-red">3 сегодня</span>
+    </button>
+  </div>
+
+  <div class="sec-lbl">Сегодня</div>
+  <div class="stats2">
+    <div class="stat-box"><div class="stat-val green">5</div><div class="stat-lbl">рейсов</div></div>
+    <div class="stat-box"><div class="stat-val blue">142 т</div><div class="stat-lbl">перевезено</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ТОНАРЫ ═══════════════════════════════ -->
+<div class="screen" id="s-tonary">
+  <div class="topbar">
+    <div>
+      <button class="back-btn" onclick="go('s-home')">‹ Назад</button>
+      <div class="page-title">Тонары</div>
+    </div>
+  </div>
+
+  <div id="ton-menu">
+    <button class="big-btn" onclick="showSub('ton-new')">
+      <div class="btn-ico">➕</div>
+      <div class="btn-body"><div class="btn-title">Новый рейс</div><div class="btn-sub">Заполнить за 10 секунд</div></div>
+      <span class="chevron">›</span>
+    </button>
+    <div class="repeat-card" onclick="showSub('ton-new')">
+      <div class="rep-icon">🔁</div>
+      <div class="rep-info">
+        <div class="rep-title">Повторить прошлый рейс</div>
+        <div class="rep-sub">Щебень 20-40 · Карьер Северный · 32 т</div>
+      </div>
+      <button class="rep-btn">Повторить</button>
+    </div>
+
+    <div class="sec-lbl">История рейсов</div>
+    <div class="card">
+      <div class="list-row">
+        <div class="row-dot dot-green"></div>
+        <div class="row-info"><div class="row-title">Карьер Северный → СтройГрупп</div><div class="row-sub">Щебень 20-40 · 32 т · ТН ✓</div></div>
+        <div class="row-right"><div class="row-val">32 т</div><div class="row-time">14:20</div></div>
+      </div>
+      <div class="list-row">
+        <div class="row-dot dot-green"></div>
+        <div class="row-info"><div class="row-title">ВНК Березовка → Бетон М</div><div class="row-sub">Гравий 5-20 · 28 т · ТН ✓</div></div>
+        <div class="row-right"><div class="row-val">28 т</div><div class="row-time">12:10</div></div>
+      </div>
+      <div class="list-row">
+        <div class="row-dot dot-orange"></div>
+        <div class="row-info"><div class="row-title">Морозовский → Администрация</div><div class="row-sub">Песок 2.0-2.5 · 26 т · ТН ✗</div></div>
+        <div class="row-right"><div class="row-val">26 т</div><div class="row-time">09:45</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- НОВЫЙ РЕЙС ТОНАР -->
+  <div class="sub-screen" id="ton-new">
+    <button class="back-btn" onclick="hideSub('ton-menu','ton-new')">‹ Тонары</button>
+    <div class="page-title" style="margin-bottom:20px">Новый рейс</div>
+
+    <div class="auto-row"><span class="auto-lbl">Водитель</span><span class="auto-val">Иванов А.В.<span class="auto-tag">AUTO</span></span></div>
+    <div class="auto-row"><span class="auto-lbl">Машина</span><span class="auto-val">803<span class="auto-tag">AUTO</span></span></div>
+    <div class="auto-row" style="margin-bottom:18px"><span class="auto-lbl">Дата и время</span><span class="auto-val">Сегодня, 14:35<span class="auto-tag">AUTO</span></span></div>
+
+    <div class="form-block">
+      <div class="form-lbl">🎙 Голосовой ввод</div>
+      <button class="voice-row" onclick="alert('Скажите: «803, щебень, 32 тонны»')">🎙 Надиктовать рейс</button>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Автомобиль</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this)">803</button>
+        <button class="chip" onclick="sel(this)">008</button>
+        <button class="chip" onclick="sel(this)">709</button>
+        <button class="chip" onclick="sel(this)">137</button>
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Водитель</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Фокин А.В.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите ФИО водителя">
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Материал</div>
+      <div class="chips" id="mat-chips">
+        <button class="chip on" onclick="sel(this);updateQuarries(this)">Щебень</button>
+        <button class="chip" onclick="sel(this);updateQuarries(this)">Песок</button>
+        <button class="chip" onclick="sel(this);updateQuarries(this)">Уголь</button>
+        <button class="chip" onclick="sel(this);updateQuarries(this)">Керамзит</button>
+      </div>
+    </div>
+
+    <div class="form-block" id="quarry-block">
+      <div class="form-lbl">Карьер</div>
+      <div class="chips" id="quarry-chips">
+        <button class="chip on" onclick="sel(this);checkQuarryOther(this)">СДЕ Мозжуха</button>
+        <button class="chip" onclick="sel(this);checkQuarryOther(this)">СДЕ ККК</button>
+        <button class="chip" onclick="sel(this);checkQuarryOther(this)">ВНК (Березовка)</button>
+        <button class="chip" onclick="sel(this);checkQuarryOther(this)">Барзасский</button>
+        <button class="chip" onclick="sel(this);checkQuarryOther(this)">ГДК</button>
+        <button class="chip" onclick="sel(this);checkQuarryOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input" id="quarry-other">
+        <input class="inp" type="text" placeholder="Введите название карьера">
+      </div>
+    </div>
+
+    <div class="form-block" id="frak-block">
+      <div class="form-lbl">Фракция</div>
+      <div class="chips" id="frak-chips">
+        <button class="chip" onclick="sel(this);checkOther(this)">0-20</button>
+        <button class="chip on" onclick="sel(this);checkOther(this)">5-20</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">20-40</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">40-70</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">40-80</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Бутовый камень</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+    
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите фракцию">
+      </div>
+    </div>
+
+    <div class="form-block" id="modul-block" style="display:none">
+      <div class="form-lbl">Модуль крупности</div>
+      <div class="chips" id="modul-chips">
+        <button class="chip on" onclick="sel(this)">1,5–2,0</button>
+        <button class="chip" onclick="sel(this)">2,0–2,5</button>
+        <button class="chip" onclick="sel(this)">не ГОСТ</button>
+      </div>
+    </div>
+
+    <div class="form-block" id="client-block">
+      <div class="form-lbl">Заказчик</div>
+      <div class="chips" id="client-chips">
+        <button class="chip on" onclick="sel(this);updateObjects(this)">Морозовский</button>
+        <button class="chip" onclick="sel(this);updateObjects(this)">Бетон М</button>
+        <button class="chip" onclick="sel(this);updateObjects(this)">Меркурий</button>
+        <button class="chip" onclick="sel(this);updateObjects(this)">Штенцель (Топки)</button>
+        <button class="chip" onclick="sel(this);updateObjects(this)">СП авто</button>
+        <button class="chip" onclick="sel(this);updateObjects(this)">+ Другое</button>
+      </div>
+      <div class="other-input" id="client-other">
+        <input class="inp" type="text" placeholder="Введите название заказчика">
+      </div>
+    </div>
+
+    <div class="form-block" id="object-block">
+      <div class="form-lbl">Объект / адрес</div>
+      <div class="chips" id="object-chips">
+        <button class="chip on" onclick="sel(this);checkObjectOther(this)">Сибирский бетон</button>
+        <button class="chip" onclick="sel(this);checkObjectOther(this)">Кузбассдорстрой</button>
+        <button class="chip" onclick="sel(this);checkObjectOther(this)">МСТ</button>
+        <button class="chip" onclick="sel(this);checkObjectOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input" id="object-other">
+        <input class="inp" type="text" placeholder="Введите адрес объекта">
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Тоннаж загрузки (т)</div>
+      <input class="inp" type="number" placeholder="Например: 32" inputmode="decimal">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Тоннаж выгрузки (т)</div>
+      <input class="inp" type="number" placeholder="Например: 31.5" inputmode="decimal">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Фото ТН</div>
+      <div class="photo-zone" onclick="alert('Камера: лицевая сторона ТН')">
+        <div class="pz-icon">📷</div>
+        <div class="pz-title">Фото ТН (лицевая)</div>
+        <div class="pz-sub">ИИ распознает данные автоматически</div>
+      </div>
+      <div class="photo-zone" onclick="alert('Камера: оборотная сторона ТН')">
+        <div class="pz-icon">📄</div>
+        <div class="pz-title">Фото ТН (оборотная)</div>
+        <div class="pz-sub">Необязательно</div>
+      </div>
+    </div>
+
+    <button class="submit" onclick="submitOk(this,'ton-new','ton-menu')">Отправить рейс</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ МИКСЕРЫ ═══════════════════════════════ -->
+<div class="screen" id="s-mixer">
+  <div class="topbar">
+    <div>
+      <button class="back-btn" onclick="go('s-home')">‹ Назад</button>
+      <div class="page-title">Миксеры</div>
+    </div>
+  </div>
+
+  <div id="mix-menu">
+    <button class="big-btn green" onclick="showSub('mix-new')">
+      <div class="btn-ico">➕</div>
+      <div class="btn-body"><div class="btn-title">Новый рейс</div><div class="btn-sub">Бетон · раствор · пескобетон</div></div>
+      <span class="chevron">›</span>
+    </button>
+    <div class="sec-lbl">Сегодня — миксер 729</div>
+    <div class="card">
+      <div class="list-row">
+        <div class="row-dot dot-green"></div>
+        <div class="row-info"><div class="row-title">Кем ДСК → Молодёжная, 12</div><div class="row-sub">М300 · 7 м³ · нал ✓</div></div>
+        <div class="row-right"><div class="row-val">28 000 ₽</div><div class="row-time">13:10</div></div>
+      </div>
+      <div class="list-row">
+        <div class="row-dot dot-blue"></div>
+        <div class="row-info"><div class="row-title">Бетон М → ДСК заявка</div><div class="row-sub">М200 · 8 м³ · безнал</div></div>
+        <div class="row-right"><div class="row-val">24 000 ₽</div><div class="row-time">10:30</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- НОВЫЙ РЕЙС МИКСЕР -->
+  <div class="sub-screen" id="mix-new">
+    <button class="back-btn" onclick="hideSub('mix-menu','mix-new')">‹ Миксеры</button>
+    <div class="page-title" style="margin-bottom:20px">Новый рейс</div>
+
+    <div class="auto-row" style="margin-bottom:18px"><span class="auto-lbl">Дата и время</span><span class="auto-val">Сегодня, 14:35<span class="auto-tag">AUTO</span></span></div>
+
+    <div class="form-block">
+      <div class="form-lbl">Автомобиль</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">729</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+    
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите номер машины">
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Водитель</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">Цупиков Н.Н.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Шевченко С.С.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+    
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите значение">
+      </div>
+    </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите ФИО водителя">
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Завод загрузки</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">Бетон М</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Кем ДСК</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">СБ</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">СДЕ</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">ЗЖБИ</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">ГИГ</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">СУ-7</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите название завода">
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Тип смеси</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">Бетон</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Раствор</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Пескобетон</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Другое</button>
+      </div>
+    
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите тип смеси">
+      </div>
+    </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите ФИО водителя">
+      </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Марка</div>
+      <div class="chips">
+        <button class="chip" onclick="sel(this)">М100</button>
+        <button class="chip" onclick="sel(this)">М150</button>
+        <button class="chip" onclick="sel(this)">М200</button>
+        <button class="chip" onclick="sel(this)">М250</button>
+        <button class="chip on" onclick="sel(this)">М300</button>
+        <button class="chip" onclick="sel(this)">М350</button>
+        <button class="chip" onclick="sel(this)">М400</button>
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">ПМД (противоморозная добавка)</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);togglePmd(false)">Нет</button>
+        <button class="chip" onclick="sel(this);togglePmd(true)">Да</button>
+      </div>
+    </div>
+    <div class="form-block" id="pmd-temp-block" style="display:none">
+      <div class="form-lbl">Температура ПМД</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this)">-5°</button>
+        <button class="chip" onclick="sel(this)">-10°</button>
+        <button class="chip" onclick="sel(this)">-15°</button>
+        <button class="chip" onclick="sel(this)">-20°</button>
+        <button class="chip" onclick="sel(this)">-25°</button>
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Объём (м³)</div>
+      <input class="inp" type="number" placeholder="Например: 7" inputmode="decimal">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Заказчик</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">Ч/Л (частник)</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Заводская заявка</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+    
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите значение">
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Адрес доставки</div>
+      <input class="inp" type="text" placeholder="Например: ул. Молодёжная, 12">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Время прибытия</div>
+      <input class="inp" type="time" value="12:40">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Время убытия</div>
+      <input class="inp" type="time" value="13:10">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Стоимость бетона (₽)</div>
+      <input class="inp" type="number" placeholder="Например: 24500" inputmode="numeric">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Стоимость доставки (₽)</div>
+      <input class="inp" type="number" placeholder="Например: 3500" inputmode="numeric">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Тип расчёта</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);toggleDengi(true)">Нал</button>
+        <button class="chip" onclick="sel(this);toggleDengi(false)">Безнал</button>
+      </div>
+    </div>
+
+    <div class="form-block" id="dengi-block">
+      <div class="form-lbl">У кого деньги?</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this)">У водителя</button>
+        <button class="chip" onclick="sel(this)">У директора</button>
+        <button class="chip" onclick="sel(this)">Не забирал</button>
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">№ ТН</div>
+      <input class="inp" type="text" placeholder="Номер ТН">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Фото документов</div>
+      <div class="photo-zone" onclick="alert('Фото ТН')"><div class="pz-icon">📷</div><div class="pz-title">Фото ТН</div></div>
+      <div class="photo-zone" onclick="alert('Фото рапорт-наряда')"><div class="pz-icon">📄</div><div class="pz-title">Фото рапорт-наряда</div></div>
+    </div>
+
+    <button class="submit green" onclick="submitOk(this,'mix-new','mix-menu')">Отправить рейс</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ДЛИННОМЕРЫ ═══════════════════════════════ -->
+<div class="screen" id="s-dlinn">
+  <div class="topbar">
+    <div>
+      <button class="back-btn" onclick="go('s-home')">‹ Назад</button>
+      <div class="page-title">Длинномеры</div>
+    </div>
+  </div>
+
+  <div id="dln-menu">
+    <button class="big-btn purple" onclick="showSub('dln-new')">
+      <div class="btn-ico">➕</div>
+      <div class="btn-body"><div class="btn-title">Новый рейс</div><div class="btn-sub">Маршрут · груз · документы</div></div>
+      <span class="chevron">›</span>
+    </button>
+    <div class="sec-lbl">Активные рейсы</div>
+    <div class="card">
+      <div class="list-row">
+        <div class="row-dot dot-purple" style="background:var(--purple)"></div>
+        <div class="row-info"><div class="row-title">Кемерово → Новосибирск</div><div class="row-sub">Металлоконструкции · 143 · Фокин А.В.</div></div>
+        <div class="row-right"><div class="row-val">В пути</div><div class="row-time">с 08:00</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-screen" id="dln-new">
+    <button class="back-btn" onclick="hideSub('dln-menu','dln-new')">‹ Длинномеры</button>
+    <div class="page-title" style="margin-bottom:20px">Новый рейс</div>
+
+    <div class="form-block">
+      <div class="form-lbl">Дата загрузки</div>
+      <div class="chips">
+        <button class="chip on" onclick="setDate('dln-date-load','today',this)">Сегодня</button>
+        <button class="chip" onclick="setDate('dln-date-load','yesterday',this)">Вчера</button>
+        <button class="chip" onclick="setDate('dln-date-load','pick',this)">Выбрать</button>
+      </div>
+      <div class="date-display" id="dln-date-load-display">
+        <span class="date-lbl">Дата</span>
+        <span class="date-val" id="dln-date-load-val">—</span>
+      </div>
+      <div class="calendar-wrap" id="dln-date-load-cal"></div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Дата выгрузки</div>
+      <div class="chips">
+        <button class="chip on" onclick="setDate('dln-date-unload','today',this)">Сегодня</button>
+        <button class="chip" onclick="setDate('dln-date-unload','yesterday',this)">Вчера</button>
+        <button class="chip" onclick="setDate('dln-date-unload','pick',this)">Выбрать</button>
+      </div>
+      <div class="date-display" id="dln-date-unload-display">
+        <span class="date-lbl">Дата</span>
+        <span class="date-val" id="dln-date-unload-val">—</span>
+      </div>
+      <div class="calendar-wrap" id="dln-date-unload-cal"></div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Автомобиль</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">143</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">555</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">008</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">709</button>
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Водитель</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Фокин А.В.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+    
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите значение">
+      </div>
+    </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите ФИО водителя">
+      </div>
+    <div class="form-block">
+      <div class="form-lbl">Заказчик</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">ДСК</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+    
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите название заказчика">
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Город загрузки</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);updateLoadCity(this)">Кемерово</button>
+        <button class="chip" onclick="sel(this);updateLoadCity(this)">Новосибирск</button>
+        <button class="chip" onclick="sel(this);updateLoadCity(this)">Томск</button>
+        <button class="chip" onclick="sel(this);updateLoadCity(this)">+ Другое</button>
+      </div>
+      <div class="other-input" id="load-city-other">
+        <input class="inp" type="text" placeholder="Введите город загрузки">
+      </div>
+    </div>
+
+    <div class="form-block" id="load-addr-block">
+      <div class="form-lbl">Адрес загрузки</div>
+      <div class="chips" id="load-addr-chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">ул. Грузовая 21</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input" id="load-addr-other">
+        <input class="inp" type="text" placeholder="Введите адрес загрузки">
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Город выгрузки</div>
+      <div class="chips">
+        <button class="chip" onclick="sel(this);updateUnloadCity(this)">Кемерово</button>
+        <button class="chip on" onclick="sel(this);updateUnloadCity(this)">Новосибирск</button>
+        <button class="chip" onclick="sel(this);updateUnloadCity(this)">Томск</button>
+        <button class="chip" onclick="sel(this);updateUnloadCity(this)">Манжерок</button>
+        <button class="chip" onclick="sel(this);updateUnloadCity(this)">+ Другое</button>
+      </div>
+      <div class="other-input" id="unload-city-other">
+        <input class="inp" type="text" placeholder="Введите город выгрузки">
+      </div>
+    </div>
+
+    <div class="form-block" id="unload-addr-block">
+      <div class="form-lbl">Адрес выгрузки</div>
+      <div class="chips" id="unload-addr-chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">ул. Спортивная</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">ул. Н. Сотникова</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input" id="unload-addr-other">
+        <input class="inp" type="text" placeholder="Введите адрес выгрузки">
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Наименование груза</div>
+      <input class="inp" type="text" placeholder="Например: металлоконструкции">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Единица измерения</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">тонны</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">м³</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">штуки</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">рейс</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Количество</div>
+      <input class="inp" type="number" placeholder="Введите количество" inputmode="decimal">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Транспортные накладные (до 5 шт.)</div>
+      <div class="photo-zone" onclick="alert('Добавить ТН (лицевая + оборот)')">
+        <div class="pz-icon">📎</div>
+        <div class="pz-title">Добавить ТН</div>
+        <div class="pz-sub">Можно до 5 накладных, 2 фото каждая</div>
+      </div>
+    </div>
+    <button class="submit" style="background:var(--purple)" onclick="submitOk(this,'dln-new','dln-menu')">Сохранить рейс</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ТОПЛИВО ДТ ═══════════════════════════════ -->
+<div class="screen" id="s-dt">
+  <div class="topbar">
+    <div>
+      <button class="back-btn" onclick="go('s-home')">‹ Назад</button>
+      <div class="page-title">Топливо (ДТ)</div>
+    </div>
+  </div>
+
+  <div id="dt-menu">
+    <button class="big-btn orange" onclick="showSub('dt-new')">
+      <div class="btn-ico">⛽</div>
+      <div class="btn-body"><div class="btn-title">Новая заправка</div><div class="btn-sub">Быстро зафиксировать</div></div>
+      <span class="chevron">›</span>
+    </button>
+    <div class="sec-lbl">Сегодня</div>
+    <div class="card">
+      <div class="list-row">
+        <div class="row-dot dot-orange"></div>
+        <div class="row-info"><div class="row-title">803 · Газпромнефть</div><div class="row-sub">Алексеев О.Е. · 120 л · 63.5 ₽/л</div></div>
+        <div class="row-right"><div class="row-val">7 620 ₽</div><div class="row-time">09:15</div></div>
+      </div>
+      <div class="list-row">
+        <div class="row-dot dot-orange"></div>
+        <div class="row-info"><div class="row-title">137 · Татнефть</div><div class="row-sub">Шабанов Ф.А. · 80 л · 62.0 ₽/л</div></div>
+        <div class="row-right"><div class="row-val">4 960 ₽</div><div class="row-time">07:40</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-screen" id="dt-new">
+    <button class="back-btn" onclick="hideSub('dt-menu','dt-new')">‹ Топливо</button>
+    <div class="page-title" style="margin-bottom:20px">Новая заправка</div>
+
+    <div class="form-block">
+      <div class="form-lbl">Автомобиль</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this)">143</button>
+        <button class="chip" onclick="sel(this)">555</button>
+        <button class="chip" onclick="sel(this)">008</button>
+        <button class="chip" onclick="sel(this)">137</button>
+        <button class="chip" onclick="sel(this)">709</button>
+        <button class="chip" onclick="sel(this)">803</button>
+        <button class="chip" onclick="sel(this)">729</button>
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Водитель</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Фокин А.В.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Цупиков Н.Н.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Шевченко С.С.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите ФИО водителя">
+      </div>
+    </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите ФИО водителя">
+      </div>
+    <div class="form-block">
+      <div class="form-lbl">Дата</div>
+      <div class="chips">
+        <button class="chip on" onclick="setDate('dt-date','today',this)">Сегодня</button>
+        <button class="chip" onclick="setDate('dt-date','yesterday',this)">Вчера</button>
+        <button class="chip" onclick="setDate('dt-date','pick',this)">Выбрать</button>
+      </div>
+      <div class="date-display" id="dt-date-display">
+        <span class="date-lbl">Дата</span>
+        <span class="date-val" id="dt-date-val">—</span>
+      </div>
+      <div class="calendar-wrap" id="dt-date-cal"></div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Количество литров</div>
+      <input class="inp" type="number" placeholder="Например: 120" inputmode="numeric">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Цена за литр (₽)</div>
+      <input class="inp" type="number" placeholder="Например: 63.5" inputmode="decimal">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">АЗС</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">Газпромнефть</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Татнефть</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+    
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите значение">
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Фото чека</div>
+      <div class="photo-zone" onclick="alert('Фото чека АЗС')">
+        <div class="pz-icon">🧾</div>
+        <div class="pz-title">Сфотографировать чек</div>
+        <div class="pz-sub">Можно несколько фото</div>
+      </div>
+    </div>
+    <button class="submit orange" onclick="submitOk(this,'dt-new','dt-menu')">Сохранить заправку</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ РАСХОДЫ ═══════════════════════════════ -->
+<div class="screen" id="s-expense">
+  <div class="topbar">
+    <div>
+      <button class="back-btn" onclick="go('s-home')">‹ Назад</button>
+      <div class="page-title">Расходы</div>
+    </div>
+  </div>
+
+  <div id="exp-menu">
+    <button class="big-btn red" onclick="showSub('exp-new')">
+      <div class="btn-ico">➕</div>
+      <div class="btn-body"><div class="btn-title">Новый расход</div><div class="btn-sub">Запчасти · ремонт · другое</div></div>
+      <span class="chevron">›</span>
+    </button>
+    <div class="sec-lbl">Сегодня</div>
+    <div class="card">
+      <div class="list-row">
+        <div class="row-dot dot-red"></div>
+        <div class="row-info"><div class="row-title">803 · Запчасти</div><div class="row-sub">Тормозные колодки · СТО Агат</div></div>
+        <div class="row-right"><div class="row-val">4 800 ₽</div><div class="row-time">11:20</div></div>
+      </div>
+      <div class="list-row">
+        <div class="row-dot dot-orange"></div>
+        <div class="row-info"><div class="row-title">137 · Шиномонтаж</div><div class="row-sub">Замена 2 колёс</div></div>
+        <div class="row-right"><div class="row-val">2 400 ₽</div><div class="row-time">09:00</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-screen" id="exp-new">
+    <button class="back-btn" onclick="hideSub('exp-menu','exp-new')">‹ Расходы</button>
+    <div class="page-title" style="margin-bottom:20px">Новый расход</div>
+
+    <div class="form-block">
+      <div class="form-lbl">Автомобиль</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this)">143</button>
+        <button class="chip" onclick="sel(this)">555</button>
+        <button class="chip" onclick="sel(this)">008</button>
+        <button class="chip" onclick="sel(this)">137</button>
+        <button class="chip" onclick="sel(this)">709</button>
+        <button class="chip" onclick="sel(this)">803</button>
+        <button class="chip" onclick="sel(this)">729</button>
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Водитель</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Фокин А.В.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Цупиков Н.Н.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Шевченко С.С.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите ФИО водителя">
+      </div>
+    </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите ФИО водителя">
+      </div>
+    <div class="form-block">
+      <div class="form-lbl">Дата</div>
+      <div class="chips">
+        <button class="chip on" onclick="setDate('exp-date','today',this)">Сегодня</button>
+        <button class="chip" onclick="setDate('exp-date','yesterday',this)">Вчера</button>
+        <button class="chip" onclick="setDate('exp-date','pick',this)">Выбрать</button>
+      </div>
+      <div class="date-display" id="exp-date-display">
+        <span class="date-lbl">Дата</span>
+        <span class="date-val" id="exp-date-val">—</span>
+      </div>
+      <div class="calendar-wrap" id="exp-date-cal"></div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Тип расхода</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this)">Запчасти</button>
+        <button class="chip" onclick="sel(this)">Ремонт</button>
+        <button class="chip" onclick="sel(this)">Шиномонтаж</button>
+        <button class="chip" onclick="sel(this)">Масло / жидкости</button>
+        <button class="chip" onclick="sel(this)">Мойка</button>
+        <button class="chip" onclick="sel(this)">Стоянка</button>
+        <button class="chip" onclick="sel(this)">Прочее</button>
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Что покупали / ремонтировали</div>
+      <input class="inp" type="text" placeholder="Например: тормозные колодки">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" placeholder="Например: 4800" inputmode="numeric">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Где был расход</div>
+      <div class="chips" style="margin-bottom:8px">
+        <button class="chip on" onclick="sel(this);checkOther(this)">СТО Агат</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Автозапчасти</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Шиномонтаж</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+    
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите значение">
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Фото чека / документа</div>
+      <div class="photo-zone" onclick="alert('Фото чека')">
+        <div class="pz-icon">🧾</div>
+        <div class="pz-title">Сфотографировать чек</div>
+        <div class="pz-sub">Можно несколько фото</div>
+      </div>
+    </div>
+    <button class="submit red" onclick="submitOk(this,'exp-new','exp-menu')">Сохранить расход</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ДИРЕКТОР ═══════════════════════════════ -->
+<div class="screen" id="s-director">
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">Дашборд</div>
+      <div class="page-sub" id="dir-date">Сегодня · загрузка...</div>
+    </div>
+    <div class="avatar" style="background:linear-gradient(135deg,#ff9f0a,#ff453a)">ДМ</div>
+  </div>
+
+  <!-- Переключатель периода -->
+  <div style="display:flex;gap:6px;margin-bottom:14px;">
+    <button class="period-btn active" onclick="setPeriod('day',this)">Сегодня</button>
+    <button class="period-btn" onclick="setPeriod('week',this)">Неделя</button>
+    <button class="period-btn" onclick="setPeriod('month',this)">Месяц</button>
+  </div>
+
+  <!-- Главные цифры -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+    <div class="dir-card" style="grid-column:1/-1;">
+      <div class="dir-card-lbl">Выручка</div>
+      <div class="dir-card-val green" id="dir-revenue">₽ 187 400</div>
+      <div class="dir-card-delta" id="dir-revenue-delta">↑ +12% к вчера</div>
+    </div>
+    <div class="dir-card">
+      <div class="dir-card-lbl">Расходы</div>
+      <div class="dir-card-val red" id="dir-expenses">₽ 19 580</div>
+      <div class="dir-card-delta" id="dir-exp-delta" style="color:var(--t3)">топливо + ремонт</div>
+    </div>
+    <div class="dir-card">
+      <div class="dir-card-lbl">Прибыль</div>
+      <div class="dir-card-val green" id="dir-profit">₽ 167 820</div>
+      <div class="dir-card-delta" style="color:var(--green)">маржа 89%</div>
+    </div>
+  </div>
+
+  <!-- Касса и долги -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+    <div class="dir-card">
+      <div class="dir-card-lbl">💵 Касса (нал)</div>
+      <div class="dir-card-val orange">₽ 42 000</div>
+      <div class="dir-card-delta" style="color:var(--t3)">у водителей: 18 000</div>
+    </div>
+    <div class="dir-card">
+      <div class="dir-card-lbl">📋 Долги клиентов</div>
+      <div class="dir-card-val red">₽ 45 000</div>
+      <div class="dir-card-delta" style="color:var(--red)">просрочка 3 дня</div>
+    </div>
+  </div>
+
+  <!-- Рейсы и машины -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
+    <div class="dir-card">
+      <div class="dir-card-lbl">Рейсов</div>
+      <div class="dir-card-val blue">34</div>
+    </div>
+    <div class="dir-card">
+      <div class="dir-card-lbl">В работе</div>
+      <div class="dir-card-val green">6</div>
+    </div>
+    <div class="dir-card">
+      <div class="dir-card-lbl">В ремонте</div>
+      <div class="dir-card-val red">2</div>
+    </div>
+  </div>
+
+  <!-- Алерты — кто не сдал отчёт -->
+  <div class="sec-lbl">⚠️ Требует внимания</div>
+  <div class="dir-alerts-card">
+    <div class="dir-alert-row red">
+      <div class="dir-alert-dot"></div>
+      <div class="dir-alert-body">
+        <div class="dir-alert-title">Алексеев О.Е. — нет отчёта</div>
+        <div class="dir-alert-sub">803 · последний рейс в 12:00</div>
+      </div>
+      <div class="dir-alert-time">2 ч</div>
+    </div>
+    <div class="dir-alert-row orange">
+      <div class="dir-alert-dot" style="background:var(--orange)"></div>
+      <div class="dir-alert-body">
+        <div class="dir-alert-title">ООО СтройГрупп — долг ₽ 45 000</div>
+        <div class="dir-alert-sub">Просрочка 3 дня</div>
+      </div>
+      <div class="dir-alert-time">3 д</div>
+    </div>
+    <div class="dir-alert-row orange">
+      <div class="dir-alert-dot" style="background:var(--orange)"></div>
+      <div class="dir-alert-body">
+        <div class="dir-alert-title">709 — ТО через 300 км</div>
+        <div class="dir-alert-sub">Запланировать обслуживание</div>
+      </div>
+      <div class="dir-alert-time">сег.</div>
+    </div>
+    <div class="dir-alert-row red">
+      <div class="dir-alert-dot"></div>
+      <div class="dir-alert-body">
+        <div class="dir-alert-title">555 — ремонт 2 дня</div>
+        <div class="dir-alert-sub">СТО Агат · простой</div>
+      </div>
+      <div class="dir-alert-time">2 д</div>
+    </div>
+  </div>
+
+  <!-- Загрузка парка -->
+  <div class="sec-lbl">🚛 Загрузка парка</div>
+  <div class="dir-card" style="padding:14px 16px;">
+    <div class="fleet-row">
+      <span class="fleet-num">803</span>
+      <span class="fleet-type">тонар</span>
+      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:85%;background:var(--green)"></div></div>
+      <span class="fleet-stat green">5 р.</span>
+    </div>
+    <div class="fleet-row">
+      <span class="fleet-num">008</span>
+      <span class="fleet-type">тонар</span>
+      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:70%;background:var(--green)"></div></div>
+      <span class="fleet-stat green">4 р.</span>
+    </div>
+    <div class="fleet-row">
+      <span class="fleet-num">709</span>
+      <span class="fleet-type">тонар</span>
+      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:50%;background:var(--orange)"></div></div>
+      <span class="fleet-stat orange">3 р.</span>
+    </div>
+    <div class="fleet-row">
+      <span class="fleet-num">137</span>
+      <span class="fleet-type">тонар</span>
+      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:65%;background:var(--green)"></div></div>
+      <span class="fleet-stat green">4 р.</span>
+    </div>
+    <div class="fleet-row">
+      <span class="fleet-num">729</span>
+      <span class="fleet-type">миксер</span>
+      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:90%;background:var(--blue)"></div></div>
+      <span class="fleet-stat blue">6 р.</span>
+    </div>
+    <div class="fleet-row">
+      <span class="fleet-num">143</span>
+      <span class="fleet-type">длинном.</span>
+      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:60%;background:var(--purple)"></div></div>
+      <span class="fleet-stat" style="color:var(--purple)">в пути</span>
+    </div>
+    <div class="fleet-row" style="border:none">
+      <span class="fleet-num">555</span>
+      <span class="fleet-type">длинном.</span>
+      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:0%"></div></div>
+      <span class="fleet-stat red">ремонт</span>
+    </div>
+  </div>
+
+  <!-- Расходы по машинам -->
+  <div class="sec-lbl">🔧 Расходы по машинам</div>
+  <div class="dir-card" style="padding:14px 16px;">
+    <div class="expense-row">
+      <span class="expense-num">803</span>
+      <div class="expense-bar-wrap"><div class="expense-bar" style="width:70%;background:var(--red)"></div></div>
+      <span class="expense-val">₽ 4 800</span>
+    </div>
+    <div class="expense-row">
+      <span class="expense-num">137</span>
+      <div class="expense-bar-wrap"><div class="expense-bar" style="width:40%;background:var(--orange)"></div></div>
+      <span class="expense-val">₽ 2 400</span>
+    </div>
+    <div class="expense-row">
+      <span class="expense-num">709</span>
+      <div class="expense-bar-wrap"><div class="expense-bar" style="width:55%;background:var(--orange)"></div></div>
+      <span class="expense-val">₽ 3 100</span>
+    </div>
+    <div class="expense-row" style="border:none">
+      <span class="expense-num">555</span>
+      <div class="expense-bar-wrap"><div class="expense-bar" style="width:100%;background:var(--red)"></div></div>
+      <span class="expense-val red">₽ 9 280</span>
+    </div>
+  </div>
+
+  <!-- Топ клиенты -->
+  <div class="sec-lbl">🏆 Топ клиенты</div>
+  <div class="dir-card" style="padding:0 0 4px;">
+    <div class="client-row">
+      <div class="client-rank">1</div>
+      <div class="client-info">
+        <div class="client-name">ООО СтройГрупп</div>
+        <div class="client-sub">14 рейсов · 412 т · <span style="color:var(--red)">долг ₽ 45 000</span></div>
+      </div>
+      <div class="client-val green">₽ 98 400</div>
+    </div>
+    <div class="client-row">
+      <div class="client-rank">2</div>
+      <div class="client-info">
+        <div class="client-name">ИП Морозов</div>
+        <div class="client-sub">8 рейсов · 240 т</div>
+      </div>
+      <div class="client-val blue">₽ 57 600</div>
+    </div>
+    <div class="client-row">
+      <div class="client-rank">3</div>
+      <div class="client-info">
+        <div class="client-name">Администрация</div>
+        <div class="client-sub">5 рейсов · 130 т</div>
+      </div>
+      <div class="client-val orange">₽ 31 400</div>
+    </div>
+    <div class="client-row" style="border:none">
+      <div class="client-rank">4</div>
+      <div class="client-info">
+        <div class="client-name">Бетон М</div>
+        <div class="client-sub">миксер · 15 рейсов</div>
+      </div>
+      <div class="client-val" style="color:var(--purple)">₽ 52 000</div>
+    </div>
+  </div>
+
+  <!-- Наличные -->
+  <div class="sec-lbl">💵 Наличные / касса</div>
+  <div class="dir-card" style="padding:14px 16px;">
+    <div class="cash-row">
+      <span class="cash-who">Алексеев О.Е.</span>
+      <span class="cash-truck" style="color:var(--t3)">803</span>
+      <span class="cash-amount orange">₽ 12 000</span>
+      <span class="cash-status orange">у водителя</span>
+    </div>
+    <div class="cash-row">
+      <span class="cash-who">Цупиков Н.Н.</span>
+      <span class="cash-truck" style="color:var(--t3)">729</span>
+      <span class="cash-amount orange">₽ 6 000</span>
+      <span class="cash-status orange">у водителя</span>
+    </div>
+    <div class="cash-row" style="border:none">
+      <span class="cash-who">Итого в кассе</span>
+      <span class="cash-truck"></span>
+      <span class="cash-amount green">₽ 24 000</span>
+      <span class="cash-status green">сдано</span>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+<!-- ═══════════════════════════════ КАБИНЕТ ВОДИТЕЛЯ ═══════════════════════════════ -->
+<div class="screen" id="s-driver-dash">
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">Мой кабинет</div>
+      <div class="page-sub">Шабанов Ф.А. · КамАЗ 803</div>
+    </div>
+    <div class="avatar" style="background:linear-gradient(135deg,#0a84ff,#5856d6)">ШФ</div>
+  </div>
+
+  <!-- Переключатель периода -->
+  <div style="display:flex;gap:6px;margin-bottom:14px;">
+    <button class="period-btn active" onclick="setDriverPeriod('day',this)">Сегодня</button>
+    <button class="period-btn" onclick="setDriverPeriod('month',this)">Месяц</button>
+  </div>
+
+  <!-- ЗП карточка -->
+  <div style="background:var(--bg3);border-radius:var(--r2);padding:20px 18px;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div>
+        <div style="font-size:13px;color:var(--t3);margin-bottom:4px;">Заработано</div>
+        <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:var(--green)" id="drv-earned">₽ 10 000</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:13px;color:var(--t3);margin-bottom:4px;">Аванс</div>
+        <div style="font-size:22px;font-weight:700;color:var(--red)" id="drv-advance">− ₽ 3 000</div>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--sep);margin-bottom:14px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:13px;color:var(--t3);">К выплате</div>
+        <div style="font-size:24px;font-weight:700;color:var(--t1)" id="drv-topay">₽ 7 000</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:12px;color:var(--t3);">Дата выплаты</div>
+        <div style="font-size:14px;font-weight:600;color:var(--t2);">1 апреля</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Рейсы и ставки сегодня -->
+  <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
+    <div style="font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">Рейсы сегодня — Морозовский</div>
+    <div class="salary-row">
+      <div class="salary-num">1</div>
+      <div class="salary-info">
+        <div class="salary-title">Рейс 1</div>
+        <div class="salary-sub">Щебень 20-40 · 32 т</div>
+      </div>
+      <div class="salary-rate">₽ 2 000</div>
+    </div>
+    <div class="salary-row">
+      <div class="salary-num">2</div>
+      <div class="salary-info">
+        <div class="salary-title">Рейс 2</div>
+        <div class="salary-sub">Щебень 20-40 · 31 т</div>
+      </div>
+      <div class="salary-rate">₽ 2 000</div>
+    </div>
+    <div class="salary-row">
+      <div class="salary-num">3</div>
+      <div class="salary-info">
+        <div class="salary-title">Рейс 3</div>
+        <div class="salary-sub">Щебень 5-20 · 30 т</div>
+      </div>
+      <div class="salary-rate">₽ 2 000</div>
+    </div>
+    <div class="salary-row bonus">
+      <div class="salary-num" style="background:var(--orange);color:#000;">4</div>
+      <div class="salary-info">
+        <div class="salary-title" style="color:var(--orange);">Рейс 4 — бонус!</div>
+        <div class="salary-sub">Щебень 20-40 · 32 т</div>
+      </div>
+      <div class="salary-rate" style="color:var(--orange);">₽ 4 000</div>
+    </div>
+    <div style="height:1px;background:var(--sep);margin:10px 0;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:14px;color:var(--t3);">Итого за день</span>
+      <span style="font-size:18px;font-weight:700;color:var(--green);">₽ 10 000</span>
+    </div>
+  </div>
+
+  <!-- Статистика -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
+      <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Рейсов сегодня</div>
+      <div style="font-size:28px;font-weight:700;color:var(--blue)" id="drv-trips-day">4</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
+      <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Тонн сегодня</div>
+      <div style="font-size:28px;font-weight:700;color:var(--green)" id="drv-tons-day">125 т</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
+      <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Рейсов за месяц</div>
+      <div style="font-size:28px;font-weight:700;color:var(--blue)" id="drv-trips-month">68</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
+      <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Тонн за месяц</div>
+      <div style="font-size:28px;font-weight:700;color:var(--green)" id="drv-tons-month">2 140 т</div>
+    </div>
+  </div>
+
+  <!-- План по объектам -->
+  <div class="sec-lbl">📦 План по объектам</div>
+  <div style="background:var(--bg3);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;">
+    <div class="plan-row">
+      <div class="plan-info">
+        <div class="plan-name">Морозовский → СтройГрупп</div>
+        <div class="plan-sub">Перевезено: 1 240 т из 2 000 т</div>
+      </div>
+      <div class="plan-pct green">62%</div>
+    </div>
+    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:14px;">
+      <div style="width:62%;height:100%;background:var(--green);border-radius:3px;"></div>
+    </div>
+    <div class="plan-row">
+      <div class="plan-info">
+        <div class="plan-name">Барзасский → Администрация</div>
+        <div class="plan-sub">Перевезено: 380 т из 800 т</div>
+      </div>
+      <div class="plan-pct orange">48%</div>
+    </div>
+    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:14px;">
+      <div style="width:48%;height:100%;background:var(--orange);border-radius:3px;"></div>
+    </div>
+    <div class="plan-row" style="margin-bottom:6px;">
+      <div class="plan-info">
+        <div class="plan-name">ВНК → ЗЖБИ</div>
+        <div class="plan-sub">Перевезено: 720 т из 720 т</div>
+      </div>
+      <div class="plan-pct blue">100%</div>
+    </div>
+    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;">
+      <div style="width:100%;height:100%;background:var(--blue);border-radius:3px;"></div>
+    </div>
+  </div>
+
+  <!-- ТО машины -->
+  <div class="sec-lbl">🔧 Техобслуживание</div>
+  <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div>
+        <div style="font-size:15px;font-weight:600;">КамАЗ 803</div>
+        <div style="font-size:13px;color:var(--t3);margin-top:2px;">Замена масла</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:22px;font-weight:700;color:var(--orange);">1 200 км</div>
+        <div style="font-size:12px;color:var(--t3);">осталось</div>
+      </div>
+    </div>
+    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;">
+      <div style="width:76%;height:100%;background:var(--orange);border-radius:3px;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px;">
+      <span style="font-size:11px;color:var(--t4);">0</span>
+      <span style="font-size:11px;color:var(--t3);">Пробег до ТО: осталось 1 200 из 5 000 км</span>
+      <span style="font-size:11px;color:var(--t4);">5 000</span>
+    </div>
+  </div>
+
+  <!-- Авансы -->
+  <div class="sec-lbl">💸 Авансы</div>
+  <div style="background:var(--bg3);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;">
+    <div class="advance-row">
+      <div style="font-size:14px;font-weight:500;">15 марта</div>
+      <div style="font-size:13px;color:var(--t3);">аванс</div>
+      <div style="font-size:15px;font-weight:700;color:var(--red);">− ₽ 3 000</div>
+    </div>
+    <div class="advance-row" style="border:none;">
+      <div style="font-size:14px;font-weight:500;">1 марта</div>
+      <div style="font-size:13px;color:var(--t3);">аванс</div>
+      <div style="font-size:15px;font-weight:700;color:var(--red);">− ₽ 5 000</div>
+    </div>
+  </div>
+
+</div>
+
+
+
+<!-- ═══════════════════════════════ СЕРВИС ═══════════════════════════════ -->
+<div class="screen" id="s-service">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Сервис</div>
+      <div class="page-sub">Ремонты и заказ-наряды</div>
+    </div>
+  </div>
+
+  <!-- Главное меню сервиса -->
+  <div id="svc-menu">
+    <button class="big-btn red" onclick="showSub('svc-open')">
+      <div class="btn-ico">➕</div>
+      <div class="btn-body"><div class="btn-title">Открыть ремонт</div><div class="btn-sub">Новый заказ-наряд</div></div>
+      <span class="chevron">›</span>
+    </button>
+    <button class="big-btn dark" onclick="showSub('svc-active')">
+      <div class="btn-ico">🔧</div>
+      <div class="btn-body"><div class="btn-title">Активные ремонты</div><div class="btn-sub">2 в работе · 1 ожидает</div></div>
+      <span class="chevron">›</span>
+    </button>
+    <button class="big-btn" style="background:var(--purple)" onclick="showSub('parts-new-svc')">
+      <div class="btn-ico">🔩</div>
+      <div class="btn-body"><div class="btn-title">Запчасти</div><div class="btn-sub">Новая закупка · история</div></div>
+      <span class="chevron">›</span>
+    </button>
+
+    <div class="sec-lbl">Последние ремонты</div>
+    <div class="card">
+      <div class="svc-card-row" onclick="showSub('svc-card')">
+        <div class="svc-status-dot" style="background:var(--orange)"></div>
+        <div class="svc-card-info">
+          <div class="svc-card-title">803 · Ходовка</div>
+          <div class="svc-card-sub">Замена шаровой · свой ремонт · 2 дня</div>
+        </div>
+        <div class="svc-card-right">
+          <div class="svc-badge orange">в работе</div>
+          <div class="svc-card-km">142 500 км</div>
+        </div>
+      </div>
+      <div class="svc-card-row" onclick="showSub('svc-card')">
+        <div class="svc-status-dot" style="background:var(--red)"></div>
+        <div class="svc-card-info">
+          <div class="svc-card-title">555 · Двигатель</div>
+          <div class="svc-card-sub">СТО Агат · сторонний · ₽ 28 000</div>
+        </div>
+        <div class="svc-card-right">
+          <div class="svc-badge red">ожидает запчасти</div>
+          <div class="svc-card-km">98 300 км</div>
+        </div>
+      </div>
+      <div class="svc-card-row">
+        <div class="svc-status-dot" style="background:var(--green)"></div>
+        <div class="svc-card-info">
+          <div class="svc-card-title">137 · Тормозная система</div>
+          <div class="svc-card-sub">Замена колодок · свой · ₽ 4 800</div>
+        </div>
+        <div class="svc-card-right">
+          <div class="svc-badge green">закрыт</div>
+          <div class="svc-card-km">76 100 км</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ОТКРЫТЬ РЕМОНТ -->
+  <div class="sub-screen" id="svc-open">
+    <button class="back-btn" onclick="hideSub('svc-menu','svc-open')">‹ Сервис</button>
+    <div class="page-title" style="margin-bottom:20px">Новый ремонт</div>
+
+    <div class="form-block">
+      <div class="form-lbl">Автомобиль</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">803</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">008</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">709</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">137</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">555</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">143</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">729</button>
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Пробег (км)</div>
+      <input class="inp" type="number" placeholder="Например: 142500" inputmode="numeric">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Категория неисправности</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this)">Двигатель</button>
+        <button class="chip" onclick="sel(this)">Ходовка</button>
+        <button class="chip" onclick="sel(this)">Электрика</button>
+        <button class="chip" onclick="sel(this)">Тормоза</button>
+        <button class="chip" onclick="sel(this)">Трансмиссия</button>
+        <button class="chip" onclick="sel(this)">Шины</button>
+        <button class="chip" onclick="sel(this)">Прочее</button>
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Описание поломки</div>
+      <input class="inp" type="text" placeholder="Опишите неисправность">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Кто ремонтирует?</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);toggleRepairType('own')">Свой ремонт</button>
+        <button class="chip" onclick="sel(this);toggleRepairType('external')">Сторонний сервис</button>
+      </div>
+    </div>
+
+    <!-- Блок для стороннего сервиса -->
+    <div id="external-block" style="display:none">
+      <div class="form-block">
+        <div class="form-lbl">Сервис</div>
+        <div class="chips">
+          <button class="chip on" onclick="sel(this);checkOther(this)">Агат</button>
+          <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+        </div>
+        <div class="other-input">
+          <input class="inp" type="text" placeholder="Введите название сервиса">
+        </div>
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">Сумма ремонта (₽)</div>
+        <input class="inp" type="number" placeholder="Сумма по акту/счёту" inputmode="numeric">
+      </div>
+    </div>
+
+    <button class="submit red" onclick="submitOk(this,'svc-open','svc-menu')">Открыть ремонт</button>
+  </div>
+
+  <!-- АКТИВНЫЕ РЕМОНТЫ -->
+  <div class="sub-screen" id="svc-active">
+    <button class="back-btn" onclick="hideSub('svc-menu','svc-active')">‹ Сервис</button>
+    <div class="page-title" style="margin-bottom:20px">Активные ремонты</div>
+
+    <div class="svc-active-card" onclick="showSub('svc-card')">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div class="svc-status-dot" style="background:var(--orange);width:12px;height:12px;"></div>
+        <div style="font-size:16px;font-weight:600;">803 · Ходовка</div>
+        <div class="svc-badge orange" style="margin-left:auto">в работе</div>
+      </div>
+      <div style="font-size:13px;color:var(--t3);margin-bottom:8px;">Замена шаровой опоры · свой ремонт · открыт 28.03</div>
+      <div style="display:flex;gap:16px;">
+        <div><div style="font-size:11px;color:var(--t4);">Работ</div><div style="font-size:15px;font-weight:600;">2</div></div>
+        <div><div style="font-size:11px;color:var(--t4);">Расходов</div><div style="font-size:15px;font-weight:600;">₽ 3 200</div></div>
+        <div><div style="font-size:11px;color:var(--t4);">Дней</div><div style="font-size:15px;font-weight:600;">2</div></div>
+      </div>
+    </div>
+
+    <div class="svc-active-card" style="margin-top:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div class="svc-status-dot" style="background:var(--red);width:12px;height:12px;"></div>
+        <div style="font-size:16px;font-weight:600;">555 · Двигатель</div>
+        <div class="svc-badge red" style="margin-left:auto">ожидает запчасти</div>
+      </div>
+      <div style="font-size:13px;color:var(--t3);margin-bottom:8px;">СТО Агат · сторонний сервис · открыт 27.03</div>
+      <div style="display:flex;gap:16px;">
+        <div><div style="font-size:11px;color:var(--t4);">Сумма</div><div style="font-size:15px;font-weight:600;">₽ 28 000</div></div>
+        <div><div style="font-size:11px;color:var(--t4);">Дней</div><div style="font-size:15px;font-weight:600;">3</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАРТОЧКА РЕМОНТА -->
+  <div class="sub-screen" id="svc-card">
+    <button class="back-btn" onclick="hideSub('svc-menu','svc-card')">‹ Сервис</button>
+
+    <!-- Шапка карточки -->
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:18px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:20px;font-weight:700;">803 · Ходовка</div>
+          <div style="font-size:13px;color:var(--t3);margin-top:3px;">ID #247 · открыт 28.03.2026</div>
+        </div>
+        <div class="svc-badge orange" style="font-size:13px;padding:6px 12px;">в работе</div>
+      </div>
+      <div style="height:1px;background:var(--sep);margin-bottom:12px;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div><div style="font-size:11px;color:var(--t4);">Пробег при открытии</div><div style="font-size:15px;font-weight:600;">142 500 км</div></div>
+        <div><div style="font-size:11px;color:var(--t4);">Тип ремонта</div><div style="font-size:15px;font-weight:600;">Свой</div></div>
+        <div style="grid-column:1/-1"><div style="font-size:11px;color:var(--t4);">Описание</div><div style="font-size:14px;margin-top:2px;">Стук при повороте, замена шаровой опоры передней левой</div></div>
+      </div>
+    </div>
+
+    <!-- Смена статуса -->
+    <div class="form-block">
+      <div class="form-lbl">Статус</div>
+      <div class="chips">
+        <button class="chip" onclick="sel(this)">Открыт</button>
+        <button class="chip on" onclick="sel(this)">В работе</button>
+        <button class="chip" onclick="sel(this)">Ждёт запчасти</button>
+        <button class="chip" onclick="sel(this)">Закрыт</button>
+      </div>
+    </div>
+
+    <!-- Работы -->
+    <div class="sec-lbl">Работы</div>
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;">
+      <div class="svc-work-row">
+        <div class="svc-work-info">
+          <div class="svc-work-title">Снятие и установка шаровой опоры</div>
+          <div class="svc-work-sub">Механик Сидоров · 28.03</div>
+        </div>
+      </div>
+      <div class="svc-work-row" style="border:none">
+        <div class="svc-work-info">
+          <div class="svc-work-title">Развал-схождение</div>
+          <div class="svc-work-sub">Механик Сидоров · 29.03</div>
+        </div>
+      </div>
+    </div>
+    <button class="big-btn dark" style="margin-bottom:10px;" onclick="alert('Добавить работу')">
+      <div class="btn-ico">➕</div>
+      <div class="btn-body"><div class="btn-title">Добавить работу</div></div>
+    </button>
+
+    <!-- Расходы -->
+    <div class="sec-lbl">Расходы</div>
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;">
+      <div class="svc-work-row">
+        <div class="svc-work-info">
+          <div class="svc-work-title">Шаровая опора БЕЛКАРД</div>
+          <div class="svc-work-sub">Автозапчасти · нал · 28.03</div>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:var(--red);">₽ 2 800</div>
+      </div>
+      <div class="svc-work-row" style="border:none">
+        <div class="svc-work-info">
+          <div class="svc-work-title">Расходники (болты, гайки)</div>
+          <div class="svc-work-sub">Автозапчасти · нал · 28.03</div>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:var(--red);">₽ 400</div>
+      </div>
+    </div>
+    <button class="big-btn dark" style="margin-bottom:10px;" onclick="alert('Добавить расход')">
+      <div class="btn-ico">➕</div>
+      <div class="btn-body"><div class="btn-title">Добавить расход</div></div>
+    </button>
+
+    <!-- Итог -->
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:14px;color:var(--t3);">Итого расходов</span>
+        <span style="font-size:20px;font-weight:700;color:var(--red);">₽ 3 200</span>
+      </div>
+    </div>
+
+    <!-- Комментарий -->
+    <div class="form-block">
+      <div class="form-lbl">Комментарий</div>
+      <input class="inp" type="text" placeholder="Добавить комментарий">
+    </div>
+
+    <button class="submit green" onclick="submitOk(this,'svc-card','svc-menu')">Закрыть ремонт</button>
+  </div>
+
+</div>
+
+
+
+<!-- ═══════════════════════════════ ЗАПЧАСТИ ═══════════════════════════════ -->
+<div class="screen" id="s-parts">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Запчасти</div>
+      <div class="page-sub">Закупки и учёт</div>
+    </div>
+  </div>
+
+  <!-- Главное меню -->
+  <div id="parts-menu">
+
+    <button class="big-btn" style="background:var(--purple)" onclick="showSub('parts-new')">
+      <div class="btn-ico">➕</div>
+      <div class="btn-body"><div class="btn-title">Новая закупка</div><div class="btn-sub">Добавить запчасть</div></div>
+      <span class="chevron">›</span>
+    </button>
+
+    <!-- Итоги -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">За месяц</div>
+        <div style="font-size:24px;font-weight:700;color:var(--red);">₽ 47 200</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">В долг</div>
+        <div style="font-size:24px;font-weight:700;color:var(--orange);">₽ 8 400</div>
+      </div>
+    </div>
+
+    <div class="sec-lbl">Последние закупки</div>
+    <div class="card">
+      <div class="parts-row">
+        <div class="parts-cat-dot" style="background:var(--blue)"></div>
+        <div class="parts-info">
+          <div class="parts-title">Шаровая опора БЕЛКАРД</div>
+          <div class="parts-sub">803 · Ходовка · Автозапчасти на Кузнецком</div>
+        </div>
+        <div class="parts-right">
+          <div class="parts-price">₽ 2 800</div>
+          <div class="parts-pay-badge green">нал</div>
+        </div>
+      </div>
+      <div class="parts-row">
+        <div class="parts-cat-dot" style="background:var(--orange)"></div>
+        <div class="parts-info">
+          <div class="parts-title">Фильтр масляный Mann</div>
+          <div class="parts-sub">729 · Двигатель · ЗИП-Маркет</div>
+        </div>
+        <div class="parts-right">
+          <div class="parts-price">₽ 1 200</div>
+          <div class="parts-pay-badge green">безнал</div>
+        </div>
+      </div>
+      <div class="parts-row">
+        <div class="parts-cat-dot" style="background:var(--red)"></div>
+        <div class="parts-info">
+          <div class="parts-title">Колодки тормозные</div>
+          <div class="parts-sub">137 · Тормоза · Вольво-Трак</div>
+        </div>
+        <div class="parts-right">
+          <div class="parts-price">₽ 8 400</div>
+          <div class="parts-pay-badge orange">в долг</div>
+        </div>
+      </div>
+      <div class="parts-row" style="border:none">
+        <div class="parts-cat-dot" style="background:var(--green)"></div>
+        <div class="parts-info">
+          <div class="parts-title">Масло моторное 10W-40 (20л)</div>
+          <div class="parts-sub">803 · Двигатель · АЗС Газпромнефть</div>
+        </div>
+        <div class="parts-right">
+          <div class="parts-price">₽ 4 600</div>
+          <div class="parts-pay-badge green">нал</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Долги -->
+    <div class="sec-lbl">Долги поставщикам</div>
+    <div class="card">
+      <div class="parts-row">
+        <div class="parts-info">
+          <div class="parts-title">Вольво-Трак</div>
+          <div class="parts-sub">Колодки тормозные · 137 · 28.03</div>
+        </div>
+        <div class="parts-right">
+          <div class="parts-price" style="color:var(--orange)">₽ 8 400</div>
+          <div style="font-size:11px;color:var(--t4);text-align:right;margin-top:2px;">2 дня</div>
+        </div>
+      </div>
+      <div class="parts-row" style="border:none">
+        <button class="rep-btn" style="width:100%;text-align:center;border-radius:10px;padding:10px;" onclick="alert('Отметить как оплачено')">Отметить оплаченным</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- НОВАЯ ЗАКУПКА -->
+  <div class="sub-screen" id="parts-new">
+    <button class="back-btn" onclick="hideSub('parts-menu','parts-new')">‹ Запчасти</button>
+    <div class="page-title" style="margin-bottom:20px">Новая закупка</div>
+
+    <div class="form-block">
+      <div class="form-lbl">Автомобиль</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">803</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">008</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">709</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">137</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">555</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">143</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">729</button>
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Категория</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this)">Двигатель</button>
+        <button class="chip" onclick="sel(this)">Ходовка</button>
+        <button class="chip" onclick="sel(this)">Электрика</button>
+        <button class="chip" onclick="sel(this)">Тормоза</button>
+        <button class="chip" onclick="sel(this)">Трансмиссия</button>
+        <button class="chip" onclick="sel(this)">Шины</button>
+        <button class="chip" onclick="sel(this)">Масла / жидкости</button>
+        <button class="chip" onclick="sel(this)">Расходники</button>
+        <button class="chip" onclick="sel(this)">Прочее</button>
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Название запчасти</div>
+      <input class="inp" type="text" placeholder="Например: Шаровая опора БЕЛКАРД">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Магазин / поставщик</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">ИП Белый</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Омега</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Трак моторс</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Дальнобойщик</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">АББАТ</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Автокрепеж</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Кузбасс гидравлика</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Автоключ</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите название магазина">
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" placeholder="Введите сумму" inputmode="numeric">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Форма оплаты</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <label class="pay-toggle-row">
+          <input type="checkbox" id="pay-nal" onchange="togglePartsDebt()">
+          <span class="pay-toggle-label">Нал</span>
+          <span class="pay-toggle-hint">оплачено наличными</span>
+        </label>
+        <label class="pay-toggle-row">
+          <input type="checkbox" id="pay-beznal" onchange="togglePartsDebt()">
+          <span class="pay-toggle-label">Безнал</span>
+          <span class="pay-toggle-hint">оплачено картой / переводом</span>
+        </label>
+        <label class="pay-toggle-row" style="border-color:rgba(255,159,10,.3)">
+          <input type="checkbox" id="pay-dolg" onchange="togglePartsDebt()">
+          <span class="pay-toggle-label" style="color:var(--orange)">В долг</span>
+          <span class="pay-toggle-hint">частично или полностью</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Блок для долга -->
+    <div id="parts-debt-block" style="display:none">
+      <div class="form-block">
+        <div class="form-lbl">Сумма долга (₽)</div>
+        <input class="inp" type="number" placeholder="Сколько в долг" inputmode="numeric">
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">Срок оплаты</div>
+        <div class="chips">
+          <button class="chip on" onclick="sel(this)">До конца недели</button>
+          <button class="chip" onclick="sel(this)">До конца месяца</button>
+          <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+        </div>
+        <div class="other-input">
+          <input class="inp" type="text" placeholder="Укажите дату">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Привязать к ремонту?</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this)">Нет</button>
+        <button class="chip" onclick="sel(this)">#247 · 803 · Ходовка</button>
+        <button class="chip" onclick="sel(this)">#246 · 555 · Двигатель</button>
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Фото чека / документа</div>
+      <div class="photo-zone" onclick="alert('Сфотографировать чек')">
+        <div class="pz-icon">🧾</div>
+        <div class="pz-title">Сфотографировать чек</div>
+        <div class="pz-sub">Можно несколько фото</div>
+      </div>
+    </div>
+
+    <button class="submit" style="background:var(--purple)" onclick="submitOk(this,'parts-new','parts-menu')">Сохранить закупку</button>
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════ ЭКРАН ВХОДА ═══════════════════════════════ -->
+<div class="screen active" id="s-login">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:20px;">
+    <div style="font-size:48px;margin-bottom:16px;">🚛</div>
+    <div class="page-title" style="text-align:center;margin-bottom:8px;">Умный автопарк</div>
+    <div class="page-sub" style="text-align:center;margin-bottom:40px;">Система управления транспортом</div>
+
+    <div style="width:100%;max-width:320px;">
+      <div class="form-block">
+        <div class="form-lbl">Выберите свою роль</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="role-btn" onclick="loginAs('driver')">
+            <span class="role-icon">🚛</span>
+            <div class="role-info"><div class="role-name">Водитель</div><div class="role-sub">Рейсы · топливо · кабинет</div></div>
+            <span style="color:var(--t4);">›</span>
+          </button>
+          <button class="role-btn" onclick="loginAs('mechanic')">
+            <span class="role-icon">🔧</span>
+            <div class="role-info"><div class="role-name">Слесарь</div><div class="role-sub">Ремонты · запчасти · кабинет</div></div>
+            <span style="color:var(--t4);">›</span>
+          </button>
+
+          <button class="role-btn" onclick="loginAs('economist')">
+            <span class="role-icon">💰</span>
+            <div class="role-info"><div class="role-name">Экономист</div><div class="role-sub">Миксеры · наличные · ДДС</div></div>
+            <span style="color:var(--t4);">›</span>
+          </button>
+          <button class="role-btn" onclick="loginAs('logist')">
+            <span class="role-icon">🚚</span>
+            <div class="role-info"><div class="role-name">Логист</div><div class="role-sub">Длинномеры · заказы</div></div>
+            <span style="color:var(--t4);">›</span>
+          </button>
+          <button class="role-btn" onclick="loginAs('director')" style="border-color:rgba(48,209,88,.3);">
+            <span class="role-icon">📊</span>
+            <div class="role-info"><div class="role-name" style="color:var(--green);">Директор</div><div class="role-sub">Полный доступ</div></div>
+            <span style="color:var(--t4);">›</span>
+          </button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--t4);">
+        🔒 Вход через Telegram авторизацию
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ БУХГАЛТЕР ═══════════════════════════════ -->
+<div class="screen" id="s-accountant">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Документы</div>
+      <div class="page-sub">Бухгалтер · УПД и ТН</div>
+    </div>
+    <button onclick="loginAs('login')" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
+  </div>
+
+  <!-- Фильтр -->
+  <div style="display:flex;gap:6px;margin-bottom:14px;">
+    <button class="period-btn active" onclick="filterDocs('all',this)">Все</button>
+    <button class="period-btn" onclick="filterDocs('pending',this)">Без УПД</button>
+    <button class="period-btn" onclick="filterDocs('no-tn',this)">Нет ТН</button>
+    <button class="period-btn" onclick="filterDocs('done',this)">Готово</button>
+  </div>
+
+  <!-- Счётчики -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+    <div style="background:var(--bg3);border-radius:var(--r);padding:12px;text-align:center;">
+      <div style="font-size:22px;font-weight:700;color:var(--red);">3</div>
+      <div style="font-size:10px;color:var(--t3);">Без УПД</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:var(--r);padding:12px;text-align:center;">
+      <div style="font-size:22px;font-weight:700;color:var(--orange);">2</div>
+      <div style="font-size:10px;color:var(--t3);">Нет ТН</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:var(--r);padding:12px;text-align:center;">
+      <div style="font-size:22px;font-weight:700;color:var(--green);">38</div>
+      <div style="font-size:10px;color:var(--t3);">Обработано</div>
+    </div>
+  </div>
+
+  <!-- Список рейсов -->
+  <div id="docs-list">
+
+    <!-- Рейс без ТН -->
+    <div class="doc-card no-tn" data-status="no-tn">
+      <div class="doc-card-header">
+        <div class="doc-status-badge orange">Нет ТН</div>
+        <div class="doc-date">23.03.2026</div>
+      </div>
+      <div class="doc-main">
+        <div class="doc-truck">803 · Алексеев О.Е.</div>
+        <div class="doc-route">Морозовский → Топки · не ГОСТ · 53 т</div>
+      </div>
+      <div class="doc-actions">
+        <button class="doc-btn orange" onclick="addTN(this)">📷 Добавить ТН</button>
+        <button class="doc-btn gray" onclick="markUPD(this)">✓ УПД выставлен</button>
+      </div>
+    </div>
+
+    <!-- Рейс с ТН, без УПД -->
+    <div class="doc-card pending" data-status="pending">
+      <div class="doc-card-header">
+        <div class="doc-status-badge red">Без УПД</div>
+        <div class="doc-date">30.03.2026</div>
+      </div>
+      <div class="doc-main">
+        <div class="doc-truck">803 · Алексеев О.Е.</div>
+        <div class="doc-route">Морозовский → Сибирский Бетон · 1,5–2,0 · 40 т</div>
+      </div>
+      <div class="doc-links">
+        <a href="#" class="doc-link" onclick="alert('Открыть фото ТН')">📄 Фото лицевая</a>
+      </div>
+      <div class="doc-actions">
+        <button class="doc-btn green" onclick="markUPD(this)">✓ УПД выставлен</button>
+      </div>
+    </div>
+
+    <!-- Рейс с ТН, без УПД -->
+    <div class="doc-card pending" data-status="pending">
+      <div class="doc-card-header">
+        <div class="doc-status-badge red">Без УПД</div>
+        <div class="doc-date">30.03.2026</div>
+      </div>
+      <div class="doc-main">
+        <div class="doc-truck">008 · Шабанов Ф.А.</div>
+        <div class="doc-route">Морозовский → Кузбассдорстрой · 2,0–2,5 · 38 т</div>
+      </div>
+      <div class="doc-links">
+        <a href="#" class="doc-link" onclick="alert('Открыть фото ТН')">📄 Фото лицевая</a>
+        <a href="#" class="doc-link" onclick="alert('Открыть фото ТН')">📄 Фото оборот</a>
+      </div>
+      <div class="doc-actions">
+        <button class="doc-btn green" onclick="markUPD(this)">✓ УПД выставлен</button>
+      </div>
+    </div>
+
+    <!-- Рейс без ТН -->
+    <div class="doc-card no-tn" data-status="no-tn">
+      <div class="doc-card-header">
+        <div class="doc-status-badge orange">Нет ТН</div>
+        <div class="doc-date">25.03.2026</div>
+      </div>
+      <div class="doc-main">
+        <div class="doc-truck">803 · Алексеев О.Е.</div>
+        <div class="doc-route">Морозовский → Штенцель · не ГОСТ · 39,6 т</div>
+      </div>
+      <div class="doc-actions">
+        <button class="doc-btn orange" onclick="addTN(this)">📷 Добавить ТН</button>
+        <button class="doc-btn gray" onclick="markUPD(this)">✓ УПД выставлен</button>
+      </div>
+    </div>
+
+    <!-- Обработанный рейс -->
+    <div class="doc-card done" data-status="done">
+      <div class="doc-card-header">
+        <div class="doc-status-badge green">УПД выставлен</div>
+        <div class="doc-date">16.03.2026</div>
+      </div>
+      <div class="doc-main">
+        <div class="doc-truck">803 · Алексеев О.Е.</div>
+        <div class="doc-route">Морозовский → Сибирский Бетон · 1,5–2,0 · 49,4 т</div>
+      </div>
+      <div class="doc-links">
+        <a href="#" class="doc-link">📄 Фото лицевая</a>
+        <a href="#" class="doc-link">📄 Фото оборот</a>
+      </div>
+      <div style="font-size:11px;color:var(--green);margin-top:6px;">✓ Обработано · 17.03.2026</div>
+    </div>
+
+    <!-- Обработанный рейс -->
+    <div class="doc-card done" data-status="done">
+      <div class="doc-card-header">
+        <div class="doc-status-badge green">УПД выставлен</div>
+        <div class="doc-date">16.03.2026</div>
+      </div>
+      <div class="doc-main">
+        <div class="doc-truck">008 · Шабанов Ф.А.</div>
+        <div class="doc-route">Морозовский → Сибирский Бетон · 1,5–2,0 · 37,2 т</div>
+      </div>
+      <div class="doc-links">
+        <a href="#" class="doc-link">📄 Фото лицевая</a>
+        <a href="#" class="doc-link">📄 Фото оборот</a>
+      </div>
+      <div style="font-size:11px;color:var(--green);margin-top:6px;">✓ Обработано · 17.03.2026</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ КАБИНЕТ СЛЕСАРЯ ═══════════════════════════════ -->
+<div class="screen" id="s-mechanic-dash">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Кабинет слесаря</div>
+      <div class="page-sub">Слесарь #1 · март 2026</div>
+    </div>
+    <button onclick="loginAs('login')" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
+  </div>
+
+  <!-- Переключатель -->
+  <div style="display:flex;gap:6px;margin-bottom:14px;">
+    <button class="period-btn active" onclick="setMechTab('salary',this)">Зарплата</button>
+    <button class="period-btn" onclick="setMechTab('shifts',this)">Смены</button>
+    <button class="period-btn" onclick="setMechTab('advances',this)">Авансы</button>
+  </div>
+
+  <!-- ЗАРПЛАТА -->
+  <div id="mech-tab-salary">
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:20px 18px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+        <div>
+          <div style="font-size:13px;color:var(--t3);margin-bottom:4px;">Заработано за март</div>
+          <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:var(--green);">₽ 108 000</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:4px;">18 смен × ₽6 000</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:13px;color:var(--t3);margin-bottom:4px;">Авансы</div>
+          <div style="font-size:22px;font-weight:700;color:var(--red);">− ₽ 35 000</div>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--sep);margin-bottom:14px;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:13px;color:var(--t3);">К выплате</div>
+          <div style="font-size:24px;font-weight:700;">₽ 73 000</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px;color:var(--t3);">Дата выплаты</div>
+          <div style="font-size:14px;font-weight:600;">1 апреля</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ставка -->
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
+      <div style="font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">Ставка</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:14px;">Оклад за смену</span>
+        <span style="font-size:16px;font-weight:700;color:var(--green);">₽ 6 000</span>
+      </div>
+      <div style="font-size:12px;color:var(--t3);">Включает ведение отчётности за обоих слесарей</div>
+    </div>
+  </div>
+
+  <!-- СМЕНЫ -->
+  <div id="mech-tab-shifts" style="display:none;">
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;">
+        <div>
+          <div style="font-size:28px;font-weight:700;color:var(--blue);">18</div>
+          <div style="font-size:11px;color:var(--t3);">смен за март</div>
+        </div>
+        <div>
+          <div style="font-size:28px;font-weight:700;color:var(--green);">6</div>
+          <div style="font-size:11px;color:var(--t3);">эта неделя</div>
+        </div>
+        <div>
+          <div style="font-size:28px;font-weight:700;color:var(--orange);">3</div>
+          <div style="font-size:11px;color:var(--t3);">прошлая неделя</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-lbl">История смен</div>
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;">
+      <div class="shift-row"><span class="shift-date">31.03.2026</span><span class="shift-day">Понедельник</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
+      <div class="shift-row"><span class="shift-date">30.03.2026</span><span class="shift-day">Воскресенье</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
+      <div class="shift-row"><span class="shift-date">29.03.2026</span><span class="shift-day">Суббота</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
+      <div class="shift-row"><span class="shift-date">28.03.2026</span><span class="shift-day">Пятница</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
+      <div class="shift-row"><span class="shift-date">27.03.2026</span><span class="shift-day">Четверг</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
+      <div class="shift-row"><span class="shift-date">26.03.2026</span><span class="shift-day">Среда</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
+      <div class="shift-row"><span class="shift-date">25.03.2026</span><span class="shift-day">Вторник</span><span class="shift-badge red">Выходной</span><span class="shift-pay" style="color:var(--t4);">—</span></div>
+      <div class="shift-row"><span class="shift-date">24.03.2026</span><span class="shift-day">Понедельник</span><span class="shift-badge red">Выходной</span><span class="shift-pay" style="color:var(--t4);">—</span></div>
+      <div class="shift-row" style="border:none;"><span class="shift-date">23.03.2026</span><span class="shift-day">Воскресенье</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
+    </div>
+
+    <!-- Отметить смену -->
+    <button class="big-btn dark" onclick="alert('Отметить выход на смену')">
+      <div class="btn-ico">✓</div>
+      <div class="btn-body"><div class="btn-title">Отметить выход сегодня</div></div>
+    </button>
+  </div>
+
+  <!-- АВАНСЫ -->
+  <div id="mech-tab-advances" style="display:none;">
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:13px;color:var(--t3);">Всего авансов за март</div>
+          <div style="font-size:28px;font-weight:700;color:var(--red);">₽ 35 000</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:13px;color:var(--t3);">Из зарплаты</div>
+          <div style="font-size:16px;font-weight:600;color:var(--orange);">32% ЗП</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-lbl">История авансов</div>
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;">
+      <div class="advance-row">
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;">28 марта</div>
+          <div style="font-size:12px;color:var(--t3);">Аванс · директор подтвердил</div>
+        </div>
+        <div style="font-size:16px;font-weight:700;color:var(--red);">− ₽ 10 000</div>
+      </div>
+      <div class="advance-row">
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;">20 марта</div>
+          <div style="font-size:12px;color:var(--t3);">Аванс · директор подтвердил</div>
+        </div>
+        <div style="font-size:16px;font-weight:700;color:var(--red);">− ₽ 15 000</div>
+      </div>
+      <div class="advance-row" style="border:none;">
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;">10 марта</div>
+          <div style="font-size:12px;color:var(--t3);">Аванс · директор подтвердил</div>
+        </div>
+        <div style="font-size:16px;font-weight:700;color:var(--red);">− ₽ 10 000</div>
+      </div>
+    </div>
+
+    <button class="big-btn dark" onclick="alert('Запросить аванс — директор получит уведомление')">
+      <div class="btn-ico">💸</div>
+      <div class="btn-body"><div class="btn-title">Запросить аванс</div><div class="btn-sub">Директор получит уведомление</div></div>
+    </button>
+  </div>
+</div>
+
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottom-nav" style="display:none">
+  <button class="nav-item active" onclick="nav(this,'s-home')">
+    <span class="nav-icon">🏠</span>Главная
+  </button>
+  <button class="nav-item" onclick="nav(this,'s-tonary')">
+    <span class="nav-icon">🚛</span>Тонары
+  </button>
+  <button class="nav-item" onclick="nav(this,'s-mixer')">
+    <span class="nav-icon">🔄</span>Миксеры
+  </button>
+  <button class="nav-item" onclick="nav(this,'s-dt')">
+    <span class="nav-icon">⛽</span>ДТ
+  </button>
+  <button class="nav-item" onclick="nav(this,'s-director')">
+    <span class="nav-icon">📊</span>Директор
+  </button>
+  <button class="nav-item" onclick="nav(this,'s-service')">
+    <span class="nav-icon">🔧</span>Сервис
+  </button>
+
+  <button class="nav-item" onclick="nav(this,'s-driver-dash')">
+    <span class="nav-icon">👤</span>Кабинет
+  </button>
+</div>
+
+</div><!-- /app -->
+
+<script>
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+  // sync nav
+  const map={
+    's-home':0,'s-tonary':1,'s-mixer':2,'s-dlinn':-1,'s-dt':3,'s-expense':-1,'s-director':4,'s-service':5,'s-driver-dash':6
+  };
+  document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active',i===map[id]));
+}
+function nav(el,id){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  go(id);
+}
+function showSub(subId){
+  const sub=document.getElementById(subId);
+  const menu=sub.previousElementSibling;
+  menu.style.display='none';
+  sub.classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+}
+function hideSub(menuId,subId){
+  document.getElementById(menuId).style.display='block';
+  document.getElementById(subId).classList.remove('active');
+  window.scrollTo({top:0,behavior:'instant'});
+}
+function sel(el){
+  const row=el.closest('.chips');
+  row.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  // Показать/скрыть поле ручного ввода
+  const block=el.closest('.form-block');
+  if(!block) return;
+  const inp=block.querySelector('.other-input');
+  if(!inp) return;
+  if(el.textContent.trim()==='+ Другое'){
+    inp.classList.add('show');
+    inp.querySelector('input').focus();
+  } else {
+    inp.classList.remove('show');
+    inp.querySelector('input').value='';
+  }
+}
+// Объекты по заказчикам
+const OBJECTS = {
+  'Морозовский':     {type:'chips', items:['Сибирский бетон','Кузбассдорстрой','МСТ','+ Другое']},
+  'Бетон М':         {type:'fixed', value:'ул. Дружбы 43'},
+  'Меркурий':        {type:'chips', items:['Гостиница','Театр','+ Другое']},
+  'Штенцель (Топки)':{type:'chips', items:['Топки','+ Другое']},
+  'СП авто':         {type:'other', items:['+ Другое']},
+  'ВНК':             {type:'chips', items:['ЗЖБИ','Кем ДСК','+ Другое']},
+};
+
+// Заказчики по карьерам (если карьер диктует заказчика)
+const QUARRY_CLIENTS = {
+  'ВНК (Березовка)': ['ВНК','+ Другое'],
+};
+
+function updateObjects(el){
+  const client = el.textContent.trim();
+  const objBlock = document.getElementById('object-block');
+  const objChips = document.getElementById('object-chips');
+  const objOther = document.getElementById('object-other');
+  const clientOther = document.getElementById('client-other');
+
+  // Показать/скрыть поле ввода заказчика
+  if(client === '+ Другое'){
+    clientOther.classList.add('show');
+    clientOther.querySelector('input').focus();
+    if(objBlock) objBlock.style.display='none';
+    return;
+  } else {
+    clientOther.classList.remove('show');
+    clientOther.querySelector('input').value='';
+  }
+
+  if(!objBlock || !objChips) return;
+  const cfg = OBJECTS[client];
+
+  if(!cfg){
+    objBlock.style.display='none';
+    return;
+  }
+
+  if(cfg.type === 'fixed'){
+    // Автоподстановка адреса
+    objBlock.style.display='block';
+    objChips.innerHTML = `<div class="auto-row" style="margin:0"><span class="auto-lbl">Адрес</span><span class="auto-val">${cfg.value}<span class="auto-tag">AUTO</span></span></div>`;
+    if(objOther) objOther.classList.remove('show');
+  } else {
+    objBlock.style.display='block';
+    objChips.innerHTML = cfg.items.map((o,i)=>
+      `<button class="chip${i===0?' on':''}" onclick="sel(this);checkObjectOther(this)">${o}</button>`
+    ).join('\n');
+    if(objOther) objOther.classList.remove('show');
+    // Если первый — Другое, сразу показать поле
+    if(cfg.items[0]==='+ Другое' && objOther) objOther.classList.add('show');
+  }
+}
+
+function checkObjectOther(el){
+  const oi = document.getElementById('object-other');
+  if(!oi) return;
+  if(el.textContent.trim()==='+ Другое'){
+    oi.classList.add('show');
+    oi.querySelector('input').focus();
+  } else {
+    oi.classList.remove('show');
+    oi.querySelector('input').value='';
+  }
+}
+
+const QUARRIES = {
+  'Щебень': ['СДЕ Мозжуха','СДЕ ККК','ВНК (Березовка)','Барзасский','ГДК','+ Другое'],
+  'Песок':  ['Морозовский','ВНК (Березовка)','+ Другое'],
+  'Уголь':  ['+ Другое'],
+  'Керамзит':['+ Другое'],
+};
+
+function updateQuarries(el){
+  const mat = el.textContent.trim();
+  const list = QUARRIES[mat] || ['+ Другое'];
+  const chips = document.getElementById('quarry-chips');
+  if(!chips) return;
+  chips.innerHTML = list.map((q,i)=>
+    `<button class="chip${i===0?' on':''}" onclick="sel(this);checkQuarryOther(this)">${q}</button>`
+  ).join('\n');
+  // Скрыть поле ввода при смене материала
+  const oi = document.getElementById('quarry-other');
+  if(oi) oi.classList.remove('show');
+  if(list[0]==='+ Другое' && oi) oi.classList.add('show');
+
+  // Показать фракцию только для щебня
+  const frakBlock = document.getElementById('frak-block');
+  if(frakBlock) frakBlock.style.display = (mat==='Щебень') ? 'block' : 'none';
+
+  // Показать модуль только для песка
+  const modulBlock = document.getElementById('modul-block');
+  if(modulBlock) modulBlock.style.display = (mat==='Песок') ? 'block' : 'none';
+
+  // Сбросить объект при смене материала
+  const objBlock = document.getElementById('object-block');
+  if(objBlock) objBlock.style.display='none';
+}
+
+function checkQuarryOther(el){
+  const oi = document.getElementById('quarry-other');
+  if(!oi) return;
+  const val = el.textContent.trim();
+  if(val === '+ Другое'){
+    oi.classList.add('show');
+    oi.querySelector('input').focus();
+  } else {
+    oi.classList.remove('show');
+    oi.querySelector('input').value='';
+  }
+  // Если карьер диктует заказчика — обновим список заказчиков
+  updateClientsByQuarry(val);
+}
+
+function updateClientsByQuarry(quarry){
+  const clientChips = document.getElementById('client-chips');
+  const clientOther = document.getElementById('client-other');
+  const objBlock = document.getElementById('object-block');
+  if(!clientChips) return;
+
+  const forced = QUARRY_CLIENTS[quarry];
+  if(forced){
+    // Подставить заказчиков для этого карьера
+    clientChips.innerHTML = forced.map((c,i)=>
+      `<button class="chip${i===0?' on':''}" onclick="sel(this);updateObjects(this)">${c}</button>`
+    ).join('\n');
+    if(clientOther) clientOther.classList.remove('show');
+    if(objBlock) objBlock.style.display='none';
+    // Автоматически обновить объекты для первого заказчика
+    const firstBtn = clientChips.querySelector('.chip.on');
+    if(firstBtn) updateObjects(firstBtn);
+  } else {
+    // Вернуть стандартный список заказчиков
+    const defaultClients = ['Морозовский','Бетон М','Меркурий','Штенцель (Топки)','СП авто','+ Другое'];
+    clientChips.innerHTML = defaultClients.map((c,i)=>
+      `<button class="chip${i===0?' on':''}" onclick="sel(this);updateObjects(this)">${c}</button>`
+    ).join('\n');
+    if(clientOther) clientOther.classList.remove('show');
+    if(objBlock) objBlock.style.display='none';
+  }
+}
+
+// ───── КАЛЕНДАРЬ ─────
+const MONTHS_RU = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const DAYS_RU = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const dateState = {};
+
+function formatDate(d){
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  return `${dd}.${mm}.${yyyy}`;
+}
+
+function setDate(id, mode, btn){
+  const today = new Date();
+  const yesterday = new Date(); yesterday.setDate(today.getDate()-1);
+  const cal = document.getElementById(id+'-cal');
+  const valEl = document.getElementById(id+'-val');
+  const display = document.getElementById(id+'-display');
+
+  // Подсветить кнопку
+  btn.closest('.chips').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  btn.classList.add('on');
+
+  if(mode==='today'){
+    if(cal) cal.classList.remove('show');
+    if(valEl){ valEl.textContent = formatDate(today); }
+    if(display) display.style.display='flex';
+    dateState[id] = formatDate(today);
+  } else if(mode==='yesterday'){
+    if(cal) cal.classList.remove('show');
+    if(valEl){ valEl.textContent = formatDate(yesterday); }
+    if(display) display.style.display='flex';
+    dateState[id] = formatDate(yesterday);
+  } else if(mode==='pick'){
+    if(display) display.style.display='none';
+    if(cal){
+      cal.classList.add('show');
+      const now = new Date();
+      renderCalendar(id, now.getFullYear(), now.getMonth());
+    }
+  }
+}
+
+function renderCalendar(id, year, month){
+  const cal = document.getElementById(id+'-cal');
+  if(!cal) return;
+  const today = new Date();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month+1, 0);
+  // Понедельник = 0
+  let startDow = firstDay.getDay(); // 0=Вс
+  startDow = startDow === 0 ? 6 : startDow - 1;
+
+  let html = `<div class="cal-header">
+    <button class="cal-nav" onclick="renderCalendar('${id}',${month===0?year-1:year},${month===0?11:month-1})">‹</button>
+    <span class="cal-month">${MONTHS_RU[month]} ${year}</span>
+    <button class="cal-nav" onclick="renderCalendar('${id}',${month===11?year+1:year},${month===11?0:month+1})">›</button>
+  </div>
+  <div class="cal-grid">`;
+
+  DAYS_RU.forEach(d=>{ html+=`<div class="cal-day-name">${d}</div>`; });
+
+  for(let i=0;i<startDow;i++) html+=`<div class="cal-day other-month"></div>`;
+  for(let d=1;d<=lastDay.getDate();d++){
+    const date = new Date(year,month,d);
+    const dateStr = formatDate(date);
+    const isToday = date.toDateString()===today.toDateString();
+    const isSel = dateState[id]===dateStr;
+    let cls='cal-day';
+    if(isToday) cls+=' today';
+    if(isSel) cls+=' selected';
+    html+=`<button class="${cls}" onclick="pickDay('${id}','${dateStr}',${year},${month})">${d}</button>`;
+  }
+  html+='</div>';
+  cal.innerHTML=html;
+}
+
+function pickDay(id, dateStr, year, month){
+  dateState[id]=dateStr;
+  const valEl=document.getElementById(id+'-val');
+  const display=document.getElementById(id+'-display');
+  const cal=document.getElementById(id+'-cal');
+  if(valEl) valEl.textContent=dateStr;
+  if(display) display.style.display='flex';
+  if(cal) cal.classList.remove('show');
+  renderCalendar(id,year,month);
+}
+
+// Инициализация — сегодня по умолчанию
+document.addEventListener('DOMContentLoaded',()=>{
+  ['dln-date-load','dln-date-unload','dt-date','exp-date'].forEach(id=>{
+    const today = new Date();
+    const valEl = document.getElementById(id+'-val');
+    const display = document.getElementById(id+'-display');
+    if(valEl){ valEl.textContent=formatDate(today); dateState[id]=formatDate(today); }
+    if(display) display.style.display='flex';
+  });
+});
+// ───── КОНЕЦ КАЛЕНДАРЯ ─────
+
+// Логика адресов загрузки по городу
+const LOAD_ADDRS = {
+  'Кемерово': {type:'chips', items:['ул. Грузовая 21','+ Другое']},
+};
+
+function updateLoadCity(el){
+  const city = el.textContent.trim();
+  const otherInp = document.getElementById('load-city-other');
+  const addrBlock = document.getElementById('load-addr-block');
+  const addrChips = document.getElementById('load-addr-chips');
+  const addrOther = document.getElementById('load-addr-other');
+
+  if(city === '+ Другое'){
+    if(otherInp) otherInp.classList.add('show');
+    if(addrBlock) addrBlock.style.display = 'none';
+    return;
+  } else {
+    if(otherInp){ otherInp.classList.remove('show'); otherInp.querySelector('input').value=''; }
+  }
+
+  const cfg = LOAD_ADDRS[city];
+  if(cfg && addrBlock && addrChips){
+    // Кемерово — показать ул. Грузовая 21
+    addrBlock.style.display = 'block';
+    addrChips.innerHTML = cfg.items.map((a,i)=>
+      `<button class="chip${i===0?' on':''}" onclick="sel(this);checkOther(this)">${a}</button>`
+    ).join('\n');
+    if(addrOther) addrOther.classList.remove('show');
+  } else if(addrBlock && addrChips){
+    // Другой город — только ввод вручную
+    addrBlock.style.display = 'block';
+    addrChips.innerHTML = `<button class="chip on" onclick="sel(this);checkOther(this)">+ Другое</button>`;
+    if(addrOther) addrOther.classList.add('show');
+  }
+}
+
+// Логика адресов выгрузки по городу
+const UNLOAD_ADDRS = {
+  'Новосибирск': {type:'chips', items:['ул. Спортивная','ул. Н. Сотникова','+ Другое']},
+};
+
+function updateUnloadCity(el){
+  const city = el.textContent.trim();
+  const otherInp = document.getElementById('unload-city-other');
+  const addrBlock = document.getElementById('unload-addr-block');
+  const addrChips = document.getElementById('unload-addr-chips');
+  const addrOther = document.getElementById('unload-addr-other');
+
+  // Показать/скрыть поле ввода города
+  if(city === '+ Другое'){
+    if(otherInp) otherInp.classList.add('show');
+    if(addrBlock) addrBlock.style.display = 'none';
+    return;
+  } else {
+    if(otherInp){ otherInp.classList.remove('show'); otherInp.querySelector('input').value=''; }
+  }
+
+  const cfg = UNLOAD_ADDRS[city];
+  if(cfg && addrBlock && addrChips){
+    // Новосибирск — показать список адресов
+    addrBlock.style.display = 'block';
+    addrChips.innerHTML = cfg.items.map((a,i)=>
+      `<button class="chip${i===0?' on':''}" onclick="sel(this);checkOther(this)">${a}</button>`
+    ).join('\n');
+    if(addrOther) addrOther.classList.remove('show');
+  } else if(addrBlock && addrChips){
+    // Другой город — только ввод вручную
+    addrBlock.style.display = 'block';
+    addrChips.innerHTML = `<button class="chip on" onclick="sel(this);checkOther(this)">+ Другое</button>`;
+    if(addrOther){ addrOther.classList.add('show'); }
+  }
+}
+
+function checkOther(el){
+  const val = el.textContent.trim();
+  const block = el.closest('.form-block');
+  if(!block) return;
+  const oi = block.querySelector('.other-input');
+  if(!oi) return;
+  if(val === '+ Другое' || val === 'Другое'){
+    oi.classList.add('show');
+    const inp = oi.querySelector('input');
+    if(inp) inp.focus();
+  } else {
+    oi.classList.remove('show');
+    const inp = oi.querySelector('input');
+    if(inp) inp.value = '';
+  }
+}
+
+function togglePmd(show){
+  const b = document.getElementById('pmd-temp-block');
+  if(b) b.style.display = show ? 'block' : 'none';
+}
+
+function toggleDengi(show){
+  const b = document.getElementById('dengi-block');
+  if(b) b.style.display = show ? 'block' : 'none';
+}
+
+const PERIOD_DATA = {
+  day:  {revenue:'₽ 187 400', delta:'↑ +12% к вчера', exp:'₽ 19 580', expDelta:'топливо + ремонт', profit:'₽ 167 820'},
+  week: {revenue:'₽ 1 124 000', delta:'↑ +8% к прошлой', exp:'₽ 98 200', expDelta:'за 7 дней', profit:'₽ 1 025 800'},
+  month:{revenue:'₽ 4 870 000', delta:'↑ +15% к прошлому', exp:'₽ 412 000', expDelta:'за 30 дней', profit:'₽ 4 458 000'},
+};
+function setPeriod(p, btn){
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const d = PERIOD_DATA[p];
+  document.getElementById('dir-revenue').textContent = d.revenue;
+  document.getElementById('dir-revenue-delta').textContent = d.delta;
+  document.getElementById('dir-expenses').textContent = d.exp;
+  document.getElementById('dir-exp-delta').textContent = d.expDelta;
+  document.getElementById('dir-profit').textContent = d.profit;
+}
+// Установить дату
+document.addEventListener('DOMContentLoaded',()=>{
+  const now = new Date();
+  const days=['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+  const months=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  const el = document.getElementById('dir-date');
+  if(el) el.textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} · обновлено ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+});
+const DRIVER_DATA = {
+  day:  {earned:'₽ 10 000', advance:'− ₽ 3 000', topay:'₽ 7 000', trips:'4', tons:'125 т'},
+  month:{earned:'₽ 136 000', advance:'− ₽ 8 000', topay:'₽ 128 000', trips:'68', tons:'2 140 т'},
+};
+function setDriverPeriod(p, btn){
+  document.querySelectorAll('#s-driver-dash .period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const d = DRIVER_DATA[p];
+  const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  set('drv-earned', d.earned);
+  set('drv-advance', d.advance);
+  set('drv-topay', d.topay);
+  set('drv-trips-day', p==='day' ? d.trips : '68');
+  set('drv-tons-day', p==='day' ? d.tons : '2 140 т');
+}
+
+// Система ролей
+let currentRole = 'login';
+
+const ROLE_SCREENS = {
+  login: ['s-login'],
+  driver: ['s-home','s-tonary','s-mixer','s-dlinn','s-dt','s-expense','s-driver-dash'],
+  mechanic: ['s-service','s-parts','s-mechanic-dash'],
+  accountant: ['s-accountant'],
+  economist: ['s-mixer','s-accountant'],
+  logist: ['s-dlinn','s-service'],
+  director: ['s-home','s-tonary','s-mixer','s-dlinn','s-dt','s-expense','s-director','s-service','s-parts','s-driver-dash','s-mechanic-dash','s-accountant'],
+};
+
+const ROLE_HOME = {
+  login: 's-login',
+  driver: 's-home',
+  mechanic: 's-mechanic-dash',
+  economist: 's-economist-cash',
+  logist: 's-dlinn',
+  director: 's-director',
+};
+
+const ROLE_NAV = {
+  driver: [
+    {icon:'🏠',label:'Главная',screen:'s-home'},
+    {icon:'🚛',label:'Тонары',screen:'s-tonary'},
+    {icon:'🔄',label:'Миксеры',screen:'s-mixer'},
+    {icon:'⛽',label:'ДТ',screen:'s-dt'},
+    {icon:'👤',label:'Кабинет',screen:'s-driver-dash'},
+  ],
+  mechanic: [
+    {icon:'🔧',label:'Ремонты',screen:'s-service'},
+    {icon:'🔩',label:'Запчасти',screen:'s-parts'},
+    {icon:'👤',label:'Кабинет',screen:'s-mechanic-dash'},
+  ],
+  accountant: [
+    {icon:'📋',label:'Документы',screen:'s-accountant'},
+  ],
+  director: [
+    {icon:'📊',label:'Дашборд',screen:'s-director'},
+    {icon:'🚛',label:'Рейсы',screen:'s-home'},
+    {icon:'🔧',label:'Сервис',screen:'s-service'},
+    {icon:'🔩',label:'Запчасти',screen:'s-parts'},
+    {icon:'👥',label:'Команда',screen:'s-driver-dash'},
+  ],
+  economist: [
+    {icon:'🔄',label:'Миксеры',screen:'s-mixer'},
+    {icon:'💵',label:'Наличные',screen:'s-economist-cash'},
+  ],
+  logist: [
+    {icon:'🚚',label:'Длинномеры',screen:'s-dlinn'},
+  ],
+};
+
+function loginAs(role){
+  currentRole = role;
+  // Скрыть все экраны
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  // Показать нужный
+  const homeScreen = ROLE_HOME[role] || 's-login';
+  const el = document.getElementById(homeScreen);
+  if(el) el.classList.add('active');
+  // Обновить навигацию
+  updateNav(role);
+}
+
+function updateNav(role){
+  const nav = document.getElementById('bottom-nav') || document.querySelector('.bottom-nav');
+  if(!nav) return;
+  if(role === 'login'){
+    nav.style.display = 'none';
+    return;
+  }
+  nav.style.display = 'flex';
+  const items = ROLE_NAV[role] || ROLE_NAV.driver;
+  nav.innerHTML = items.map(item=>
+    `<button class="nav-item" onclick="switchToScreen('${item.screen}',this)">
+      <span class="nav-icon">${item.icon}</span>${item.label}
+    </button>`
+  ).join('');
+  // Активируем первый
+  nav.querySelector('.nav-item')?.classList.add('active');
+}
+
+function switchToScreen(screenId, btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(screenId)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  btn?.classList.add('active');
+}
+
+// Бухгалтер — фильтр
+function filterDocs(filter, btn){
+  document.querySelectorAll('#s-accountant .period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.doc-card').forEach(card=>{
+    if(filter==='all') card.style.display='block';
+    else card.style.display = card.dataset.status===filter ? 'block' : 'none';
+  });
+}
+
+function markUPD(btn){
+  const card = btn.closest('.doc-card');
+  card.dataset.status = 'done';
+  card.className = 'doc-card done';
+  card.querySelector('.doc-status-badge').textContent = 'УПД выставлен';
+  card.querySelector('.doc-status-badge').className = 'doc-status-badge green';
+  card.querySelector('.doc-actions').innerHTML = '<div style="font-size:11px;color:var(--green);">✓ УПД выставлен · ' + new Date().toLocaleDateString('ru') + '</div>';
+  // Уведомление директору
+  setTimeout(()=>alert('✓ УПД выставлен!
+
+Директор получит уведомление.'), 300);
+}
+
+function addTN(btn){
+  alert('📷 Откроется камера для фото ТН.
+
+После добавления бухгалтер получит уведомление.');
+}
+
+// Слесарь — вкладки
+function setMechTab(tab, btn){
+  document.querySelectorAll('#s-mechanic-dash .period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['salary','shifts','advances'].forEach(t=>{
+    const el = document.getElementById('mech-tab-'+t);
+    if(el) el.style.display = t===tab ? 'block' : 'none';
+  });
+}
+
+// Инициализация — показать экран входа
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-login')?.classList.add('active');
+  const nav = document.querySelector('.bottom-nav');
+  if(nav) nav.style.display='none';
+});
+
+function togglePartsDebt(){
+  const dolg = document.getElementById('pay-dolg');
+  const b = document.getElementById('parts-debt-block');
+  if(b && dolg) b.style.display = dolg.checked ? 'block' : 'none';
+}
+function togglePartsDebt2(){
+  const dolg = document.getElementById('pay-dolg2');
+  const b = document.getElementById('parts-debt-block2');
+  if(b && dolg) b.style.display = dolg.checked ? 'block' : 'none';
+}
+function togglePartsPayment(type){
+  const b = document.getElementById('parts-debt-block');
+  if(!b) return;
+  b.style.display = type === 'debt' ? 'block' : 'none';
+}
+function setPTab(tab, btn){
+  document.querySelectorAll('#parts-new-svc .period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('parts-tab-new').style.display = tab==='new' ? 'block' : 'none';
+  document.getElementById('parts-tab-hist').style.display = tab==='hist' ? 'block' : 'none';
+}
+
+function confirmEconomistCash(btn){
+  const card = btn.closest('[style]');
+  btn.style.background = 'rgba(48,209,88,.2)';
+  btn.style.color = 'var(--green)';
+  btn.textContent = '✅ Получение подтверждено · директор уведомлён';
+  btn.disabled = true;
+}
+
+function toggleRepairType(type){
+  const ext = document.getElementById('external-block');
+  if(!ext) return;
+  ext.style.display = type === 'external' ? 'block' : 'none';
+}
+
+// ═══════════════════ СИСТЕМА РОЛЕЙ ═══════════════════
+const ROLES = {
+  director:   {name:'Директор',    screens:['s-home','s-tonary','s-mixer','s-dlinn','s-dt','s-expense','s-director','s-service','s-parts','s-driver-dash'], nav:['s-home','s-tonary','s-mixer','s-dt','s-director','s-service','s-driver-dash']},
+  driver:     {name:'Водитель',     screens:['s-home','s-tonary','s-mixer','s-dlinn','s-dt','s-expense','s-driver-dash'], nav:['s-home','s-tonary','s-mixer','s-dt','s-driver-dash']},
+  mechanic:   {name:'Слесарь',      screens:['s-mechanic-dash','s-service','s-parts'], nav:['s-mechanic-dash','s-service']},
+  accountant: {name:'Бухгалтер',    screens:['s-accountant'], nav:['s-accountant']},
+  economist:  {name:'Экономист',    screens:['s-home','s-mixer','s-director'], nav:['s-mixer','s-director']},
+  logist:     {name:'Логист',       screens:['s-dlinn','s-parts'], nav:['s-dlinn']},
+};
+
+let currentRole = null;
+
+function loginAs(role){
+  currentRole = role;
+  const cfg = ROLES[role];
+
+  // Скрыть экран входа
+  document.getElementById('s-login').classList.remove('active');
+
+  // Показать первый доступный экран
+  const firstScreen = cfg.nav[0];
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(firstScreen);
+  if(target) target.classList.add('active');
+
+  // Обновить навигацию
+  updateNav(role, firstScreen);
+}
+
+function updateNav(role, activeScreen){
+  const cfg = ROLES[role];
+  const nav = document.querySelector('.bottom-nav');
+  if(!nav) return;
+
+  const NAV_LABELS = {
+    's-home':'Главная','s-tonary':'Тонары','s-mixer':'Миксеры',
+    's-dlinn':'Длинномеры','s-dt':'Топливо','s-director':'Дашборд',
+    's-service':'Сервис','s-driver-dash':'Кабинет','s-mechanic-dash':'Кабинет',
+    's-accountant':'Документы','s-parts':'Запчасти',
+  };
+  const NAV_ICONS = {
+    's-home':'🏠','s-tonary':'🚛','s-mixer':'🔄','s-dlinn':'🚚',
+    's-dt':'⛽','s-director':'📊','s-service':'🔧','s-driver-dash':'👤',
+    's-mechanic-dash':'👤','s-accountant':'📋','s-parts':'🔩',
+  };
+
+  nav.innerHTML = cfg.nav.map(s => `
+    <button class="nav-item${s===activeScreen?' active':''}" onclick="navToRole('${s}',this)">
+      <span class="nav-icon">${NAV_ICONS[s]||'•'}</span>${NAV_LABELS[s]||s}
+    </button>
+  `).join('');
+}
+
+function navToRole(screenId, btn){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(screenId);
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+
+function logout(){
+  currentRole = null;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-login').classList.add('active');
+  // Сбросить навигацию
+  const nav = document.querySelector('.bottom-nav');
+  if(nav) nav.innerHTML = '';
+}
+
+function switchToService(){
+  navToRole('s-service', null);
+  if(currentRole) updateNav(currentRole, 's-service');
+}
+
+// ═══════════════════ БУХГАЛТЕР ═══════════════════
+function setAccFilter(filter, btn){
+  document.querySelectorAll('#s-accountant .period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const cards = document.querySelectorAll('.acc-trip-card');
+  cards.forEach(card => {
+    if(filter==='all') card.style.display='block';
+    else if(filter==='no_upd') card.style.display = card.classList.contains('no-upd') ? 'block' : 'none';
+    else if(filter==='no_tn') card.style.display = card.classList.contains('no-tn') ? 'block' : 'none';
+    else if(filter==='done') card.style.display = card.classList.contains('done') ? 'block' : 'none';
+  });
+}
+
+function showAddTn(btn){
+  const form = btn.nextElementSibling;
+  form.style.display = form.style.display==='none' ? 'block' : 'none';
+  btn.textContent = form.style.display==='none' ? '📎 Добавить ТН' : '✕ Отмена';
+}
+
+function saveTn(btn){
+  const card = btn.closest('.acc-trip-card');
+  card.classList.remove('no-tn');
+  card.classList.add('no-upd');
+  const badge = card.querySelector('.acc-status-badge');
+  badge.className = 'acc-status-badge red';
+  badge.textContent = 'Нет УПД';
+  const actions = card.querySelector('.acc-trip-actions');
+  actions.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+    <a href="#" style="font-size:11px;color:var(--blue);">📄 Смотреть ТН</a>
+    <div style="flex:1;"></div>
+    <button class="acc-btn-upd" onclick="markUpd(this)">✓ УПД выставлен</button>
+  </div>`;
+  // Уведомление
+  alert('ТН добавлена! Уведомление директору отправлено.');
+}
+
+function markUpd(btn){
+  const card = btn.closest('.acc-trip-card');
+  card.classList.remove('no-upd');
+  card.classList.add('done');
+  card.style.opacity = '.7';
+  const badge = card.querySelector('.acc-status-badge');
+  badge.className = 'acc-status-badge green';
+  badge.textContent = 'УПД ✓';
+  btn.parentElement.removeChild(btn);
+  alert('УПД отмечен! Уведомление директору отправлено.');
+}
+
+// ═══════════════════ СЛЕСАРЬ - КАЛЕНДАРЬ ═══════════════════
+function setMechPeriod(p, btn){
+  document.querySelectorAll('#s-mechanic-dash .period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMechCalendar(p);
+}
+
+function renderMechCalendar(period){
+  const cal = document.getElementById('mech-calendar');
+  if(!cal) return;
+  // Март 2026: 1 марта = воскресенье (dow=0), сдвиг = 6
+  const workedDays = [2,3,4,5,6,9,10,11,12,13,16,17,18,19,20,23,24,25,26,27,28,30,31];
+  const totalDays = 31;
+  const startDow = 6; // понедельник=0, воскресенье=6; 1 марта 2026 = воскресенье
+  let html = '';
+  for(let i=0;i<startDow;i++) html += '<div class="mech-day empty"></div>';
+  for(let d=1;d<=totalDays;d++){
+    const worked = workedDays.includes(d);
+    html += `<div class="mech-day ${worked?'worked':'off'}">${d}</div>`;
+  }
+  cal.innerHTML = html;
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded',()=>{
+  renderMechCalendar('month');
+});
+
+function submitOk(btn,subId,menuId){
+  const orig=btn.textContent;
+  btn.textContent='✓ Сохранено!';
+  btn.style.background='var(--green)';
+  setTimeout(()=>{
+    hideSub(menuId,subId);
+    btn.textContent=orig;
+    btn.style.background='';
+  },1000);
+}
+</script>
+</body>
+</html>
