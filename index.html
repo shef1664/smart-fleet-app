@@ -3,249 +3,272 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Умный автопарк</title>
+<title>Ежедневный отчёт</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 :root {
-  --bg:#000;--bg1:#0a0a0a;--bg2:#111;--bg3:#1c1c1e;--bg4:#2c2c2e;--bg5:#3a3a3c;
-  --t1:#fff;--t2:rgba(235,235,245,.8);--t3:rgba(235,235,245,.6);--t4:rgba(235,235,245,.35);
-  --blue:#0a84ff;--green:#30d158;--orange:#ff9f0a;--red:#ff453a;--purple:#bf5af2;
-  --sep:rgba(255,255,255,.08);--r:14px;--r2:20px;
+  --bg:#080810;--bg1:#0D0D1A;--bg2:#0D0D1A;--bg3:#12121F;--bg4:#1A1A2E;--bg5:#22223A;--bg6:#2A2A45;
+  --accent:#7C5CFC;--accent2:#9B7FFF;--accent-dim:rgba(124,92,252,.15);--accent-glow:rgba(124,92,252,.06);
+  --green:#34D17A;--green-dim:rgba(52,209,122,.12);
+  --red:#FF4D4D;--red-dim:rgba(255,77,77,.12);
+  --orange:#FF9500;--orange-dim:rgba(255,149,0,.12);
+  --t1:#F0EEFF;--t2:#B8B0D8;--t3:#7A7498;--t4:#4A4468;
+  --sep:rgba(124,92,252,.15);--sep2:rgba(255,255,255,.06);
+  --r:14px;--r2:18px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;min-height:100vh;overflow-x:hidden;}
-
-/* LAYOUT */
-.app{max-width:430px;margin:0 auto;padding:0 0 80px;}
-.screen{display:none;padding:16px 16px 0;animation:up .2s ease;}
+body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+.app{max-width:430px;margin:0 auto;padding:0 0 88px;}
+.screen{display:none;padding:20px 16px 0;animation:fadeUp .2s ease;}
 .screen.active{display:block;}
-@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(0,0,0,.85);backdrop-filter:blur(20px);border-top:1px solid var(--sep);display:flex;z-index:100;padding:8px 0 max(8px,env(safe-area-inset-bottom));}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;border:none;background:transparent;color:var(--t4);font-size:10px;font-weight:500;cursor:pointer;transition:color .15s;}
-.nav-item.active{color:var(--blue);}
-.nav-icon{font-size:22px;line-height:1;}
-
-/* TOPBAR */
-.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;padding-top:8px;}
-.page-title{font-size:30px;font-weight:700;letter-spacing:-.5px;}
-.page-sub{font-size:14px;color:var(--t3);margin-top:3px;}
-.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
-
-/* CARDS */
-.card{background:var(--bg3);border-radius:var(--r2);padding:18px;margin-bottom:10px;}
-.card-title{font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:14px;}
-
-/* BIG BUTTON */
-.big-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:var(--r2);padding:18px 20px;font-size:17px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:14px;margin-bottom:10px;transition:opacity .15s,transform .1s;text-align:left;}
-.big-btn:active{opacity:.8;transform:scale(.98);}
-.big-btn.green{background:var(--green);}
-.big-btn.orange{background:var(--orange);}
-.big-btn.red{background:var(--red);}
-.big-btn.purple{background:var(--purple);}
-.big-btn.dark{background:var(--bg3);}
-.btn-ico{width:44px;height:44px;background:rgba(255,255,255,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.dark .btn-ico{background:var(--bg4);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(8,8,16,.97);border-top:1px solid var(--sep);display:flex;z-index:100;padding:10px 0 max(10px,env(safe-area-inset-bottom));}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;border:none;background:transparent;color:var(--t4);font-size:9px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.3px;text-transform:uppercase;}
+.nav-item.active{color:var(--accent2);}
+.nav-icon{font-size:18px;line-height:1;}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-top:4px;}
+.page-title{font-size:26px;font-weight:800;letter-spacing:-.5px;color:var(--t1);}
+.page-sub{font-size:13px;color:var(--t3);margin-top:3px;font-weight:500;}
+.avatar{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+.card{background:var(--bg3);border-radius:var(--r2);padding:18px;margin-bottom:12px;border:1px solid var(--sep);}
+.card-title{font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
+.big-btn{width:100%;background:var(--bg3);color:var(--t1);border:1px solid var(--sep);border-radius:var(--r2);padding:16px 18px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;display:flex;align-items:center;gap:14px;margin-bottom:10px;transition:all .2s;text-align:left;}
+.big-btn:active{transform:scale(.98);background:var(--bg4);}
+.big-btn.green{border-color:rgba(52,209,122,.25);background:rgba(52,209,122,.06);}
+.big-btn.orange{border-color:rgba(255,149,0,.2);background:rgba(255,149,0,.06);}
+.big-btn.red{border-color:rgba(255,77,77,.2);background:rgba(255,77,77,.06);}
+.big-btn.purple{border-color:rgba(124,92,252,.3);background:var(--accent-dim);}
+.big-btn.dark{background:var(--bg3);border-color:var(--sep);}
+.btn-ico{width:44px;height:44px;background:var(--accent-dim);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid var(--sep);}
 .btn-body{flex:1;}
-.btn-title{font-size:17px;font-weight:600;color:#fff;}
-.dark .btn-title{color:var(--t1);}
-.btn-sub{font-size:13px;opacity:.7;font-weight:400;margin-top:2px;color:#fff;}
-.dark .btn-sub{color:var(--t3);}
-.chevron{color:rgba(255,255,255,.5);font-size:16px;margin-left:auto;}
-.dark .chevron{color:var(--t4);}
-
-/* MENU GRID */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.grid-item{background:var(--bg3);border-radius:var(--r2);padding:18px 16px;cursor:pointer;border:none;color:var(--t1);font-family:inherit;text-align:left;transition:opacity .15s,transform .1s;}
-.grid-item:active{opacity:.7;transform:scale(.97);}
-.gi-icon{font-size:28px;margin-bottom:10px;display:block;}
-.gi-label{font-size:15px;font-weight:600;display:block;}
-.gi-badge{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700;}
-.badge-red{background:rgba(255,69,58,.2);color:var(--red);}
-.badge-blue{background:rgba(10,132,255,.2);color:var(--blue);}
-.badge-green{background:rgba(48,209,88,.2);color:var(--green);}
-
-/* STATS */
-.stats2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.stat-box{background:var(--bg3);border-radius:var(--r2);padding:18px 16px;}
-.stat-val{font-size:28px;font-weight:700;letter-spacing:-.5px;}
+.btn-title{font-size:15px;font-weight:700;color:var(--t1);}
+.btn-sub{font-size:12px;color:var(--t3);font-weight:400;margin-top:2px;}
+.chevron{color:var(--t4);font-size:16px;margin-left:auto;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.grid-item{background:var(--bg3);border-radius:var(--r2);padding:18px 16px;cursor:pointer;border:1px solid var(--sep);color:var(--t1);font-family:'Inter',sans-serif;text-align:left;transition:all .2s;}
+.grid-item:active{transform:scale(.97);}
+.gi-icon{font-size:24px;margin-bottom:10px;display:block;}
+.gi-label{font-size:14px;font-weight:700;display:block;}
+.gi-badge{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+.badge-red{background:var(--red-dim);color:var(--red);}
+.badge-blue{background:var(--accent-dim);color:var(--accent2);}
+.badge-green{background:var(--green-dim);color:var(--green);}
+.stats2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.stat-box{background:var(--bg3);border-radius:var(--r2);padding:18px 16px;border:1px solid var(--sep);}
+.stat-val{font-size:28px;font-weight:800;letter-spacing:-.5px;}
 .stat-val.green{color:var(--green);}
-.stat-val.blue{color:var(--blue);}
+.stat-val.blue{color:var(--accent2);}
 .stat-val.orange{color:var(--orange);}
 .stat-val.red{color:var(--red);}
-.stat-lbl{font-size:12px;color:var(--t3);margin-top:4px;}
-
-/* BIG STAT */
-.big-stat{background:var(--bg3);border-radius:var(--r2);padding:22px 18px;margin-bottom:10px;}
-.bs-lbl{font-size:13px;color:var(--t3);margin-bottom:6px;}
-.bs-val{font-size:40px;font-weight:700;letter-spacing:-1px;}
+.stat-lbl{font-size:12px;color:var(--t3);margin-top:4px;font-weight:500;}
+.big-stat{background:var(--bg3);border-radius:var(--r2);padding:22px 18px;margin-bottom:12px;border:1px solid var(--sep);}
+.bs-lbl{font-size:12px;color:var(--t3);margin-bottom:6px;font-weight:500;}
+.bs-val{font-size:38px;font-weight:800;letter-spacing:-1px;}
 .bs-val.green{color:var(--green);}
-.bs-delta{font-size:13px;color:var(--green);margin-top:4px;}
-
-/* LIST ROWS */
-.list-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--sep);}
+.bs-delta{font-size:13px;color:var(--green);margin-top:4px;font-weight:600;}
+.list-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--sep2);}
 .list-row:last-child{border-bottom:none;}
-.row-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.row-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .dot-green{background:var(--green);}
-.dot-blue{background:var(--blue);}
+.dot-blue{background:var(--accent);}
 .dot-orange{background:var(--orange);}
 .dot-red{background:var(--red);}
 .row-info{flex:1;}
-.row-title{font-size:15px;font-weight:500;}
-.row-sub{font-size:13px;color:var(--t3);margin-top:2px;}
+.row-title{font-size:14px;font-weight:600;}
+.row-sub{font-size:12px;color:var(--t3);margin-top:2px;}
 .row-right{text-align:right;flex-shrink:0;}
-.row-val{font-size:15px;font-weight:600;}
-.row-time{font-size:12px;color:var(--t4);margin-top:2px;}
-
-/* PROGRESS */
-.prog-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--sep);}
+.row-val{font-size:14px;font-weight:700;}
+.row-time{font-size:11px;color:var(--t4);margin-top:2px;}
+.prog-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--sep2);}
 .prog-row:last-child{border-bottom:none;}
-.prog-lbl{font-size:14px;font-weight:500;width:115px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.prog-track{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
-.prog-fill{height:100%;border-radius:3px;transition:width .6s ease;}
-.prog-count{font-size:13px;color:var(--t3);width:32px;text-align:right;flex-shrink:0;}
-
-/* ALERTS */
-.alert-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--sep);}
+.prog-lbl{font-size:13px;font-weight:600;width:115px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prog-track{flex:1;height:4px;background:var(--bg5);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:2px;}
+.prog-count{font-size:12px;color:var(--t3);width:32px;text-align:right;flex-shrink:0;font-weight:600;}
+.alert-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--sep2);}
 .alert-row:last-child{border-bottom:none;}
-.alert-ico{font-size:20px;flex-shrink:0;}
+.alert-ico{font-size:18px;flex-shrink:0;}
 .alert-body{flex:1;}
-.alert-title{font-size:14px;font-weight:500;}
+.alert-title{font-size:14px;font-weight:600;}
 .alert-sub{font-size:12px;color:var(--t3);margin-top:2px;}
-.alert-time{font-size:12px;color:var(--t4);flex-shrink:0;}
-
-/* SECTION LABEL */
-.sec-lbl{font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin:18px 0 10px 2px;}
-
-/* REPEAT CARD */
-.repeat-card{background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:opacity .15s;}
-.repeat-card:active{opacity:.7;}
-.rep-icon{width:46px;height:46px;background:var(--bg4);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.alert-time{font-size:12px;color:var(--t4);flex-shrink:0;font-weight:600;}
+.sec-lbl{font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.8px;margin:20px 0 10px 0;}
+.repeat-card{background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s;border:1px solid var(--sep);}
+.repeat-card:active{transform:scale(.98);}
+.rep-icon{width:46px;height:46px;background:var(--accent-dim);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1px solid var(--sep);}
 .rep-info{flex:1;}
-.rep-title{font-size:15px;font-weight:600;}
-.rep-sub{font-size:13px;color:var(--t3);margin-top:2px;}
-.rep-btn{background:var(--blue);color:#fff;border:none;border-radius:20px;padding:8px 16px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;}
-
-/* BADGE PILL */
-.pill{display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:500;color:var(--t2);margin-bottom:16px;}
+.rep-title{font-size:15px;font-weight:700;}
+.rep-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.rep-btn{background:var(--accent);color:#fff;border:none;border-radius:20px;padding:8px 16px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border-radius:20px;padding:6px 12px;font-size:13px;font-weight:500;color:var(--t2);margin-bottom:16px;border:1px solid var(--sep);}
 .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
-
-/* FORM */
 .form-block{margin-bottom:18px;}
-.form-lbl{font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;padding-left:2px;}
+.form-lbl{font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;padding-left:2px;}
 .chips{display:flex;flex-wrap:wrap;gap:8px;}
-.chip{background:var(--bg3);border:1.5px solid var(--bg5);color:var(--t2);border-radius:20px;padding:9px 16px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;transition:all .15s;}
-.chip.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+.chip{background:var(--bg4);border:1px solid var(--sep);color:var(--t2);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff;}
 .chip:active{transform:scale(.96);}
-.chip.green.on{background:var(--green);border-color:var(--green);}
-.chip.orange.on{background:var(--orange);border-color:var(--orange);}
-.inp{width:100%;background:var(--bg3);border:1.5px solid var(--bg5);border-radius:var(--r);padding:14px 16px;font-size:16px;color:var(--t1);font-family:inherit;outline:none;transition:border-color .2s;}
-.inp:focus{border-color:var(--blue);}
+.chip.green.on{background:var(--green);border-color:var(--green);color:#000;}
+.chip.orange.on{background:var(--orange);border-color:var(--orange);color:#000;}
+.inp{width:100%;background:var(--bg4);border:1px solid var(--sep);border-radius:var(--r);padding:14px 16px;font-size:15px;color:var(--t1);font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;}
+.inp:focus{border-color:var(--accent);}
 .inp::placeholder{color:var(--t4);}
-.auto-row{background:var(--bg3);border-radius:var(--r);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.auto-row{background:var(--bg4);border-radius:var(--r);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border:1px solid var(--sep);}
 .auto-lbl{font-size:13px;color:var(--t3);}
-.auto-val{font-size:15px;font-weight:500;display:flex;align-items:center;gap:6px;}
-.auto-tag{font-size:10px;background:var(--green);color:#000;border-radius:5px;padding:2px 6px;font-weight:700;}
-.voice-row{width:100%;background:var(--bg3);border:1.5px dashed var(--bg5);border-radius:var(--r);padding:16px;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--t3);font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;transition:all .2s;}
-.voice-row:active{border-color:var(--blue);color:var(--blue);}
-.photo-zone{background:var(--bg3);border:1.5px dashed var(--bg5);border-radius:var(--r2);padding:28px 20px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:8px;}
-.photo-zone:active{border-color:var(--blue);}
-
-/* Дата */
-.date-display{background:var(--bg3);border-radius:var(--r);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.date-display .date-val{font-size:16px;font-weight:600;color:var(--t1);}
+.auto-val{font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px;}
+.auto-tag{font-size:9px;background:var(--accent);color:#fff;border-radius:5px;padding:2px 6px;font-weight:700;}
+.voice-row{width:100%;background:var(--bg4);border:1.5px dashed var(--sep);border-radius:var(--r);padding:16px;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--t3);font-size:14px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;}
+.voice-row:active{border-color:var(--accent);color:var(--accent);}
+.photo-zone{background:var(--bg4);border:1.5px dashed var(--sep);border-radius:var(--r2);padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:8px;}
+.photo-zone:active{border-color:var(--accent);}
+.pz-icon{font-size:28px;margin-bottom:8px;}
+.pz-title{font-size:14px;font-weight:600;color:var(--t2);}
+.pz-sub{font-size:12px;color:var(--t4);margin-top:3px;}
+.submit{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r2);padding:18px;font-size:16px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;margin-top:10px;transition:all .2s;}
+.submit:active{opacity:.85;transform:scale(.99);}
+.submit.green{background:var(--green);color:#000;}
+.divider{height:1px;background:var(--sep2);margin:4px 0 16px;}
+.date-display{background:var(--bg4);border-radius:var(--r);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border:1px solid var(--sep);}
+.date-display .date-val{font-size:16px;font-weight:700;color:var(--t1);}
 .date-display .date-lbl{font-size:12px;color:var(--t3);}
-.calendar-wrap{background:var(--bg3);border-radius:var(--r2);padding:16px;margin-bottom:8px;display:none;}
+.calendar-wrap{background:var(--bg4);border-radius:var(--r2);padding:16px;margin-bottom:8px;display:none;border:1px solid var(--sep);}
 .calendar-wrap.show{display:block;}
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.cal-nav{background:none;border:none;color:var(--blue);font-size:20px;cursor:pointer;padding:4px 8px;line-height:1;}
-.cal-month{font-size:15px;font-weight:600;color:var(--t1);}
+.cal-nav{background:none;border:none;color:var(--accent2);font-size:20px;cursor:pointer;padding:4px 8px;line-height:1;}
+.cal-month{font-size:15px;font-weight:700;color:var(--t1);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
 .cal-day-name{font-size:11px;color:var(--t4);text-align:center;padding:4px 0;font-weight:500;}
-.cal-day{font-size:13px;text-align:center;padding:7px 2px;border-radius:8px;cursor:pointer;color:var(--t2);border:none;background:none;font-family:inherit;transition:background .15s;}
-.cal-day:hover{background:var(--bg4);}
-.cal-day.today{color:var(--blue);font-weight:700;}
-.cal-day.selected{background:var(--blue);color:#fff;font-weight:600;}
+.cal-day{font-size:13px;text-align:center;padding:7px 2px;border-radius:8px;cursor:pointer;color:var(--t2);border:none;background:none;font-family:'Inter',sans-serif;transition:all .15s;}
+.cal-day:hover{background:var(--bg5);}
+.cal-day.today{color:var(--accent2);font-weight:700;}
+.cal-day.selected{background:var(--accent);color:#fff;font-weight:600;}
 .cal-day.other-month{color:var(--t4);}
-.cal-day:empty{pointer-events:none;}
-.pz-icon{font-size:30px;margin-bottom:8px;}
-.pz-title{font-size:15px;font-weight:500;color:var(--t2);}
-.pz-sub{font-size:13px;color:var(--t4);margin-top:3px;}
-.submit{width:100%;background:var(--blue);color:#fff;border:none;border-radius:var(--r2);padding:18px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:10px;transition:opacity .15s,transform .1s;}
-.submit:active{opacity:.8;transform:scale(.98);}
-.submit.green{background:var(--green);}
-.divider{height:1px;background:var(--sep);margin:4px 0 16px;}
-
-/* Дашборд директора */
-.period-btn{flex:1;background:var(--bg3);border:none;border-radius:20px;padding:8px 4px;font-size:13px;font-weight:500;color:var(--t3);font-family:inherit;cursor:pointer;transition:all .15s;}
-.period-btn.active{background:var(--blue);color:#fff;}
-.dir-card{background:var(--bg3);border-radius:var(--r2);padding:18px 16px;margin-bottom:0;}
-.dir-card-lbl{font-size:12px;color:var(--t3);margin-bottom:4px;}
-.dir-card-val{font-size:28px;font-weight:700;letter-spacing:-.5px;}
+.period-btn{flex:1;background:var(--bg4);border:1px solid var(--sep);border-radius:20px;padding:9px 4px;font-size:12px;font-weight:600;color:var(--t3);font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;}
+.period-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.dir-card{background:var(--bg3);border-radius:var(--r2);padding:18px 16px;margin-bottom:0;border:1px solid var(--sep);}
+.dir-card-lbl{font-size:11px;color:var(--t3);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;}
+.dir-card-val{font-size:28px;font-weight:800;letter-spacing:-.5px;}
 .dir-card-val.green{color:var(--green);}
 .dir-card-val.red{color:var(--red);}
-.dir-card-val.blue{color:var(--blue);}
+.dir-card-val.blue{color:var(--accent2);}
 .dir-card-val.orange{color:var(--orange);}
 .dir-card-delta{font-size:12px;color:var(--t3);margin-top:3px;}
-.dir-alerts-card{background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;}
-.dir-alert-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--sep);}
+.dir-alerts-card{background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:12px;border:1px solid var(--sep);}
+.dir-alert-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--sep2);}
 .dir-alert-row:last-child{border-bottom:none;}
 .dir-alert-row.red .dir-alert-dot{background:var(--red);}
-.dir-alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dir-alert-row.orange .dir-alert-dot{background:var(--orange);}
+.dir-alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--accent);}
 .dir-alert-body{flex:1;}
-.dir-alert-title{font-size:14px;font-weight:500;}
+.dir-alert-title{font-size:14px;font-weight:600;}
 .dir-alert-sub{font-size:12px;color:var(--t3);margin-top:2px;}
-.dir-alert-time{font-size:12px;color:var(--t4);flex-shrink:0;}
-.fleet-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--sep);}
+.dir-alert-time{font-size:12px;color:var(--t4);flex-shrink:0;font-weight:600;}
+.fleet-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--sep2);}
 .fleet-row:last-child{border-bottom:none;}
-.fleet-num{font-size:14px;font-weight:700;width:32px;flex-shrink:0;color:var(--t1);}
+.fleet-num{font-size:14px;font-weight:800;width:32px;flex-shrink:0;}
 .fleet-type{font-size:11px;color:var(--t4);width:56px;flex-shrink:0;}
-.fleet-bar-wrap{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
-.fleet-bar{height:100%;border-radius:3px;}
-.fleet-stat{font-size:13px;font-weight:600;width:44px;text-align:right;flex-shrink:0;}
+.fleet-bar-wrap{flex:1;height:4px;background:var(--bg5);border-radius:2px;overflow:hidden;}
+.fleet-bar{height:100%;border-radius:2px;}
+.fleet-stat{font-size:13px;font-weight:700;width:44px;text-align:right;flex-shrink:0;}
 .fleet-stat.green{color:var(--green);}
-.fleet-stat.blue{color:var(--blue);}
+.fleet-stat.blue{color:var(--accent2);}
 .fleet-stat.orange{color:var(--orange);}
 .fleet-stat.red{color:var(--red);}
-.expense-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--sep);}
+.expense-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--sep2);}
 .expense-row:last-child{border-bottom:none;}
-.expense-num{font-size:14px;font-weight:700;width:36px;flex-shrink:0;}
-.expense-bar-wrap{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
-.expense-bar{height:100%;border-radius:3px;}
-.expense-val{font-size:13px;font-weight:600;width:68px;text-align:right;flex-shrink:0;color:var(--t2);}
+.expense-num{font-size:14px;font-weight:800;width:36px;flex-shrink:0;}
+.expense-bar-wrap{flex:1;height:4px;background:var(--bg5);border-radius:2px;overflow:hidden;}
+.expense-bar{height:100%;border-radius:2px;}
+.expense-val{font-size:13px;font-weight:700;width:68px;text-align:right;flex-shrink:0;color:var(--t2);}
 .expense-val.red{color:var(--red);}
-.client-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--sep);}
-.client-rank{width:20px;height:20px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--t3);flex-shrink:0;}
+.client-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--sep2);}
+.client-rank{width:22px;height:22px;border-radius:50%;background:var(--bg5);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--t3);flex-shrink:0;}
 .client-info{flex:1;}
-.client-name{font-size:14px;font-weight:500;}
+.client-name{font-size:14px;font-weight:600;}
 .client-sub{font-size:12px;color:var(--t3);margin-top:2px;}
-.client-val{font-size:15px;font-weight:700;flex-shrink:0;}
+.client-val{font-size:15px;font-weight:800;flex-shrink:0;}
 .client-val.green{color:var(--green);}
-.client-val.blue{color:var(--blue);}
+.client-val.blue{color:var(--accent2);}
 .client-val.orange{color:var(--orange);}
-.cash-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--sep);}
+.cash-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--sep2);}
 .cash-row:last-child{border-bottom:none;}
-.cash-who{font-size:13px;font-weight:500;flex:1;}
+.cash-who{font-size:13px;font-weight:600;flex:1;}
 .cash-truck{font-size:12px;width:28px;flex-shrink:0;}
 .cash-amount{font-size:14px;font-weight:700;flex-shrink:0;}
 .cash-amount.green{color:var(--green);}
 .cash-amount.orange{color:var(--orange);}
-.cash-status{font-size:11px;width:64px;text-align:right;flex-shrink:0;}
+.cash-status{font-size:11px;width:64px;text-align:right;flex-shrink:0;font-weight:600;}
 .cash-status.green{color:var(--green);}
 .cash-status.orange{color:var(--orange);}
 .other-input{display:none;margin-top:8px;}
 .other-input.show{display:block;}
-
-/* SUB SCREEN */
 .sub-screen{display:none;}
 .sub-screen.active{display:block;}
-.back-btn{background:none;border:none;color:var(--blue);font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px;}
-.role-btn{width:100%;background:var(--bg3);border:1px solid var(--sep);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;text-align:left;transition:background .15s;}
+.back-btn{background:none;border:none;color:var(--accent2);font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px;}
+.role-btn{width:100%;background:var(--bg3);border:1px solid var(--sep);border-radius:var(--r2);padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;font-family:'Inter',sans-serif;text-align:left;transition:all .2s;margin-bottom:8px;}
 .role-btn:active{background:var(--bg4);}
-.role-icon{font-size:24px;flex-shrink:0;}
+.role-btn.selected .role-icon{color:var(--accent)!important;font-weight:700;}
+.role-btn.selected{background:var(--accent-dim);border-color:rgba(124,92,252,.35);}
+.role-icon{font-size:22px;flex-shrink:0;}
 .role-info{flex:1;}
-.role-name{font-size:16px;font-weight:600;color:var(--t1);}
+.role-name{font-size:16px;font-weight:700;color:var(--t1);}
 .role-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.svc-card-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--sep2);cursor:pointer;}
+.svc-card-row:last-child{border-bottom:none;}
+.svc-status-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.svc-card-info{flex:1;}
+.svc-card-title{font-size:14px;font-weight:700;}
+.svc-card-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.svc-card-right{text-align:right;flex-shrink:0;}
+.svc-card-km{font-size:11px;color:var(--t4);margin-top:4px;}
+.svc-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;}
+.svc-badge.orange{background:var(--orange-dim);color:var(--orange);}
+.svc-badge.red{background:var(--red-dim);color:var(--red);}
+.svc-badge.green{background:var(--green-dim);color:var(--green);}
+.svc-badge.blue{background:var(--accent-dim);color:var(--accent2);}
+.svc-active-card{background:var(--bg3);border-radius:var(--r2);padding:16px 18px;cursor:pointer;transition:all .2s;border:1px solid var(--sep);}
+.svc-work-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--sep2);}
+.svc-work-row:last-child{border-bottom:none;}
+.svc-work-info{flex:1;}
+.svc-work-title{font-size:14px;font-weight:600;}
+.svc-work-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.parts-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--sep2);}
+.parts-row:last-child{border-bottom:none;}
+.parts-cat-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.parts-info{flex:1;}
+.parts-title{font-size:14px;font-weight:600;}
+.parts-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.parts-right{text-align:right;flex-shrink:0;}
+.parts-price{font-size:15px;font-weight:700;}
+.parts-pay-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-top:3px;}
+.parts-pay-badge.green{background:var(--green-dim);color:var(--green);}
+.parts-pay-badge.orange{background:var(--orange-dim);color:var(--orange);}
+.parts-pay-badge.red{background:var(--red-dim);color:var(--red);}
+.pay-toggle-row{display:flex;align-items:center;gap:12px;background:var(--bg4);border:1px solid var(--sep);border-radius:var(--r);padding:13px 16px;cursor:pointer;transition:border-color .15s;margin-bottom:8px;}
+.pay-toggle-row:has(input:checked){border-color:var(--accent);}
+.pay-toggle-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+.pay-toggle-label{font-size:14px;font-weight:600;flex-shrink:0;}
+.pay-toggle-hint{font-size:12px;color:var(--t3);}
+.salary-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--sep2);}
+.salary-row:last-child{border-bottom:none;}
+.salary-row.bonus{background:rgba(124,92,252,.08);border-radius:12px;padding:10px;margin:4px -10px;border:1px solid rgba(124,92,252,.2);}
+.salary-num{width:26px;height:26px;border-radius:8px;background:var(--bg5);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--t3);flex-shrink:0;}
+.salary-info{flex:1;}
+.salary-title{font-size:14px;font-weight:600;}
+.salary-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.salary-rate{font-size:15px;font-weight:800;color:var(--green);flex-shrink:0;}
+.plan-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.plan-info{flex:1;}
+.plan-name{font-size:14px;font-weight:600;}
+.plan-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.plan-pct{font-size:16px;font-weight:800;flex-shrink:0;width:44px;text-align:right;}
+.plan-pct.green{color:var(--green);}
+.plan-pct.orange{color:var(--orange);}
+.plan-pct.blue{color:var(--accent2);}
+.advance-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--sep2);}
+.notification{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--bg4);color:var(--t1);border:1px solid var(--sep);border-radius:var(--r);padding:11px 18px;font-size:13px;font-weight:600;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+.notification.show{opacity:1;}
 </style>
 </head>
 <body>
@@ -255,36 +278,36 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 <div class="screen" id="s-home">
   <div class="topbar">
     <div>
-      <div class="page-title">Добрый день</div>
-      <div class="page-sub">Иванов А.В. · КамАЗ А123БВ</div>
+      <div class="page-sub" id="home-driver-info" style="font-size:15px;font-weight:600;color:var(--t1);">Главная</div>
     </div>
-    <div class="avatar" style="background:linear-gradient(135deg,#0a84ff,#30d158)">АИ</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
+      <div class="avatar" id="home-avatar" style="background:linear-gradient(135deg,var(--accent),#30d158)">--</div>
+    </div>
   </div>
 
-  <div class="pill"><span class="pill-dot"></span>Смена активна · 08:42</div>
-
   <div class="sec-lbl">Быстрый старт</div>
-  <div class="repeat-card" onclick="go('s-tonary')">
+  <div class="repeat-card" id="home-repeat-trip" onclick="go('s-tonary')">
     <div class="rep-icon">🔁</div>
     <div class="rep-info">
       <div class="rep-title">Повторить прошлый рейс</div>
-      <div class="rep-sub">Щебень 20-40 · Карьер Северный → СтройГрупп · 32 т</div>
+      <div class="rep-sub" id="home-last-trip">Загрузка...</div>
     </div>
     <button class="rep-btn">Старт</button>
   </div>
 
   <div class="sec-lbl">Разделы</div>
-  <button class="big-btn" onclick="go('s-tonary')">
+  <button class="big-btn" id="btn-tonary" onclick="go('s-tonary')">
     <div class="btn-ico">🚛</div>
     <div class="btn-body"><div class="btn-title">Тонары</div><div class="btn-sub">Новый рейс · история</div></div>
     <span class="chevron">›</span>
   </button>
-  <button class="big-btn green" onclick="go('s-mixer')">
+  <button class="big-btn green" id="btn-mixer" onclick="go('s-mixer')">
     <div class="btn-ico">🔄</div>
     <div class="btn-body"><div class="btn-title">Миксеры</div><div class="btn-sub">Бетон · раствор · рейс</div></div>
     <span class="chevron">›</span>
   </button>
-  <button class="big-btn purple" onclick="go('s-dlinn')">
+  <button class="big-btn purple" id="btn-dlinn" onclick="go('s-dlinn')">
     <div class="btn-ico">🚚</div>
     <div class="btn-body"><div class="btn-title">Длинномеры</div><div class="btn-sub">Маршрут · груз · ТН</div></div>
     <span class="chevron">›</span>
@@ -299,14 +322,14 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
     <button class="grid-item" onclick="go('s-expense')">
       <span class="gi-icon">🧾</span>
       <span class="gi-label">Расходы</span>
-      <span class="gi-badge badge-red">3 сегодня</span>
+      <span class="gi-badge badge-red" id="home-expense-count">0 сегодня</span>
     </button>
   </div>
 
   <div class="sec-lbl">Сегодня</div>
   <div class="stats2">
-    <div class="stat-box"><div class="stat-val green">5</div><div class="stat-lbl">рейсов</div></div>
-    <div class="stat-box"><div class="stat-val blue">142 т</div><div class="stat-lbl">перевезено</div></div>
+    <div class="stat-box"><div class="stat-val green" id="home-trip-count">--</div><div class="stat-lbl">рейсов</div></div>
+    <div class="stat-box"><div class="stat-val blue" id="home-ton-count">--</div><div class="stat-lbl">перевезено</div></div>
   </div>
 </div>
 
@@ -317,6 +340,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
       <button class="back-btn" onclick="go('s-home')">‹ Назад</button>
       <div class="page-title">Тонары</div>
     </div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
 
   <div id="ton-menu">
@@ -359,22 +383,17 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
     <button class="back-btn" onclick="hideSub('ton-menu','ton-new')">‹ Тонары</button>
     <div class="page-title" style="margin-bottom:20px">Новый рейс</div>
 
-    <div class="auto-row"><span class="auto-lbl">Водитель</span><span class="auto-val">Иванов А.В.<span class="auto-tag">AUTO</span></span></div>
-    <div class="auto-row"><span class="auto-lbl">Машина</span><span class="auto-val">803<span class="auto-tag">AUTO</span></span></div>
-    <div class="auto-row" style="margin-bottom:18px"><span class="auto-lbl">Дата и время</span><span class="auto-val">Сегодня, 14:35<span class="auto-tag">AUTO</span></span></div>
-
     <div class="form-block">
       <div class="form-lbl">🎙 Голосовой ввод</div>
-      <button class="voice-row" onclick="alert('Скажите: «803, щебень, 32 тонны»')">🎙 Надиктовать рейс</button>
+      <button class="voice-row" id="btn-voice-trip" onclick="startVoiceInput('ton')">🎙 Надиктовать рейс</button>
     </div>
 
     <div class="form-block">
       <div class="form-lbl">Автомобиль</div>
-      <div class="chips">
+      <div class="chips" id="ton-truck-chips">
         <button class="chip on" onclick="sel(this)">803</button>
         <button class="chip" onclick="sel(this)">008</button>
         <button class="chip" onclick="sel(this)">709</button>
-        <button class="chip" onclick="sel(this)">137</button>
       </div>
     </div>
 
@@ -384,7 +403,6 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
         <button class="chip on" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Фокин А.В.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
       </div>
       <div class="other-input">
@@ -446,10 +464,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
     <div class="form-block" id="client-block">
       <div class="form-lbl">Заказчик</div>
       <div class="chips" id="client-chips">
-        <button class="chip on" onclick="sel(this);updateObjects(this)">Морозовский</button>
-        <button class="chip" onclick="sel(this);updateObjects(this)">Бетон М</button>
-        <button class="chip" onclick="sel(this);updateObjects(this)">Меркурий</button>
-        <button class="chip" onclick="sel(this);updateObjects(this)">Штенцель (Топки)</button>
+        <button class="chip on" onclick="sel(this);updateObjects(this)">Меркурий</button>
         <button class="chip" onclick="sel(this);updateObjects(this)">СП авто</button>
         <button class="chip" onclick="sel(this);updateObjects(this)">+ Другое</button>
       </div>
@@ -481,19 +496,27 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 
     <div class="form-block">
       <div class="form-lbl">Фото ТН</div>
-      <div class="photo-zone" onclick="alert('Камера: лицевая сторона ТН')">
+      <div class="photo-zone" onclick="document.getElementById('tn-photo-front').click()">
         <div class="pz-icon">📷</div>
         <div class="pz-title">Фото ТН (лицевая)</div>
-        <div class="pz-sub">ИИ распознает данные автоматически</div>
+        <div class="pz-sub">Нажмите для открытия камеры</div>
+        <input type="file" id="tn-photo-front" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'tn-front')">
       </div>
-      <div class="photo-zone" onclick="alert('Камера: оборотная сторона ТН')">
+      <div id="tn-front-preview" style="display:none;margin-bottom:8px;">
+        <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="tn-front-img">
+      </div>
+      <div class="photo-zone" onclick="document.getElementById('tn-photo-back').click()">
         <div class="pz-icon">📄</div>
         <div class="pz-title">Фото ТН (оборотная)</div>
         <div class="pz-sub">Необязательно</div>
+        <input type="file" id="tn-photo-back" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'tn-back')">
+      </div>
+      <div id="tn-back-preview" style="display:none;margin-bottom:8px;">
+        <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="tn-back-img">
       </div>
     </div>
 
-    <button class="submit" onclick="submitOk(this,'ton-new','ton-menu')">Отправить рейс</button>
+    <button class="submit" onclick="submitTonarTrip(this)">Отправить рейс</button>
   </div>
 </div>
 
@@ -504,6 +527,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
       <button class="back-btn" onclick="go('s-home')">‹ Назад</button>
       <div class="page-title">Миксеры</div>
     </div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
 
   <div id="mix-menu">
@@ -693,11 +717,25 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 
     <div class="form-block">
       <div class="form-lbl">Фото документов</div>
-      <div class="photo-zone" onclick="alert('Фото ТН')"><div class="pz-icon">📷</div><div class="pz-title">Фото ТН</div></div>
-      <div class="photo-zone" onclick="alert('Фото рапорт-наряда')"><div class="pz-icon">📄</div><div class="pz-title">Фото рапорт-наряда</div></div>
+      <div class="photo-zone" onclick="document.getElementById('mix-tn-photo').click()">
+        <div class="pz-icon">📷</div>
+        <div class="pz-title">Фото ТН</div>
+        <input type="file" id="mix-tn-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'mix-tn')">
+      </div>
+      <div id="mix-tn-preview" style="display:none;margin-bottom:8px;">
+        <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="mix-tn-img">
+      </div>
+      <div class="photo-zone" onclick="document.getElementById('mix-raport-photo').click()">
+        <div class="pz-icon">📄</div>
+        <div class="pz-title">Фото рапорт-наряда</div>
+        <input type="file" id="mix-raport-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'mix-raport')">
+      </div>
+      <div id="mix-raport-preview" style="display:none;margin-bottom:8px;">
+        <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="mix-raport-img">
+      </div>
     </div>
 
-    <button class="submit green" onclick="submitOk(this,'mix-new','mix-menu')">Отправить рейс</button>
+    <button class="submit green" onclick="submitMixerTrip(this)">Отправить рейс</button>
   </div>
 </div>
 
@@ -708,6 +746,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
       <button class="back-btn" onclick="go('s-home')">‹ Назад</button>
       <div class="page-title">Длинномеры</div>
     </div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
 
   <div id="dln-menu">
@@ -720,7 +759,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
     <div class="card">
       <div class="list-row">
         <div class="row-dot dot-purple" style="background:var(--purple)"></div>
-        <div class="row-info"><div class="row-title">Кемерово → Новосибирск</div><div class="row-sub">Металлоконструкции · 143 · Фокин А.В.</div></div>
+        <div class="row-info"><div class="row-title">Кемерово → Новосибирск</div><div class="row-sub">Металлоконструкции · 143 · Гааль Р.А.</div></div>
         <div class="row-right"><div class="row-val">В пути</div><div class="row-time">с 08:00</div></div>
       </div>
     </div>
@@ -771,7 +810,6 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
         <button class="chip on" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Фокин А.В.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
       </div>
     
@@ -863,10 +901,14 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
     </div>
     <div class="form-block">
       <div class="form-lbl">Транспортные накладные (до 5 шт.)</div>
-      <div class="photo-zone" onclick="alert('Добавить ТН (лицевая + оборот)')">
+      <div class="photo-zone" onclick="document.getElementById('dln-tn-photo').click()">
         <div class="pz-icon">📎</div>
         <div class="pz-title">Добавить ТН</div>
         <div class="pz-sub">Можно до 5 накладных, 2 фото каждая</div>
+        <input type="file" id="dln-tn-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'dln-tn')">
+      </div>
+      <div id="dln-tn-preview" style="display:none;margin-bottom:8px;">
+        <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="dln-tn-img">
       </div>
     </div>
     <button class="submit" style="background:var(--purple)" onclick="submitOk(this,'dln-new','dln-menu')">Сохранить рейс</button>
@@ -880,6 +922,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
       <button class="back-btn" onclick="go('s-home')">‹ Назад</button>
       <div class="page-title">Топливо (ДТ)</div>
     </div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
 
   <div id="dt-menu">
@@ -925,7 +968,6 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
         <button class="chip on" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Фокин А.В.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Цупиков Н.Н.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Шевченко С.С.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
@@ -972,10 +1014,14 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
     </div>
     <div class="form-block">
       <div class="form-lbl">Фото чека</div>
-      <div class="photo-zone" onclick="alert('Фото чека АЗС')">
+      <div class="photo-zone" onclick="document.getElementById('fuel-check-photo').click()">
         <div class="pz-icon">🧾</div>
         <div class="pz-title">Сфотографировать чек</div>
         <div class="pz-sub">Можно несколько фото</div>
+        <input type="file" id="fuel-check-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'fuel-check')">
+      </div>
+      <div id="fuel-check-preview" style="display:none;margin-bottom:8px;">
+        <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="fuel-check-img">
       </div>
     </div>
     <button class="submit orange" onclick="submitOk(this,'dt-new','dt-menu')">Сохранить заправку</button>
@@ -989,6 +1035,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
       <button class="back-btn" onclick="go('s-home')">‹ Назад</button>
       <div class="page-title">Расходы</div>
     </div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
 
   <div id="exp-menu">
@@ -1034,7 +1081,6 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
         <button class="chip on" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Фокин А.В.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Цупиков Н.Н.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Шевченко С.С.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
@@ -1094,10 +1140,14 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
     </div>
     <div class="form-block">
       <div class="form-lbl">Фото чека / документа</div>
-      <div class="photo-zone" onclick="alert('Фото чека')">
+      <div class="photo-zone" onclick="document.getElementById('expense-check-photo').click()">
         <div class="pz-icon">🧾</div>
         <div class="pz-title">Сфотографировать чек</div>
         <div class="pz-sub">Можно несколько фото</div>
+        <input type="file" id="expense-check-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'expense-check')">
+      </div>
+      <div id="expense-check-preview" style="display:none;margin-bottom:8px;">
+        <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="expense-check-img">
       </div>
     </div>
     <button class="submit red" onclick="submitOk(this,'exp-new','exp-menu')">Сохранить расход</button>
@@ -1109,12 +1159,21 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 
   <div class="topbar">
     <div>
-      <div class="page-title">Дашборд</div>
+      <div class="page-title">Кабинет директора</div>
       <div class="page-sub" id="dir-date">Сегодня · загрузка...</div>
     </div>
-    <div class="avatar" style="background:linear-gradient(135deg,#ff9f0a,#ff453a)">ДМ</div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
 
+  <!-- Вкладки директора -->
+  <div style="display:flex;gap:6px;margin-bottom:14px;">
+    <button class="period-btn active" onclick="setDirTab('dashboard',this)">Дашборд</button>
+    <button class="period-btn" onclick="setDirTab('trip-prices',this)">Стоимость рейсов</button>
+    <button class="period-btn" onclick="setDirTab('quarry-plans',this)">Планы карьеров</button>
+  </div>
+
+  <!-- ═══ ДАШБОРД ═══ -->
+  <div id="dir-tab-dashboard">
   <!-- Переключатель периода -->
   <div style="display:flex;gap:6px;margin-bottom:14px;">
     <button class="period-btn active" onclick="setPeriod('day',this)">Сегодня</button>
@@ -1171,7 +1230,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
     </div>
   </div>
 
-  <!-- Алерты — кто не сдал отчёт -->
+  <!-- Алерты -->
   <div class="sec-lbl">⚠️ Требует внимания</div>
   <div class="dir-alerts-card">
     <div class="dir-alert-row red">
@@ -1189,22 +1248,6 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
         <div class="dir-alert-sub">Просрочка 3 дня</div>
       </div>
       <div class="dir-alert-time">3 д</div>
-    </div>
-    <div class="dir-alert-row orange">
-      <div class="dir-alert-dot" style="background:var(--orange)"></div>
-      <div class="dir-alert-body">
-        <div class="dir-alert-title">709 — ТО через 300 км</div>
-        <div class="dir-alert-sub">Запланировать обслуживание</div>
-      </div>
-      <div class="dir-alert-time">сег.</div>
-    </div>
-    <div class="dir-alert-row red">
-      <div class="dir-alert-dot"></div>
-      <div class="dir-alert-body">
-        <div class="dir-alert-title">555 — ремонт 2 дня</div>
-        <div class="dir-alert-sub">СТО Агат · простой</div>
-      </div>
-      <div class="dir-alert-time">2 д</div>
     </div>
   </div>
 
@@ -1229,114 +1272,136 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
       <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:50%;background:var(--orange)"></div></div>
       <span class="fleet-stat orange">3 р.</span>
     </div>
-    <div class="fleet-row">
-      <span class="fleet-num">137</span>
-      <span class="fleet-type">тонар</span>
-      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:65%;background:var(--green)"></div></div>
-      <span class="fleet-stat green">4 р.</span>
-    </div>
-    <div class="fleet-row">
+    <div class="fleet-row" style="border:none">
       <span class="fleet-num">729</span>
       <span class="fleet-type">миксер</span>
-      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:90%;background:var(--blue)"></div></div>
+      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:90%;background:var(--accent2)"></div></div>
       <span class="fleet-stat blue">6 р.</span>
     </div>
-    <div class="fleet-row">
-      <span class="fleet-num">143</span>
-      <span class="fleet-type">длинном.</span>
-      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:60%;background:var(--purple)"></div></div>
-      <span class="fleet-stat" style="color:var(--purple)">в пути</span>
-    </div>
-    <div class="fleet-row" style="border:none">
-      <span class="fleet-num">555</span>
-      <span class="fleet-type">длинном.</span>
-      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:0%"></div></div>
-      <span class="fleet-stat red">ремонт</span>
-    </div>
+  </div>
   </div>
 
-  <!-- Расходы по машинам -->
-  <div class="sec-lbl">🔧 Расходы по машинам</div>
-  <div class="dir-card" style="padding:14px 16px;">
-    <div class="expense-row">
-      <span class="expense-num">803</span>
-      <div class="expense-bar-wrap"><div class="expense-bar" style="width:70%;background:var(--red)"></div></div>
-      <span class="expense-val">₽ 4 800</span>
+  <!-- ═══ СТОИМОСТЬ РЕЙСОВ ═══ -->
+  <div id="dir-tab-trip-prices" style="display:none;">
+    <div class="sec-lbl">Назначить стоимость рейса</div>
+
+    <!-- Форма: водитель → карьер → заказчик → цена -->
+    <div class="card" style="padding:18px;">
+      <div class="form-block">
+        <div class="form-lbl">Водитель</div>
+        <div class="chips" id="dir-driver-chips">
+          <button class="chip on" onclick="sel(this);dirDriverChanged()">Шабанов Ф.А.</button>
+          <button class="chip" onclick="sel(this);dirDriverChanged()">Алексеев О.Е.</button>
+          <button class="chip" onclick="sel(this);dirDriverChanged()">Гааль Р.А.</button>
+          <button class="chip" onclick="sel(this);dirDriverChanged()">Цупиков Н.Н.</button>
+          <button class="chip" onclick="sel(this);dirDriverChanged()">Шевченко С.С.</button>
+        </div>
+      </div>
+
+      <div class="form-block">
+        <div class="form-lbl">Карьер</div>
+        <div class="chips" id="dir-quarry-chips">
+          <button class="chip on" onclick="sel(this);dirQuarryChanged()">СДЕ Мозжуха</button>
+          <button class="chip" onclick="sel(this);dirQuarryChanged()">СДЕ ККК</button>
+          <button class="chip" onclick="sel(this);dirQuarryChanged()">Барзасский</button>
+          <button class="chip" onclick="sel(this);dirQuarryChanged()">ГДК</button>
+          <button class="chip" onclick="sel(this);dirQuarryChanged()">Морозовский</button>
+          <button class="chip" onclick="sel(this);dirQuarryChanged()">ВНК (Березовка)</button>
+        </div>
+      </div>
+
+      <div class="form-block">
+        <div class="form-lbl">Заказчик</div>
+        <div class="chips" id="dir-client-chips">
+          <button class="chip on" onclick="sel(this)">Меркурий</button>
+          <button class="chip" onclick="sel(this)">СП авто</button>
+          <button class="chip" onclick="sel(this)">Морозовский</button>
+          <button class="chip" onclick="sel(this)">Бетон М</button>
+          <button class="chip" onclick="sel(this)">Штенцель</button>
+          <button class="chip" onclick="sel(this)">+ Другое</button>
+        </div>
+        <div class="other-input" id="dir-client-other">
+          <input class="inp" type="text" placeholder="Введите заказчика">
+        </div>
+      </div>
+
+      <div class="form-block">
+        <div class="form-lbl">Стоимость рейса (₽)</div>
+        <input class="inp" type="number" id="dir-trip-price-input" placeholder="Например: 5500" inputmode="numeric">
+      </div>
+
+      <button class="big-btn green" onclick="addTripPrice()" style="margin-top:4px;">
+        <div class="btn-ico">➕</div>
+        <div class="btn-body"><div class="btn-title">Добавить стоимость</div><div class="btn-sub">Привязать цену к маршруту</div></div>
+      </button>
     </div>
-    <div class="expense-row">
-      <span class="expense-num">137</span>
-      <div class="expense-bar-wrap"><div class="expense-bar" style="width:40%;background:var(--orange)"></div></div>
-      <span class="expense-val">₽ 2 400</span>
+
+    <!-- Таблица назначенных цен -->
+    <div class="sec-lbl">Назначенные цены</div>
+    <div class="card" id="dir-trip-prices-list">
+      <div style="text-align:center;padding:20px;color:var(--t4);" id="dir-prices-empty">Пока нет назначенных цен</div>
     </div>
-    <div class="expense-row">
-      <span class="expense-num">709</span>
-      <div class="expense-bar-wrap"><div class="expense-bar" style="width:55%;background:var(--orange)"></div></div>
-      <span class="expense-val">₽ 3 100</span>
-    </div>
-    <div class="expense-row" style="border:none">
-      <span class="expense-num">555</span>
-      <div class="expense-bar-wrap"><div class="expense-bar" style="width:100%;background:var(--red)"></div></div>
-      <span class="expense-val red">₽ 9 280</span>
-    </div>
+    <button class="big-btn green" onclick="saveAllTripPrices()" style="margin-top:10px;">
+      <div class="btn-ico">💾</div>
+      <div class="btn-body"><div class="btn-title">Сохранить всё</div><div class="btn-sub">Применить ко всем будущим рейсам</div></div>
+    </button>
   </div>
 
-  <!-- Топ клиенты -->
-  <div class="sec-lbl">🏆 Топ клиенты</div>
-  <div class="dir-card" style="padding:0 0 4px;">
-    <div class="client-row">
-      <div class="client-rank">1</div>
-      <div class="client-info">
-        <div class="client-name">ООО СтройГрупп</div>
-        <div class="client-sub">14 рейсов · 412 т · <span style="color:var(--red)">долг ₽ 45 000</span></div>
-      </div>
-      <div class="client-val green">₽ 98 400</div>
-    </div>
-    <div class="client-row">
-      <div class="client-rank">2</div>
-      <div class="client-info">
-        <div class="client-name">ИП Морозов</div>
-        <div class="client-sub">8 рейсов · 240 т</div>
-      </div>
-      <div class="client-val blue">₽ 57 600</div>
-    </div>
-    <div class="client-row">
-      <div class="client-rank">3</div>
-      <div class="client-info">
-        <div class="client-name">Администрация</div>
-        <div class="client-sub">5 рейсов · 130 т</div>
-      </div>
-      <div class="client-val orange">₽ 31 400</div>
-    </div>
-    <div class="client-row" style="border:none">
-      <div class="client-rank">4</div>
-      <div class="client-info">
-        <div class="client-name">Бетон М</div>
-        <div class="client-sub">миксер · 15 рейсов</div>
-      </div>
-      <div class="client-val" style="color:var(--purple)">₽ 52 000</div>
-    </div>
-  </div>
+  <!-- ═══ ПЛАНЫ КАРЬЕРОВ ═══ -->
+  <div id="dir-tab-quarry-plans" style="display:none;">
+    <div class="sec-lbl">Установить план по карьеру</div>
 
-  <!-- Наличные -->
-  <div class="sec-lbl">💵 Наличные / касса</div>
-  <div class="dir-card" style="padding:14px 16px;">
-    <div class="cash-row">
-      <span class="cash-who">Алексеев О.Е.</span>
-      <span class="cash-truck" style="color:var(--t3)">803</span>
-      <span class="cash-amount orange">₽ 12 000</span>
-      <span class="cash-status orange">у водителя</span>
+    <!-- Форма: выбрать карьер → тоннаж -->
+    <div class="card" style="padding:18px;">
+      <div class="form-block">
+        <div class="form-lbl">Карьер</div>
+        <div class="chips" id="dir-plan-quarry-chips">
+          <button class="chip on" onclick="sel(this)">СДЕ Мозжуха</button>
+          <button class="chip" onclick="sel(this)">СДЕ ККК</button>
+          <button class="chip" onclick="sel(this)">Барзасский</button>
+          <button class="chip" onclick="sel(this)">ГДК</button>
+          <button class="chip" onclick="sel(this)">Морозовский</button>
+          <button class="chip" onclick="sel(this)">ВНК (Березовка)</button>
+        </div>
+      </div>
+
+      <div class="form-block">
+        <div class="form-lbl">План по тоннажу (тонн)</div>
+        <input class="inp" type="number" id="dir-plan-tonnage-input" placeholder="Например: 500" inputmode="numeric">
+      </div>
+
+      <div class="form-block">
+        <div class="form-lbl">Период плана</div>
+        <div class="chips" id="dir-plan-period-chips">
+          <button class="chip on" onclick="sel(this)">Апрель 2026</button>
+          <button class="chip" onclick="sel(this)">Май 2026</button>
+          <button class="chip" onclick="sel(this)">Июнь 2026</button>
+          <button class="chip" onclick="sel(this)">Другое</button>
+        </div>
+        <div class="other-input" id="dir-plan-period-other">
+          <input class="inp" type="text" placeholder="Например: Июль 2026">
+        </div>
+      </div>
+
+      <button class="big-btn green" onclick="addQuarryPlan()" style="margin-top:4px;">
+        <div class="btn-ico">➕</div>
+        <div class="btn-body"><div class="btn-title">Добавить план</div><div class="btn-sub">Привязать тоннаж к карьеру</div></div>
+      </button>
     </div>
-    <div class="cash-row">
-      <span class="cash-who">Цупиков Н.Н.</span>
-      <span class="cash-truck" style="color:var(--t3)">729</span>
-      <span class="cash-amount orange">₽ 6 000</span>
-      <span class="cash-status orange">у водителя</span>
+
+    <!-- Таблица планов -->
+    <div class="sec-lbl">Активные планы</div>
+    <div class="card" id="dir-quarry-plans-list">
+      <div style="text-align:center;padding:20px;color:var(--t4);" id="dir-plans-empty">Пока нет активных планов</div>
     </div>
-    <div class="cash-row" style="border:none">
-      <span class="cash-who">Итого в кассе</span>
-      <span class="cash-truck"></span>
-      <span class="cash-amount green">₽ 24 000</span>
-      <span class="cash-status green">сдано</span>
+    <button class="big-btn green" onclick="saveQuarryPlans()" style="margin-top:10px;">
+      <div class="btn-ico">💾</div>
+      <div class="btn-body"><div class="btn-title">Сохранить планы</div><div class="btn-sub">Водители увидят цели в планах по объектам</div></div>
+    </button>
+
+    <div class="sec-lbl">Прогресс выполнения планов</div>
+    <div class="card" id="dir-plan-progress">
+      <div style="text-align:center;padding:20px;color:var(--t4);" id="dir-progress-empty">Добавьте план для отображения прогресса</div>
     </div>
   </div>
 
@@ -1353,7 +1418,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
       <div class="page-title">Мой кабинет</div>
       <div class="page-sub">Шабанов Ф.А. · КамАЗ 803</div>
     </div>
-    <div class="avatar" style="background:linear-gradient(135deg,#0a84ff,#5856d6)">ШФ</div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
 
   <!-- Переключатель периода -->
@@ -1433,7 +1498,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
       <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Рейсов сегодня</div>
-      <div style="font-size:28px;font-weight:700;color:var(--blue)" id="drv-trips-day">4</div>
+      <div style="font-size:28px;font-weight:700;color:var(--gold)" id="drv-trips-day">4</div>
     </div>
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
       <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Тонн сегодня</div>
@@ -1441,7 +1506,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
     </div>
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
       <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Рейсов за месяц</div>
-      <div style="font-size:28px;font-weight:700;color:var(--blue)" id="drv-trips-month">68</div>
+      <div style="font-size:28px;font-weight:700;color:var(--gold)" id="drv-trips-month">68</div>
     </div>
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
       <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Тонн за месяц</div>
@@ -1480,7 +1545,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
       <div class="plan-pct blue">100%</div>
     </div>
     <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;">
-      <div style="width:100%;height:100%;background:var(--blue);border-radius:3px;"></div>
+      <div style="width:100%;height:100%;background:var(--accent2);border-radius:3px;"></div>
     </div>
   </div>
 
@@ -1533,9 +1598,9 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
       <div class="page-title">Сервис</div>
       <div class="page-sub">Ремонты и заказ-наряды</div>
     </div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
 
-  <!-- Главное меню сервиса -->
   <div id="svc-menu">
     <button class="big-btn red" onclick="showSub('svc-open')">
       <div class="btn-ico">➕</div>
@@ -1798,6 +1863,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
       <div class="page-title">Запчасти</div>
       <div class="page-sub">Закупки и учёт</div>
     </div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
 
   <!-- Главное меню -->
@@ -1824,7 +1890,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
     <div class="sec-lbl">Последние закупки</div>
     <div class="card">
       <div class="parts-row">
-        <div class="parts-cat-dot" style="background:var(--blue)"></div>
+        <div class="parts-cat-dot" style="background:var(--accent2)"></div>
         <div class="parts-info">
           <div class="parts-title">Шаровая опора БЕЛКАРД</div>
           <div class="parts-sub">803 · Ходовка · Автозапчасти на Кузнецком</div>
@@ -2017,37 +2083,37 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 <!-- ═══════════════════════════════ ЭКРАН ВХОДА ═══════════════════════════════ -->
 <div class="screen active" id="s-login">
   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:20px;">
-    <div style="font-size:48px;margin-bottom:16px;">🚛</div>
-    <div class="page-title" style="text-align:center;margin-bottom:8px;">Умный автопарк</div>
-    <div class="page-sub" style="text-align:center;margin-bottom:40px;">Система управления транспортом</div>
+    <div style="font-size:48px;margin-bottom:16px;">📋</div>
+    <div class="page-title" style="text-align:center;margin-bottom:6px;">Ежедневный отчёт</div>
+    <div class="page-sub" style="text-align:center;margin-bottom:40px;">Пульсар · Кемерово</div>
 
     <div style="width:100%;max-width:320px;">
       <div class="form-block">
         <div class="form-lbl">Выберите свою роль</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <button class="role-btn" onclick="loginAs('driver')">
-            <span class="role-icon">🚛</span>
+            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
             <div class="role-info"><div class="role-name">Водитель</div><div class="role-sub">Рейсы · топливо · кабинет</div></div>
             <span style="color:var(--t4);">›</span>
           </button>
           <button class="role-btn" onclick="loginAs('mechanic')">
-            <span class="role-icon">🔧</span>
+            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
             <div class="role-info"><div class="role-name">Слесарь</div><div class="role-sub">Ремонты · запчасти · кабинет</div></div>
             <span style="color:var(--t4);">›</span>
           </button>
 
           <button class="role-btn" onclick="loginAs('economist')">
-            <span class="role-icon">💰</span>
+            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
             <div class="role-info"><div class="role-name">Экономист</div><div class="role-sub">Миксеры · наличные · ДДС</div></div>
             <span style="color:var(--t4);">›</span>
           </button>
           <button class="role-btn" onclick="loginAs('logist')">
-            <span class="role-icon">🚚</span>
+            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
             <div class="role-info"><div class="role-name">Логист</div><div class="role-sub">Длинномеры · заказы</div></div>
             <span style="color:var(--t4);">›</span>
           </button>
           <button class="role-btn" onclick="loginAs('director')" style="border-color:rgba(48,209,88,.3);">
-            <span class="role-icon">📊</span>
+            <span class="role-icon" style="font-size:20px;color:var(--green);">○</span>
             <div class="role-info"><div class="role-name" style="color:var(--green);">Директор</div><div class="role-sub">Полный доступ</div></div>
             <span style="color:var(--t4);">›</span>
           </button>
@@ -2208,20 +2274,146 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
   <div class="topbar">
     <div>
       <div class="page-title">Кабинет слесаря</div>
-      <div class="page-sub">Слесарь #1 · март 2026</div>
+      <div class="page-sub" id="mech-info">Слесарь · ставка ₽6 000</div>
     </div>
     <button onclick="loginAs('login')" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
 
-  <!-- Переключатель -->
-  <div style="display:flex;gap:6px;margin-bottom:14px;">
-    <button class="period-btn active" onclick="setMechTab('salary',this)">Зарплата</button>
-    <button class="period-btn" onclick="setMechTab('shifts',this)">Смены</button>
-    <button class="period-btn" onclick="setMechTab('advances',this)">Авансы</button>
+  <!-- 4 РАЗДЕЛА НАВЕРХУ -->
+  <button class="big-btn" onclick="go('s-service')">
+    <div class="btn-ico">🔧</div>
+    <div class="btn-body"><div class="btn-title">Ремонты</div><div class="btn-sub">Активные · история · заявки</div></div>
+    <span class="chevron">›</span>
+  </button>
+  <button class="big-btn purple" onclick="go('s-parts')">
+    <div class="btn-ico">🔩</div>
+    <div class="btn-body"><div class="btn-title">Запчасти</div><div class="btn-sub">Закупки · склад · учёт</div></div>
+    <span class="chevron">›</span>
+  </button>
+  <button class="big-btn green" onclick="showMechSection('salary')">
+    <div class="btn-ico">💰</div>
+    <div class="btn-body"><div class="btn-title">Заработная плата</div><div class="btn-sub">Смены · авансы · остаток</div></div>
+    <span class="chevron">›</span>
+  </button>
+  <button class="big-btn orange" onclick="showMechSection('fuel-salary')">
+    <div class="btn-ico">⛽</div>
+    <div class="btn-body"><div class="btn-title">Заправка под ЗП</div><div class="btn-sub">Топливо · чеки · расчёт</div></div>
+    <span class="chevron">›</span>
+  </button>
+
+  <!-- ══ ЗАРПЛАТА ══ -->
+  <div id="mech-section-salary" style="display:none;">
+    <button class="back-btn" onclick="hideMechSections()">‹ Назад</button>
+    <div class="page-title" style="margin-bottom:16px;">Заработная плата</div>
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:20px 18px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+        <div>
+          <div style="font-size:13px;color:var(--t3);margin-bottom:4px;">Заработано</div>
+          <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:var(--green);" id="mech-total">₽ 0</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:4px;" id="mech-shifts-info">0 смен × ₽6 000</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:13px;color:var(--t3);margin-bottom:4px;">Авансы</div>
+          <div style="font-size:22px;font-weight:700;color:var(--red);" id="mech-advances-total">− ₽ 0</div>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--sep);margin-bottom:14px;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:13px;color:var(--t3);">К выплате</div>
+          <div style="font-size:24px;font-weight:700;" id="mech-to-pay">₽ 0</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px;color:var(--t3);">Ставка</div>
+          <div style="font-size:14px;font-weight:600;">₽ 6 000/смена</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="big-btn dark" onclick="markMechShift('today')">
+      <div class="btn-ico">✓</div>
+      <div class="btn-body"><div class="btn-title">Отметить выход сегодня</div><div class="btn-sub">Автоматически +₽6 000</div></div>
+    </button>
+    <button class="big-btn dark" onclick="markMechShift('pick-date')">
+      <div class="btn-ico">📅</div>
+      <div class="btn-body"><div class="btn-title">Отметить дату выхода</div><div class="btn-sub">Выбрать дату</div></div>
+    </button>
+
+    <div class="sec-lbl" style="margin-top:20px;">История смен</div>
+    <div class="card" id="mech-shifts-list">
+      <div style="text-align:center;padding:20px;color:var(--t4);">Пока нет смен. Отметьте первый выход!</div>
+    </div>
+
+    <div class="sec-lbl">Авансы</div>
+    <div class="card" id="mech-advances-list">
+      <div style="text-align:center;padding:20px;color:var(--t4);">Пока нет авансов</div>
+    </div>
+    <button class="big-btn dark" onclick="requestAdvance()">
+      <div class="btn-ico">💵</div>
+      <div class="btn-body"><div class="btn-title">Запросить аванс</div><div class="btn-sub">Директор получит уведомление</div></div>
+    </button>
   </div>
 
-  <!-- ЗАРПЛАТА -->
-  <div id="mech-tab-salary">
+  <!-- ══ ЗАПРАВКА ПОД ЗП ══ -->
+  <div id="mech-section-fuel-salary" style="display:none;">
+    <button class="back-btn" onclick="hideMechSections()">‹ Назад</button>
+    <div class="page-title" style="margin-bottom:16px;">Заправка под ЗП</div>
+
+    <button class="big-btn orange" onclick="showSub('mech-fuel-new')">
+      <div class="btn-ico">➕</div>
+      <div class="btn-body"><div class="btn-title">Новая заправка</div><div class="btn-sub">Топливо · чек · расчёт</div></div>
+      <span class="chevron">›</span>
+    </button>
+
+    <div class="sec-lbl">История заправок</div>
+    <div class="card" id="mech-fuel-list">
+      <div style="text-align:center;padding:20px;color:var(--t4);">Пока нет заправок</div>
+    </div>
+  </div>
+
+  <!-- Новая заправка слесаря -->
+  <div class="sub-screen" id="mech-fuel-new">
+    <button class="back-btn" onclick="hideSub('mech-section-fuel-salary','mech-fuel-new')">‹ Заправка под ЗП</button>
+    <div class="page-title" style="margin-bottom:20px;">Новая заправка</div>
+
+    <div class="form-block">
+      <div class="form-lbl">Количество литров</div>
+      <input class="inp" type="number" placeholder="Например: 200" inputmode="numeric">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Стоимость (₽)</div>
+      <input class="inp" type="number" placeholder="Например: 12700" inputmode="numeric">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Цена за литр (₽)</div>
+      <input class="inp" type="number" placeholder="Например: 63.5" inputmode="decimal">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">АЗС</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">Газпромнефть</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Татнефть</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите название АЗС">
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Фото чека</div>
+      <div class="photo-zone" onclick="document.getElementById('mech-fuel-check').click()">
+        <div class="pz-icon">🧾</div>
+        <div class="pz-title">Сфотографировать чек</div>
+        <div class="pz-sub">Обязательно для подтверждения</div>
+        <input type="file" id="mech-fuel-check" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'mech-fuel')">
+      </div>
+      <div id="mech-fuel-preview" style="display:none;margin-bottom:8px;">
+        <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="mech-fuel-img">
+      </div>
+    </div>
+    <button class="submit orange" onclick="submitMechFuel()">Сохранить заправку</button>
+  </div>
+</div>
     <div style="background:var(--bg3);border-radius:var(--r2);padding:20px 18px;margin-bottom:10px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
         <div>
@@ -2263,7 +2455,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;">
         <div>
-          <div style="font-size:28px;font-weight:700;color:var(--blue);">18</div>
+          <div style="font-size:28px;font-weight:700;color:var(--accent2);">18</div>
           <div style="font-size:11px;color:var(--t3);">смен за март</div>
         </div>
         <div>
@@ -2374,15 +2566,156 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 </div><!-- /app -->
 
 <script>
+
+var currentRole = "login";
+
+// ═══════════════════ СПРАВОЧНИК ВОДИТЕЛЕЙ ═══════════════════
+var DRIVERS = {
+  'shabanov':   { name: 'Шабанов Ф.А.', truck: '008', type: 'tonary', initials: 'ШФ' },
+  'alekseev':   { name: 'Алексеев О.Е.', truck: '803', type: 'tonary', initials: 'АО' },
+  'gaal':       { name: 'Гааль Р.А.',    truck: '709', type: 'tonary', initials: 'ГР' },
+  'tsupikov':   { name: 'Цупиков Н.Н.',  truck: '729', type: 'mixer', initials: 'ЦН' },
+  'shevchenko': { name: 'Шевченко С.С.', truck: '729', type: 'mixer', initials: 'ШС' }
+};
+
+var currentDriver = null;
+
+function updateHomeScreen(driverKey) {
+  var driver = DRIVERS[driverKey];
+  if (!driver) return;
+  currentDriver = driver;
+  
+  document.getElementById('home-greeting').textContent = 'Добрый день, ' + driver.name.split(' ')[0] + '!';
+  document.getElementById('home-driver-info').textContent = driver.name + ' · КамАЗ ' + driver.truck;
+  document.getElementById('home-avatar').textContent = driver.initials;
+  
+  if (driver.type === 'mixer') {
+    document.getElementById('btn-tonary').style.display = 'none';
+    document.getElementById('btn-mixer').style.display = 'flex';
+  } else {
+    document.getElementById('btn-tonary').style.display = 'flex';
+    document.getElementById('btn-mixer').style.display = 'none';
+  }
+  
+  loadDriverStats(driverKey);
+}
+
+function loadDriverStats(driverKey) {
+  document.getElementById('home-trip-count').textContent = '--';
+  document.getElementById('home-ton-count').textContent = '--';
+  document.getElementById('home-last-trip').textContent = 'Загрузка из отчётов...';
+  document.getElementById('home-expense-count').textContent = '0 сегодня';
+}
+
+var ROLE_HOME = {
+  "login": "s-login",
+  "driver": "s-home", 
+  "mechanic": "s-mechanic-dash",
+  "economist": "s-economist-cash",
+  "logist": "s-dlinn",
+  "director": "s-director"
+};
+
+var ROLE_NAV = {
+  "driver": [
+    {icon:"🏠", label:"Главная", screen:"s-home"},
+    {icon:"🚛", label:"Тонары", screen:"s-tonary"},
+    {icon:"🔄", label:"Миксеры", screen:"s-mixer"},
+    {icon:"⛽", label:"ДТ", screen:"s-dt"},
+    {icon:"👤", label:"Кабинет", screen:"s-driver-dash"}
+  ],
+  "mechanic": [
+    {icon:"🔧", label:"Ремонты", screen:"s-service"},
+    {icon:"🔩", label:"Запчасти", screen:"s-parts"},
+    {icon:"👤", label:"Кабинет", screen:"s-mechanic-dash"}
+  ],
+  "economist": [
+    {icon:"🔄", label:"Миксеры", screen:"s-mixer"},
+    {icon:"💵", label:"Наличные", screen:"s-economist-cash"}
+  ],
+  "logist": [
+    {icon:"🚚", label:"Длинномеры", screen:"s-dlinn"}
+  ],
+  "director": [
+    {icon:"📊", label:"Дашборд", screen:"s-director"},
+    {icon:"🚛", label:"Рейсы", screen:"s-home"},
+    {icon:"🔧", label:"Сервис", screen:"s-service"},
+    {icon:"🔩", label:"Запчасти", screen:"s-parts"},
+    {icon:"👥", label:"Команда", screen:"s-driver-dash"}
+  ]
+};
+
+function loginAs(role) {
+  currentRole = role;
+  
+  var roleButtons = document.querySelectorAll('.role-btn');
+  roleButtons.forEach(function(btn) {
+    btn.classList.remove('selected');
+    var icon = btn.querySelector('.role-icon');
+    if (icon) icon.textContent = '○';
+  });
+  
+  var selectedBtn = event.currentTarget;
+  selectedBtn.classList.add('selected');
+  var selectedIcon = selectedBtn.querySelector('.role-icon');
+  if (selectedIcon) selectedIcon.textContent = '●';
+  
+  var all = document.querySelectorAll(".screen");
+  for (var i = 0; i < all.length; i++) all[i].classList.remove("active");
+  var homeId = ROLE_HOME[role] || "s-login";
+  var el = document.getElementById(homeId);
+  if (el) el.classList.add("active");
+  window.scrollTo(0, 0);
+  updateNav(role);
+  
+  // Если водитель — определяем и обновляем главный экран
+  if (role === 'driver') {
+    // Для MVP: показываем первого водителя
+    updateHomeScreen('shabanov');
+  }
+}
+
+function updateNav(role) {
+  var nav = document.getElementById("bottom-nav");
+  if (!nav) return;
+  if (role === "login") { nav.style.display = "none"; return; }
+  nav.style.display = "flex";
+  var items = ROLE_NAV[role] || ROLE_NAV["driver"];
+  var html = "";
+  for (var i = 0; i < items.length; i++) {
+    html += "<button class=\"nav-item" + (i===0?" active":"") + "\" onclick=\"switchToScreen('" + items[i].screen + "',this)\">";
+    html += "<span class=\"nav-icon\">" + items[i].icon + "</span>" + items[i].label + "</button>";
+  }
+  nav.innerHTML = html;
+}
+
+function switchToScreen(screenId, btn) {
+  var all = document.querySelectorAll(".screen");
+  for (var i = 0; i < all.length; i++) all[i].classList.remove("active");
+  var el = document.getElementById(screenId);
+  if (el) el.classList.add("active");
+  var btns = document.querySelectorAll(".nav-item");
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove("active");
+  if (btn) btn.classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+
+
+
+window.addEventListener('error', function(e) {
+  console.error('Global error:', e.message, 'line:', e.lineno);
+});
+
 function go(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo({top:0,behavior:'instant'});
-  // sync nav
-  const map={
-    's-home':0,'s-tonary':1,'s-mixer':2,'s-dlinn':-1,'s-dt':3,'s-expense':-1,'s-director':4,'s-service':5,'s-driver-dash':6
-  };
-  document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active',i===map[id]));
+  try {
+    document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+    var el = document.getElementById(id);
+    if(el) el.classList.add('active');
+    window.scrollTo(0,0);
+    var map={'s-home':0,'s-tonary':1,'s-mixer':2,'s-dlinn':-1,'s-dt':3,'s-expense':-1,'s-director':4,'s-service':5,'s-driver-dash':6};
+    document.querySelectorAll('.nav-item').forEach(function(n,i){n.classList.toggle('active',i===map[id]);});
+  } catch(e) { console.error('go error:',e); }
 }
 function nav(el,id){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -2390,16 +2723,23 @@ function nav(el,id){
   go(id);
 }
 function showSub(subId){
-  const sub=document.getElementById(subId);
-  const menu=sub.previousElementSibling;
-  menu.style.display='none';
-  sub.classList.add('active');
-  window.scrollTo({top:0,behavior:'instant'});
+  try {
+    var sub=document.getElementById(subId);
+    if(!sub) return;
+    var menu=sub.previousElementSibling;
+    if(menu) menu.style.display='none';
+    sub.classList.add('active');
+    window.scrollTo(0,0);
+  } catch(e) { console.error('showSub error:',e); }
 }
 function hideSub(menuId,subId){
-  document.getElementById(menuId).style.display='block';
-  document.getElementById(subId).classList.remove('active');
-  window.scrollTo({top:0,behavior:'instant'});
+  try {
+    var m=document.getElementById(menuId);
+    if(m) m.style.display='block';
+    var s=document.getElementById(subId);
+    if(s) s.classList.remove('active');
+    window.scrollTo(0,0);
+  } catch(e) { console.error('hideSub error:',e); }
 }
 function sel(el){
   const row=el.closest('.chips');
@@ -2430,6 +2770,10 @@ const OBJECTS = {
 
 // Заказчики по карьерам (если карьер диктует заказчика)
 const QUARRY_CLIENTS = {
+  'СДЕ Мозжуха':  ['Меркурий','СП авто','+ Другое'],
+  'СДЕ ККК':      ['Меркурий','СП авто','+ Другое'],
+  'Барзасский':   ['Меркурий','СП авто','+ Другое'],
+  'ГДК':          ['Меркурий','СП авто','+ Другое'],
   'ВНК (Березовка)': ['ВНК','+ Другое'],
 };
 
@@ -2651,18 +2995,6 @@ function pickDay(id, dateStr, year, month){
   renderCalendar(id,year,month);
 }
 
-// Инициализация — сегодня по умолчанию
-document.addEventListener('DOMContentLoaded',()=>{
-  ['dln-date-load','dln-date-unload','dt-date','exp-date'].forEach(id=>{
-    const today = new Date();
-    const valEl = document.getElementById(id+'-val');
-    const display = document.getElementById(id+'-display');
-    if(valEl){ valEl.textContent=formatDate(today); dateState[id]=formatDate(today); }
-    if(display) display.style.display='flex';
-  });
-});
-// ───── КОНЕЦ КАЛЕНДАРЯ ─────
-
 // Логика адресов загрузки по городу
 const LOAD_ADDRS = {
   'Кемерово': {type:'chips', items:['ул. Грузовая 21','+ Другое']},
@@ -2769,7 +3101,7 @@ const PERIOD_DATA = {
   month:{revenue:'₽ 4 870 000', delta:'↑ +15% к прошлому', exp:'₽ 412 000', expDelta:'за 30 дней', profit:'₽ 4 458 000'},
 };
 function setPeriod(p, btn){
-  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#dir-tab-dashboard .period-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   const d = PERIOD_DATA[p];
   document.getElementById('dir-revenue').textContent = d.revenue;
@@ -2778,14 +3110,161 @@ function setPeriod(p, btn){
   document.getElementById('dir-exp-delta').textContent = d.expDelta;
   document.getElementById('dir-profit').textContent = d.profit;
 }
+
+// ═══════════════════ ДИРЕКТОР — ВКЛАДКИ ═══════════════════
+var directorTripPrices = [];
+var directorQuarryPlans = [];
+
+function setDirTab(tab, btn){
+  // Переключить кнопки в верхнем ряду директора
+  const topRow = btn.closest('#s-director');
+  const topBtns = topRow.querySelectorAll(':scope > div[style] .period-btn');
+  topBtns.forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  const tabs = ['dashboard','trip-prices','quarry-plans'];
+  tabs.forEach(function(t){
+    var el = document.getElementById('dir-tab-'+t);
+    if(el) el.style.display = t===tab ? 'block' : 'none';
+  });
+}
+
+function getDirSelectedDriver(){
+  var el = document.querySelector('#dir-driver-chips .chip.on');
+  return el ? el.textContent.trim() : '';
+}
+function getDirSelectedQuarry(){
+  var el = document.querySelector('#dir-quarry-chips .chip.on');
+  return el ? el.textContent.trim() : '';
+}
+function getDirSelectedClient(){
+  var otherEl = document.querySelector('#dir-client-other');
+  if(otherEl && otherEl.classList.contains('show')){
+    return otherEl.querySelector('input').value.trim();
+  }
+  var el = document.querySelector('#dir-client-chips .chip.on');
+  return el ? el.textContent.trim() : '';
+}
+
+function dirDriverChanged(){
+  // Можно добавить автоподстановку карьеров/заказчиков
+}
+function dirQuarryChanged(){
+  // Можно добавить фильтрацию заказчиков
+}
+
+function addTripPrice(){
+  var driver = getDirSelectedDriver();
+  var quarry = getDirSelectedQuarry();
+  var client = getDirSelectedClient();
+  var price = document.getElementById('dir-trip-price-input').value;
+  if(!driver || !quarry || !client || !price){
+    alert('Заполните все поля: водитель, карьер, заказчик, стоимость');
+    return;
+  }
+  directorTripPrices.push({driver:driver, quarry:quarry, client:client, price:Number(price)});
+  renderDirTripPrices();
+  document.getElementById('dir-trip-price-input').value = '';
+}
+
+function renderDirTripPrices(){
+  var list = document.getElementById('dir-trip-prices-list');
+  var empty = document.getElementById('dir-prices-empty');
+  if(!list) return;
+  if(directorTripPrices.length === 0){
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t4);" id="dir-prices-empty">Пока нет назначенных цен</div>';
+    return;
+  }
+  var html = '';
+  for(var i = 0; i < directorTripPrices.length; i++){
+    var p = directorTripPrices[i];
+    html += '<div class="list-row">';
+    html += '<div class="row-info"><div class="row-title">' + p.driver + '</div><div class="row-sub">' + p.quarry + ' → ' + p.client + '</div></div>';
+    html += '<div class="row-right"><div class="row-val" style="color:var(--green);">₽' + p.price.toLocaleString() + '</div></div>';
+    html += '</div>';
+  }
+  list.innerHTML = html;
+}
+
+function saveAllTripPrices(){
+  if(directorTripPrices.length === 0){
+    alert('Нет назначенных цен. Добавьте хотя бы один маршрут.');
+    return;
+  }
+  var msg = 'Сохранено ' + directorTripPrices.length + ' цен:\n';
+  for(var i = 0; i < directorTripPrices.length; i++){
+    var p = directorTripPrices[i];
+    msg += p.driver + ' | ' + p.quarry + ' → ' + p.client + ': ₽' + p.price + '\n';
+  }
+  alert(msg);
+}
+
+function addQuarryPlan(){
+  var quarry = document.querySelector('#dir-plan-quarry-chips .chip.on');
+  quarry = quarry ? quarry.textContent.trim() : '';
+  var tonnage = document.getElementById('dir-plan-tonnage-input').value;
+  var period = document.querySelector('#dir-plan-period-chips .chip.on');
+  period = period ? period.textContent.trim() : '';
+  if(!quarry || !tonnage){
+    alert('Выберите карьер и укажите тоннаж');
+    return;
+  }
+  directorQuarryPlans.push({quarry:quarry, tonnage:Number(tonnage), period:period, current:0});
+  renderDirQuarryPlans();
+  document.getElementById('dir-plan-tonnage-input').value = '';
+}
+
+function renderDirQuarryPlans(){
+  var list = document.getElementById('dir-quarry-plans-list');
+  var empty = document.getElementById('dir-plans-empty');
+  var progress = document.getElementById('dir-plan-progress');
+  var progressEmpty = document.getElementById('dir-progress-empty');
+  if(!list) return;
+  if(directorQuarryPlans.length === 0){
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t4);" id="dir-plans-empty">Пока нет активных планов</div>';
+    if(progress) progress.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t4);" id="dir-progress-empty">Добавьте план для отображения прогресса</div>';
+    return;
+  }
+  // Список планов
+  var html = '';
+  var progressHtml = '';
+  for(var i = 0; i < directorQuarryPlans.length; i++){
+    var p = directorQuarryPlans[i];
+    var pct = p.tonnage > 0 ? Math.round(p.current / p.tonnage * 100) : 0;
+    var color = pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--orange)' : 'var(--red)';
+    html += '<div class="list-row">';
+    html += '<div class="row-info"><div class="row-title">' + p.quarry + '</div><div class="row-sub">' + p.period + ' · план</div></div>';
+    html += '<div class="row-right"><div class="row-val">' + p.tonnage.toLocaleString() + ' т</div></div>';
+    html += '</div>';
+    progressHtml += '<div class="prog-row">';
+    progressHtml += '<div class="prog-lbl">' + p.quarry + '</div>';
+    progressHtml += '<div class="prog-track"><div class="prog-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
+    progressHtml += '<div class="prog-count">' + p.current + '/' + p.tonnage + '</div>';
+    progressHtml += '</div>';
+  }
+  list.innerHTML = html;
+  if(progress) progress.innerHTML = progressHtml;
+}
+
+function saveQuarryPlans(){
+  if(directorQuarryPlans.length === 0){
+    alert('Нет планов. Добавьте хотя бы один.');
+    return;
+  }
+  var msg = 'Планы сохранены:\n';
+  for(var i = 0; i < directorQuarryPlans.length; i++){
+    var p = directorQuarryPlans[i];
+    msg += p.quarry + ' (' + p.period + '): ' + p.tonnage + ' т\n';
+  }
+  alert(msg);
+}
 // Установить дату
-document.addEventListener('DOMContentLoaded',()=>{
+function initDirDate(){
   const now = new Date();
   const days=['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
   const months=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
   const el = document.getElementById('dir-date');
   if(el) el.textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} · обновлено ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-});
+}
 const DRIVER_DATA = {
   day:  {earned:'₽ 10 000', advance:'− ₽ 3 000', topay:'₽ 7 000', trips:'4', tons:'125 т'},
   month:{earned:'₽ 136 000', advance:'− ₽ 8 000', topay:'₽ 128 000', trips:'68', tons:'2 140 т'},
@@ -2803,95 +3282,15 @@ function setDriverPeriod(p, btn){
 }
 
 // Система ролей
-let currentRole = 'login';
 
-const ROLE_SCREENS = {
-  login: ['s-login'],
-  driver: ['s-home','s-tonary','s-mixer','s-dlinn','s-dt','s-expense','s-driver-dash'],
-  mechanic: ['s-service','s-parts','s-mechanic-dash'],
-  accountant: ['s-accountant'],
-  economist: ['s-mixer','s-accountant'],
-  logist: ['s-dlinn','s-service'],
-  director: ['s-home','s-tonary','s-mixer','s-dlinn','s-dt','s-expense','s-director','s-service','s-parts','s-driver-dash','s-mechanic-dash','s-accountant'],
-};
 
-const ROLE_HOME = {
-  login: 's-login',
-  driver: 's-home',
-  mechanic: 's-mechanic-dash',
-  economist: 's-economist-cash',
-  logist: 's-dlinn',
-  director: 's-director',
-};
 
-const ROLE_NAV = {
-  driver: [
-    {icon:'🏠',label:'Главная',screen:'s-home'},
-    {icon:'🚛',label:'Тонары',screen:'s-tonary'},
-    {icon:'🔄',label:'Миксеры',screen:'s-mixer'},
-    {icon:'⛽',label:'ДТ',screen:'s-dt'},
-    {icon:'👤',label:'Кабинет',screen:'s-driver-dash'},
-  ],
-  mechanic: [
-    {icon:'🔧',label:'Ремонты',screen:'s-service'},
-    {icon:'🔩',label:'Запчасти',screen:'s-parts'},
-    {icon:'👤',label:'Кабинет',screen:'s-mechanic-dash'},
-  ],
-  accountant: [
-    {icon:'📋',label:'Документы',screen:'s-accountant'},
-  ],
-  director: [
-    {icon:'📊',label:'Дашборд',screen:'s-director'},
-    {icon:'🚛',label:'Рейсы',screen:'s-home'},
-    {icon:'🔧',label:'Сервис',screen:'s-service'},
-    {icon:'🔩',label:'Запчасти',screen:'s-parts'},
-    {icon:'👥',label:'Команда',screen:'s-driver-dash'},
-  ],
-  economist: [
-    {icon:'🔄',label:'Миксеры',screen:'s-mixer'},
-    {icon:'💵',label:'Наличные',screen:'s-economist-cash'},
-  ],
-  logist: [
-    {icon:'🚚',label:'Длинномеры',screen:'s-dlinn'},
-  ],
-};
 
-function loginAs(role){
-  currentRole = role;
-  // Скрыть все экраны
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  // Показать нужный
-  const homeScreen = ROLE_HOME[role] || 's-login';
-  const el = document.getElementById(homeScreen);
-  if(el) el.classList.add('active');
-  // Обновить навигацию
-  updateNav(role);
-}
 
-function updateNav(role){
-  const nav = document.getElementById('bottom-nav') || document.querySelector('.bottom-nav');
-  if(!nav) return;
-  if(role === 'login'){
-    nav.style.display = 'none';
-    return;
-  }
-  nav.style.display = 'flex';
-  const items = ROLE_NAV[role] || ROLE_NAV.driver;
-  nav.innerHTML = items.map(item=>
-    `<button class="nav-item" onclick="switchToScreen('${item.screen}',this)">
-      <span class="nav-icon">${item.icon}</span>${item.label}
-    </button>`
-  ).join('');
-  // Активируем первый
-  nav.querySelector('.nav-item')?.classList.add('active');
-}
 
-function switchToScreen(screenId, btn){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(screenId)?.classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-  btn?.classList.add('active');
-}
+
+
+
 
 // Бухгалтер — фильтр
 function filterDocs(filter, btn){
@@ -2911,15 +3310,11 @@ function markUPD(btn){
   card.querySelector('.doc-status-badge').className = 'doc-status-badge green';
   card.querySelector('.doc-actions').innerHTML = '<div style="font-size:11px;color:var(--green);">✓ УПД выставлен · ' + new Date().toLocaleDateString('ru') + '</div>';
   // Уведомление директору
-  setTimeout(()=>alert('✓ УПД выставлен!
-
-Директор получит уведомление.'), 300);
+  setTimeout(function(){alert('УПД выставлен! Директор получит уведомление.');}, 300);
 }
 
 function addTN(btn){
-  alert('📷 Откроется камера для фото ТН.
-
-После добавления бухгалтер получит уведомление.');
+  alert('Откроется камера для фото ТН. После съёмки ТН будет прикреплена к рейсу.');
 }
 
 // Слесарь — вкладки
@@ -2932,13 +3327,125 @@ function setMechTab(tab, btn){
   });
 }
 
-// Инициализация — показать экран входа
-document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('s-login')?.classList.add('active');
-  const nav = document.querySelector('.bottom-nav');
-  if(nav) nav.style.display='none';
-});
+// ═══════════════════ СЛЕСАРЬ — СЕКЦИИ ═══════════════════
+var mechState = { shifts: [], advances: [], fuels: [] };
+
+function showMechSection(section) {
+  const ids = ['mech-section-salary', 'mech-section-fuel-salary'];
+  const targetMap = { 'salary': 'mech-section-salary', 'fuel-salary': 'mech-section-fuel-salary' };
+  const target = targetMap[section];
+  if (!target) return;
+  // Скрыть главные кнопки
+  const buttons = document.querySelectorAll('#s-mechanic-dash > .big-btn');
+  buttons.forEach(b => b.style.display = 'none');
+  // Показать нужную секцию
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id === target ? 'block' : 'none';
+  });
+}
+
+function hideMechSections() {
+  const ids = ['mech-section-salary', 'mech-section-fuel-salary'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+  // Показать главные кнопки
+  const buttons = document.querySelectorAll('#s-mechanic-dash > .big-btn');
+  buttons.forEach(b => b.style.display = 'flex');
+}
+
+function markMechShift(mode) {
+  const today = new Date();
+  let dateStr;
+  if (mode === 'today') {
+    dateStr = today.toLocaleDateString('ru');
+  } else {
+    dateStr = today.toLocaleDateString('ru');
+  }
+  // Проверить дубликат
+  for (let i = 0; i < mechState.shifts.length; i++) {
+    if (mechState.shifts[i].date === dateStr) {
+      alert('Смена за ' + dateStr + ' уже отмечена!');
+      return;
+    }
+  }
+  mechState.shifts.push({ date: dateStr, pay: 6000 });
+  mechState.shifts.sort(function(a, b) {
+    const da = a.date.split('.').reverse().join('');
+    const db = b.date.split('.').reverse().join('');
+    return db.localeCompare(da);
+  });
+  renderMechShifts();
+  alert('Смена отмечена! +₽6 000');
+}
+
+function renderMechShifts() {
+  const list = document.getElementById('mech-shifts-list');
+  if (!list) return;
+  if (mechState.shifts.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t4);">Пока нет смен. Отметьте первый выход!</div>';
+  } else {
+    let html = '';
+    let total = 0;
+    for (let i = 0; i < mechState.shifts.length; i++) {
+      const s = mechState.shifts[i];
+      total += s.pay;
+      const d = s.date;
+      html += '<div class="list-row"><div class="row-dot dot-green"></div><div class="row-info"><div class="row-title">Смена</div><div class="row-sub">' + d + '</div></div><div class="row-right"><div class="row-val" style="color:var(--green);">+₽' + s.pay.toLocaleString() + '</div></div></div>';
+    }
+    list.innerHTML = html;
+    document.getElementById('mech-total').textContent = '₽ ' + total.toLocaleString();
+    document.getElementById('mech-shifts-info').textContent = mechState.shifts.length + ' смен × ₽6 000';
+    const advancesTotal = mechState.advances.reduce(function(s, a) { return s + a.amount; }, 0);
+    document.getElementById('mech-advances-total').textContent = '− ₽ ' + advancesTotal.toLocaleString();
+    document.getElementById('mech-to-pay').textContent = '₽ ' + (total - advancesTotal).toLocaleString();
+  }
+}
+
+function requestAdvance() {
+  const amount = prompt('Сумма аванса (₽):');
+  if (!amount || isNaN(amount) || Number(amount) <= 0) return;
+  const num = Number(amount);
+  const today = new Date().toLocaleDateString('ru');
+  mechState.advances.push({ date: today, amount: num });
+  renderMechAdvances();
+  alert('Запрос на ₽' + num.toLocaleString() + ' отправлен директору!');
+}
+
+function renderMechAdvances() {
+  const list = document.getElementById('mech-advances-list');
+  if (!list) return;
+  if (mechState.advances.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t4);">Пока нет авансов</div>';
+  } else {
+    let html = '';
+    for (let i = 0; i < mechState.advances.length; i++) {
+      const a = mechState.advances[i];
+      html += '<div class="list-row"><div class="row-dot dot-orange"></div><div class="row-info"><div class="row-title">Аванс</div><div class="row-sub">' + a.date + '</div></div><div class="row-right"><div class="row-val" style="color:var(--red);">−₽' + a.amount.toLocaleString() + '</div></div></div>';
+    }
+    list.innerHTML = html;
+  }
+  // Обновить к выплату
+  const total = mechState.shifts.reduce(function(s, sh) { return s + sh.pay; }, 0);
+  const advancesTotal = mechState.advances.reduce(function(s, a) { return s + a.amount; }, 0);
+  document.getElementById('mech-advances-total').textContent = '− ₽ ' + advancesTotal.toLocaleString();
+  document.getElementById('mech-to-pay').textContent = '₽ ' + (total - advancesTotal).toLocaleString();
+}
+
+function submitMechFuel() {
+  const today = new Date().toLocaleDateString('ru');
+  mechState.fuels.push({ date: today });
+  const list = document.getElementById('mech-fuel-list');
+  if (list) {
+    let html = '';
+    for (let i = 0; i < mechState.fuels.length; i++) {
+      const f = mechState.fuels[i];
+      html += '<div class="list-row"><div class="row-dot dot-orange"></div><div class="row-info"><div class="row-title">Заправка</div><div class="row-sub">' + f.date + '</div></div></div>';
+    }
+    list.innerHTML = html;
+  }
+  alert('Заправка сохранена!');
+  hideSub('mech-section-fuel-salary', 'mech-fuel-new');
+}
 
 function togglePartsDebt(){
   const dolg = document.getElementById('pay-dolg');
@@ -2977,66 +3484,6 @@ function toggleRepairType(type){
 }
 
 // ═══════════════════ СИСТЕМА РОЛЕЙ ═══════════════════
-const ROLES = {
-  director:   {name:'Директор',    screens:['s-home','s-tonary','s-mixer','s-dlinn','s-dt','s-expense','s-director','s-service','s-parts','s-driver-dash'], nav:['s-home','s-tonary','s-mixer','s-dt','s-director','s-service','s-driver-dash']},
-  driver:     {name:'Водитель',     screens:['s-home','s-tonary','s-mixer','s-dlinn','s-dt','s-expense','s-driver-dash'], nav:['s-home','s-tonary','s-mixer','s-dt','s-driver-dash']},
-  mechanic:   {name:'Слесарь',      screens:['s-mechanic-dash','s-service','s-parts'], nav:['s-mechanic-dash','s-service']},
-  accountant: {name:'Бухгалтер',    screens:['s-accountant'], nav:['s-accountant']},
-  economist:  {name:'Экономист',    screens:['s-home','s-mixer','s-director'], nav:['s-mixer','s-director']},
-  logist:     {name:'Логист',       screens:['s-dlinn','s-parts'], nav:['s-dlinn']},
-};
-
-let currentRole = null;
-
-function loginAs(role){
-  currentRole = role;
-  const cfg = ROLES[role];
-
-  // Скрыть экран входа
-  document.getElementById('s-login').classList.remove('active');
-
-  // Показать первый доступный экран
-  const firstScreen = cfg.nav[0];
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const target = document.getElementById(firstScreen);
-  if(target) target.classList.add('active');
-
-  // Обновить навигацию
-  updateNav(role, firstScreen);
-}
-
-function updateNav(role, activeScreen){
-  const cfg = ROLES[role];
-  const nav = document.querySelector('.bottom-nav');
-  if(!nav) return;
-
-  const NAV_LABELS = {
-    's-home':'Главная','s-tonary':'Тонары','s-mixer':'Миксеры',
-    's-dlinn':'Длинномеры','s-dt':'Топливо','s-director':'Дашборд',
-    's-service':'Сервис','s-driver-dash':'Кабинет','s-mechanic-dash':'Кабинет',
-    's-accountant':'Документы','s-parts':'Запчасти',
-  };
-  const NAV_ICONS = {
-    's-home':'🏠','s-tonary':'🚛','s-mixer':'🔄','s-dlinn':'🚚',
-    's-dt':'⛽','s-director':'📊','s-service':'🔧','s-driver-dash':'👤',
-    's-mechanic-dash':'👤','s-accountant':'📋','s-parts':'🔩',
-  };
-
-  nav.innerHTML = cfg.nav.map(s => `
-    <button class="nav-item${s===activeScreen?' active':''}" onclick="navToRole('${s}',this)">
-      <span class="nav-icon">${NAV_ICONS[s]||'•'}</span>${NAV_LABELS[s]||s}
-    </button>
-  `).join('');
-}
-
-function navToRole(screenId, btn){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const target = document.getElementById(screenId);
-  if(target) target.classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-}
-
 function logout(){
   currentRole = null;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -3079,7 +3526,7 @@ function saveTn(btn){
   badge.textContent = 'Нет УПД';
   const actions = card.querySelector('.acc-trip-actions');
   actions.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-    <a href="#" style="font-size:11px;color:var(--blue);">📄 Смотреть ТН</a>
+    <a href="#" style="font-size:11px;color:var(--accent2);">📄 Смотреть ТН</a>
     <div style="flex:1;"></div>
     <button class="acc-btn-upd" onclick="markUpd(this)">✓ УПД выставлен</button>
   </div>`;
@@ -3123,9 +3570,74 @@ function renderMechCalendar(period){
 }
 
 // Инициализация
-document.addEventListener('DOMContentLoaded',()=>{
-  renderMechCalendar('month');
+document.addEventListener('DOMContentLoaded', function(){
+  // Скрыть навигацию на экране входа
+  var nav = document.getElementById('bottom-nav');
+  if(nav) nav.style.display = 'none';
+  // Убедиться что только s-login активен
+  document.querySelectorAll('.screen').forEach(function(s){
+    s.classList.remove('active');
+  });
+  var loginScreen = document.getElementById('s-login');
+  if(loginScreen) loginScreen.classList.add('active');
+  // Инициализация календаря слесаря
+  if(typeof renderMechCalendar === 'function') renderMechCalendar('month');
+  // Дата директора
+  if(typeof initDirDate === 'function') initDirDate();
+  // Даты по умолчанию
+  ['dln-date-load','dln-date-unload','dt-date','exp-date'].forEach(function(id){
+    var today = new Date();
+    var valEl = document.getElementById(id+'-val');
+    var display = document.getElementById(id+'-display');
+    if(valEl){ valEl.textContent=formatDate(today); if(typeof dateState!=='undefined') dateState[id]=formatDate(today); }
+    if(display) display.style.display='flex';
+  });
 });
+
+// ═══════════════════ УВЕДОМЛЕНИЯ ═══════════════════
+function showNotification(msg){
+  var el = document.createElement('div');
+  el.className = 'notification';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(function(){ el.classList.add('show'); }, 50);
+  setTimeout(function(){ el.classList.remove('show'); setTimeout(function(){ el.remove(); }, 300); }, 3000);
+}
+
+// ═══════════════════ ОТПРАВКА К API ═══════════════════
+var API_URL = 'https://worker-production-96a0.up.railway.app/api';
+var API_KEY = 'pulsar-api-secret-2026';
+
+function sendToAPI(action, data, onSuccess, onError) {
+  // Если MiniApp запущен локально — отправляем через Telegram WebApp
+  if (window.Telegram && window.Telegram.WebApp && !window.location.hostname) {
+    Telegram.WebApp.sendData(JSON.stringify({action: action, data: data}));
+    if (onSuccess) onSuccess({fallback: true});
+    return;
+  }
+
+  fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': API_KEY
+    },
+    body: JSON.stringify({action: action, data: data})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    if(res.status === 'ok' && onSuccess) onSuccess(res);
+    else if(onError) onError(res);
+    else showNotification(res.message || 'Сохранено');
+  })
+  .catch(function(e){
+    // Fallback — отправить через Telegram WebApp
+    if (window.Telegram && window.Telegram.WebApp) {
+      Telegram.WebApp.sendData(JSON.stringify({action: action, data: data}));
+    }
+    if (onError) onError(e);
+  });
+}
 
 function submitOk(btn,subId,menuId){
   const orig=btn.textContent;
@@ -3136,6 +3648,298 @@ function submitOk(btn,subId,menuId){
     btn.textContent=orig;
     btn.style.background='';
   },1000);
+}
+
+// ═══════════════════ ТОНАР — ОТПРАВКА ═══════════════════
+function submitTonarTrip(btn){
+  const orig = btn.textContent;
+  btn.textContent = '⏳ Отправка...';
+  btn.disabled = true;
+
+  // Собрать данные из формы
+  var form = btn.closest('.sub-screen');
+  var driverChip = form.querySelector('#ton-truck-chips .chip.on, .form-block:nth-child(3) .chip.on');
+  var driver = driverChip ? driverChip.textContent.trim() : '';
+  
+  var matChip = form.querySelector('#mat-chips .chip.on');
+  var material = matChip ? matChip.textContent.trim() : '';
+  
+  var quarryChip = form.querySelector('#quarry-chips .chip.on');
+  var quarry = quarryChip ? quarryChip.textContent.trim() : '';
+  if(quarry === '+ Другое') quarry = (form.querySelector('#quarry-other input')||{}).value || '';
+  
+  var frakChip = form.querySelector('#frak-chips .chip.on');
+  var fraction = frakChip ? frakChip.textContent.trim() : '';
+  
+  var clientChip = form.querySelector('#client-chips .chip.on');
+  var client = clientChip ? clientChip.textContent.trim() : '';
+  if(client === '+ Другое') client = (form.querySelector('#client-other input')||{}).value || '';
+  
+  var objChip = form.querySelector('#object-chips .chip.on');
+  var object = objChip ? objChip.textContent.trim() : '';
+
+  var inputs = form.querySelectorAll('.inp');
+  var loadTonnage = inputs[0] ? inputs[0].value : '';
+  var unloadTonnage = inputs[1] ? inputs[1].value : '';
+
+  var now = new Date();
+  var data = {
+    date: now.toLocaleDateString('ru'),
+    time: now.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}),
+    driver: driver,
+    truck: '',
+    quarry: quarry,
+    material: material,
+    fraction: fraction,
+    client: client,
+    object: object,
+    load_tonnage: loadTonnage,
+    unload_tonnage: unloadTonnage,
+    status: 'ok'
+  };
+
+  sendToAPI('tonar_trip', data, function(res){
+    btn.textContent = '✅ Сохранено!';
+    btn.style.background = 'var(--green)';
+    showNotification('Рейс тонара сохранён' + (res.id ? ' ('+res.id+')' : ''));
+    setTimeout(function(){
+      hideSub('ton-menu','ton-new');
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 1200);
+  }, function(e){
+    btn.textContent = '❌ Ошибка';
+    btn.style.background = 'var(--red)';
+    setTimeout(function(){
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 2000);
+  });
+}
+
+// ═══════════════════ МИКСЕР — ОТПРАВКА ═══════════════════
+function submitMixerTrip(btn){
+  const orig = btn.textContent;
+  btn.textContent = '⏳ Отправка...';
+  btn.disabled = true;
+
+  var form = btn.closest('.sub-screen');
+  var inputs = form.querySelectorAll('.inp');
+  
+  function getChipVal(id){
+    var c = form.querySelector('#'+id+' .chip.on');
+    return c ? c.textContent.trim() : '';
+  }
+
+  var data = {
+    date: new Date().toLocaleDateString('ru'),
+    arrive_time: inputs[2] ? inputs[2].value : '',
+    depart_time: inputs[3] ? inputs[3].value : '',
+    driver: '',
+    truck: '',
+    plant: getChipVal(''),
+    mix_type: getChipVal(''),
+    grade: getChipVal(''),
+    volume: inputs[4] ? inputs[4].value : '',
+    client: getChipVal(''),
+    address: inputs[5] ? inputs[5].value : '',
+    concrete_cost: inputs[6] ? inputs[6].value : '',
+    delivery_cost: inputs[7] ? inputs[7].value : '',
+    payment_type: getChipVal(''),
+    money_with: getChipVal(''),
+    tn_number: inputs[8] ? inputs[8].value : '',
+    status: 'ok'
+  };
+
+  sendToAPI('mixer_trip', data, function(res){
+    btn.textContent = '✅ Сохранено!';
+    btn.style.background = 'var(--green)';
+    showNotification('Рейс миксера сохранён' + (res.id ? ' ('+res.id+')' : ''));
+    setTimeout(function(){
+      hideSub('mix-menu','mix-new');
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 1200);
+  }, function(){
+    btn.textContent = '❌ Ошибка';
+    setTimeout(function(){
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 2000);
+  });
+}
+
+// ═══════════════════ СЛЕСАРЬ — ОТПРАВКИ ═══════════════════
+function submitMechFuel(){
+  var inputs = document.querySelectorAll('#mech-fuel-new .inp');
+  var data = {
+    date: new Date().toLocaleDateString('ru'),
+    type: 'fuel',
+    fuel_liters: inputs[0] ? inputs[0].value : '',
+    fuel_cost: inputs[1] ? inputs[1].value : '',
+    fuel_station: (document.querySelector('#mech-fuel-new .chip.on')||{}).textContent.trim() || '',
+    rate: '6000'
+  };
+
+  sendToAPI('mechanic_record', data, function(res){
+    showNotification('Заправка сохранена' + (res.id ? ' ('+res.id+')' : ''));
+    hideSub('mech-section-fuel-salary','mech-fuel-new');
+  }, function(){ showNotification('Ошибка сохранения'); });
+}
+
+function markMechShift(mode){
+  var data = {
+    date: new Date().toLocaleDateString('ru'),
+    type: 'shift',
+    rate: '6000'
+  };
+
+  sendToAPI('mechanic_record', data, function(res){
+    showNotification('Смена отмечена +₽6 000' + (res.id ? ' ('+res.id+')' : ''));
+    // Обновить UI
+    var total = mechState.shifts.length * 6000;
+    var el = document.getElementById('mech-total');
+    if(el) el.textContent = '₽ ' + (total + 6000).toLocaleString();
+    mechState.shifts.push({date: data.date, pay: 6000});
+    renderMechShifts();
+  }, function(){ showNotification('Ошибка'); });
+}
+
+// ═══════════════════ ДИРЕКТОР — ОТПРАВКИ ═══════════════════
+function addTripPrice(){
+  var driver = getDirSelectedDriver();
+  var quarry = getDirSelectedQuarry();
+  var client = getDirSelectedClient();
+  var price = document.getElementById('dir-trip-price-input').value;
+  if(!driver || !quarry || !client || !price){
+    showNotification('Заполните все поля');
+    return;
+  }
+
+  var data = {
+    driver: driver,
+    quarry: quarry,
+    client: client,
+    price: Number(price),
+    created_at: new Date().toLocaleString('ru')
+  };
+
+  sendToAPI('trip_price', data, function(res){
+    showNotification('Цена рейса сохранена' + (res.id ? ' ('+res.id+')' : ''));
+    directorTripPrices.push(data);
+    renderDirTripPrices();
+    document.getElementById('dir-trip-price-input').value = '';
+  }, function(){ showNotification('Ошибка сохранения'); });
+}
+
+function addQuarryPlan(){
+  var quarryEl = document.querySelector('#dir-plan-quarry-chips .chip.on');
+  var quarry = quarryEl ? quarryEl.textContent.trim() : '';
+  var tonnage = document.getElementById('dir-plan-tonnage-input').value;
+  var periodEl = document.querySelector('#dir-plan-period-chips .chip.on');
+  var period = periodEl ? periodEl.textContent.trim() : '';
+  if(!quarry || !tonnage){
+    showNotification('Выберите карьер и укажите тоннаж');
+    return;
+  }
+
+  var data = {
+    quarry: quarry,
+    planned_tonnage: Number(tonnage),
+    period: period,
+    created_at: new Date().toLocaleString('ru')
+  };
+
+  sendToAPI('quarry_plan', data, function(res){
+    showNotification('План карьера сохранён' + (res.id ? ' ('+res.id+')' : ''));
+    directorQuarryPlans.push({...data, current: 0});
+    renderDirQuarryPlans();
+    document.getElementById('dir-plan-tonnage-input').value = '';
+  }, function(){ showNotification('Ошибка сохранения'); });
+}
+
+// ═══════════════════ АВТОЗАПОЛНЕНИЕ ФОРМЫ РЕЙСА ═══════════════════
+function autofillTonForm() {
+  if (!currentDriver) return;
+  document.getElementById('ton-driver-auto').textContent = currentDriver.name;
+  document.getElementById('ton-truck-auto').textContent = currentDriver.truck;
+  var now = new Date();
+  var timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+  document.getElementById('ton-datetime-auto').textContent = 'Сегодня, ' + timeStr;
+  var truckChips = document.querySelectorAll('#ton-truck-chips .chip');
+  truckChips.forEach(function(chip) {
+    chip.classList.remove('on');
+    if (chip.textContent.trim() === currentDriver.truck) chip.classList.add('on');
+  });
+}
+
+// ═══════════════════ ЗАГРУЗКА ФОТО ═══════════════════
+function handlePhotoUpload(input, type) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var previewId, imgId;
+    if (type === 'tn-front') {
+      previewId = 'tn-front-preview'; imgId = 'tn-front-img';
+    } else if (type === 'tn-back') {
+      previewId = 'tn-back-preview'; imgId = 'tn-back-img';
+    } else if (type === 'mix-tn') {
+      previewId = 'mix-tn-preview'; imgId = 'mix-tn-img';
+    } else if (type === 'mix-raport') {
+      previewId = 'mix-raport-preview'; imgId = 'mix-raport-img';
+    } else if (type === 'dln-tn') {
+      previewId = 'dln-tn-preview'; imgId = 'dln-tn-img';
+    } else if (type === 'fuel-check') {
+      previewId = 'fuel-check-preview'; imgId = 'fuel-check-img';
+    } else if (type === 'expense-check') {
+      previewId = 'expense-check-preview'; imgId = 'expense-check-img';
+    } else if (type === 'parts-check') {
+      previewId = 'parts-check-preview'; imgId = 'parts-check-img';
+    } else if (type === 'service-check') {
+      previewId = 'service-check-preview'; imgId = 'service-check-img';
+    }
+    if (previewId && imgId) {
+      document.getElementById(imgId).src = e.target.result;
+      document.getElementById(previewId).style.display = 'block';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ═══════════════════ ГОЛОСОВОЙ ВВОД ═══════════════════
+function startVoiceInput(formType) {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Голосовой ввод не поддерживается. Используйте Chrome.'); return; }
+  var recognition = new SR();
+  recognition.lang = 'ru-RU';
+  recognition.interimResults = false;
+  var btn = document.getElementById('btn-voice-trip');
+  btn.textContent = '🎙 Слушаю...';
+  btn.style.borderColor = 'var(--accent)';
+  btn.style.color = 'var(--accent)';
+  recognition.onresult = function(event) {
+    var text = event.results[0][0].transcript;
+    alert('Распознано: "' + text + '"\n\n(AI-анализ и автозаполнение полей — будет подключено)');
+    btn.textContent = '🎙 Надиктовать рейс';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+  };
+  recognition.onerror = function() {
+    btn.textContent = '🎙 Надиктовать рейс';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+  };
+  recognition.onend = function() {
+    btn.textContent = '🎙 Надиктовать рейс';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+  };
+  recognition.start();
 }
 </script>
 </body>
