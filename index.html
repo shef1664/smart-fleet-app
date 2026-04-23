@@ -7,6 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Ежедневный отчёт</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <!-- PULSAR v2.0 - Industrial Pro Design - 2026-04-12 -->
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -286,7 +287,6 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
-      <div class="avatar" id="home-avatar" style="background:linear-gradient(135deg,var(--accent),#30d158)">--</div>
     </div>
   </div>
 
@@ -395,7 +395,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <div class="form-block">
       <div class="form-lbl">Автомобиль</div>
       <div class="chips" id="ton-truck-chips">
-        <button class="chip on" onclick="sel(this)">803</button>
+        <button class="chip" onclick="sel(this)">803</button>
         <button class="chip" onclick="sel(this)">008</button>
         <button class="chip" onclick="sel(this)">709</button>
       </div>
@@ -404,7 +404,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <div class="form-block">
       <div class="form-lbl">Водитель</div>
       <div class="chips">
-        <button class="chip on" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
@@ -559,8 +559,6 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
   <div class="sub-screen" id="mix-new">
     <button class="back-btn" onclick="hideSub('mix-menu','mix-new')">‹ Миксеры</button>
     <div class="page-title" style="margin-bottom:20px">Новый рейс</div>
-
-    <div class="auto-row" style="margin-bottom:18px"><span class="auto-lbl">Дата и время</span><span class="auto-val">Сегодня, 14:35<span class="auto-tag">AUTO</span></span></div>
 
     <div class="form-block">
       <div class="form-lbl">Автомобиль</div>
@@ -811,7 +809,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <div class="form-block">
       <div class="form-lbl">Водитель</div>
       <div class="chips">
-        <button class="chip on" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
@@ -915,7 +913,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="dln-tn-img">
       </div>
     </div>
-    <button class="submit" style="background:var(--purple)" onclick="submitOk(this,'dln-new','dln-menu')">Сохранить рейс</button>
+    <button class="submit" style="background:var(--purple)" onclick="submitDlinnTrip(this)">Сохранить рейс</button>
   </div>
 </div>
 
@@ -969,7 +967,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <div class="form-block">
       <div class="form-lbl">Водитель</div>
       <div class="chips">
-        <button class="chip on" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Цупиков Н.Н.</button>
@@ -1028,7 +1026,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="fuel-check-img">
       </div>
     </div>
-    <button class="submit orange" onclick="submitOk(this,'dt-new','dt-menu')">Сохранить заправку</button>
+    <button class="submit orange" onclick="submitDlinnFuel(this)">Сохранить заправку</button>
   </div>
 </div>
 
@@ -1082,7 +1080,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <div class="form-block">
       <div class="form-lbl">Водитель</div>
       <div class="chips">
-        <button class="chip on" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Цупиков Н.Н.</button>
@@ -1154,7 +1152,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="expense-check-img">
       </div>
     </div>
-    <button class="submit red" onclick="submitOk(this,'exp-new','exp-menu')">Сохранить расход</button>
+    <button class="submit red" onclick="submitDlinnExpense(this)">Сохранить расход</button>
   </div>
 </div>
 
@@ -1174,6 +1172,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <button class="period-btn active" onclick="setDirTab('dashboard',this)">Дашборд</button>
     <button class="period-btn" onclick="setDirTab('trip-prices',this)">Стоимость рейсов</button>
     <button class="period-btn" onclick="setDirTab('quarry-plans',this)">Планы карьеров</button>
+    <button class="period-btn" onclick="setDirTab('directory',this)">Справочники</button>
   </div>
 
   <!-- ═══ ДАШБОРД ═══ -->
@@ -1257,7 +1256,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
 
   <!-- Загрузка парка -->
   <div class="sec-lbl">🚛 Загрузка парка</div>
-  <div class="dir-card" style="padding:14px 16px;">
+  <div class="dir-card" style="padding:14px 16px;" id="dir-fleet-list">
     <div class="fleet-row">
       <span class="fleet-num">803</span>
       <span class="fleet-type">тонар</span>
@@ -1409,6 +1408,96 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     </div>
   </div>
 
+  <div id="dir-tab-directory" style="display:none;">
+    <div class="sec-lbl">Сотрудники</div>
+    <div class="card" style="padding:18px;">
+      <div class="form-block">
+        <div class="form-lbl">ФИО</div>
+        <input class="inp" type="text" id="dir-user-name" placeholder="Например: Иванов И.И.">
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">Роль</div>
+        <div class="chips" id="dir-user-role-chips">
+          <button class="chip on" onclick="sel(this)">driver</button>
+          <button class="chip" onclick="sel(this)">mechanic</button>
+          <button class="chip" onclick="sel(this)">economist</button>
+          <button class="chip" onclick="sel(this)">logist</button>
+          <button class="chip" onclick="sel(this)">director</button>
+        </div>
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">Telegram ID</div>
+        <input class="inp" type="text" id="dir-user-telegram-id" placeholder="Например: 123456789">
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">Телефон</div>
+        <input class="inp" type="text" id="dir-user-phone" placeholder="+79991234567">
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">Машина по умолчанию</div>
+        <input class="inp" type="text" id="dir-user-truck" placeholder="Например: 803">
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">Тип техники</div>
+        <div class="chips" id="dir-user-vehicle-type-chips">
+          <button class="chip on" onclick="sel(this)">tonary</button>
+          <button class="chip" onclick="sel(this)">mixer</button>
+          <button class="chip" onclick="sel(this)">dlinn</button>
+        </div>
+      </div>
+      <button class="big-btn green" onclick="saveDirectoryUser()" style="margin-top:4px;">
+        <div class="btn-ico">➕</div>
+        <div class="btn-body"><div class="btn-title">Сохранить сотрудника</div><div class="btn-sub">Добавить или обновить онлайн</div></div>
+      </button>
+    </div>
+    <div class="card" id="dir-users-list">
+      <div style="text-align:center;padding:20px;color:var(--t4);">Загрузка сотрудников...</div>
+    </div>
+
+    <div class="sec-lbl">Транспорт</div>
+    <div class="card" style="padding:18px;">
+      <div class="form-block">
+        <div class="form-lbl">Борт / номер</div>
+        <input class="inp" type="text" id="dir-vehicle-truck" placeholder="Например: 803">
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">Тип</div>
+        <div class="chips" id="dir-vehicle-type-chips">
+          <button class="chip on" onclick="sel(this)">tonary</button>
+          <button class="chip" onclick="sel(this)">mixer</button>
+          <button class="chip" onclick="sel(this)">dlinn</button>
+        </div>
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">Подпись</div>
+        <input class="inp" type="text" id="dir-vehicle-label" placeholder="Например: Тонар 803">
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">Водитель</div>
+        <input class="inp" type="text" id="dir-vehicle-driver" placeholder="ФИО водителя">
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">ТО</div>
+        <input class="inp" type="text" id="dir-vehicle-service-label" placeholder="Например: Замена масла">
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">Интервал ТО, км</div>
+        <input class="inp" type="number" id="dir-vehicle-service-interval" placeholder="5000">
+      </div>
+      <div class="form-block">
+        <div class="form-lbl">Осталось до ТО, км</div>
+        <input class="inp" type="number" id="dir-vehicle-service-remaining" placeholder="1200">
+      </div>
+      <button class="big-btn green" onclick="saveDirectoryVehicle()" style="margin-top:4px;">
+        <div class="btn-ico">➕</div>
+        <div class="btn-body"><div class="btn-title">Сохранить автомобиль</div><div class="btn-sub">Добавить или обновить онлайн</div></div>
+      </button>
+    </div>
+    <div class="card" id="dir-vehicles-list">
+      <div style="text-align:center;padding:20px;color:var(--t4);">Загрузка транспорта...</div>
+    </div>
+  </div>
+
 </div>
 
 
@@ -1420,7 +1509,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
   <div class="topbar">
     <div>
       <div class="page-title">Мой кабинет</div>
-      <div class="page-sub">Шабанов Ф.А. · КамАЗ 803</div>
+      <div class="page-sub">Дашборд водителя</div>
     </div>
     <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
@@ -1451,14 +1540,15 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
       </div>
       <div style="text-align:right;">
         <div style="font-size:12px;color:var(--t3);">Дата выплаты</div>
-        <div style="font-size:14px;font-weight:600;color:var(--t2);">1 апреля</div>
+        <div style="font-size:14px;font-weight:600;color:var(--t2);" id="drv-payday">1 апреля</div>
       </div>
     </div>
   </div>
 
   <!-- Рейсы и ставки сегодня -->
   <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
-    <div style="font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">Рейсы сегодня — Морозовский</div>
+    <div style="font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;" id="drv-trip-heading">Рейсы сегодня</div>
+    <div id="drv-trip-rows">
     <div class="salary-row">
       <div class="salary-num">1</div>
       <div class="salary-info">
@@ -1491,10 +1581,11 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
       </div>
       <div class="salary-rate" style="color:var(--orange);">₽ 4 000</div>
     </div>
+    </div>
     <div style="height:1px;background:var(--sep);margin:10px 0;"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:14px;color:var(--t3);">Итого за день</span>
-      <span style="font-size:18px;font-weight:700;color:var(--green);">₽ 10 000</span>
+      <span style="font-size:18px;font-weight:700;color:var(--green);" id="drv-day-total">₽ 10 000</span>
     </div>
   </div>
 
@@ -1520,7 +1611,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
 
   <!-- План по объектам -->
   <div class="sec-lbl">📦 План по объектам</div>
-  <div style="background:var(--bg3);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;">
+  <div style="background:var(--bg3);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;" id="drv-plan-list">
     <div class="plan-row">
       <div class="plan-info">
         <div class="plan-name">Морозовский → СтройГрупп</div>
@@ -1558,27 +1649,27 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
   <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <div>
-        <div style="font-size:15px;font-weight:600;">КамАЗ 803</div>
-        <div style="font-size:13px;color:var(--t3);margin-top:2px;">Замена масла</div>
+        <div style="font-size:15px;font-weight:600;" id="drv-service-truck">КамАЗ 803</div>
+        <div style="font-size:13px;color:var(--t3);margin-top:2px;" id="drv-service-label">Замена масла</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:22px;font-weight:700;color:var(--orange);">1 200 км</div>
+        <div style="font-size:22px;font-weight:700;color:var(--orange);" id="drv-service-remaining">1 200 км</div>
         <div style="font-size:12px;color:var(--t3);">осталось</div>
       </div>
     </div>
     <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;">
-      <div style="width:76%;height:100%;background:var(--orange);border-radius:3px;"></div>
+      <div style="width:76%;height:100%;background:var(--orange);border-radius:3px;" id="drv-service-bar"></div>
     </div>
     <div style="display:flex;justify-content:space-between;margin-top:6px;">
       <span style="font-size:11px;color:var(--t4);">0</span>
-      <span style="font-size:11px;color:var(--t3);">Пробег до ТО: осталось 1 200 из 5 000 км</span>
-      <span style="font-size:11px;color:var(--t4);">5 000</span>
+      <span style="font-size:11px;color:var(--t3);" id="drv-service-caption">Пробег до ТО: осталось 1 200 из 5 000 км</span>
+      <span style="font-size:11px;color:var(--t4);" id="drv-service-interval">5 000</span>
     </div>
   </div>
 
   <!-- Авансы -->
   <div class="sec-lbl">💸 Авансы</div>
-  <div style="background:var(--bg3);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;">
+  <div style="background:var(--bg3);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;" id="drv-advances-list">
     <div class="advance-row">
       <div style="font-size:14px;font-weight:500;">15 марта</div>
       <div style="font-size:13px;color:var(--t3);">аванс</div>
@@ -1727,7 +1818,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
       </div>
     </div>
 
-    <button class="submit red" onclick="submitOk(this,'svc-open','svc-menu')">Открыть ремонт</button>
+    <button class="submit red" onclick="submitServiceRepair(this)">Открыть ремонт</button>
   </div>
 
   <!-- АКТИВНЫЕ РЕМОНТЫ -->
@@ -1853,7 +1944,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
       <input class="inp" type="text" placeholder="Добавить комментарий">
     </div>
 
-    <button class="submit green" onclick="submitOk(this,'svc-card','svc-menu')">Закрыть ремонт</button>
+    <button class="submit green" onclick="closeServiceRepair(this)">Закрыть ремонт</button>
   </div>
 
 </div>
@@ -2078,7 +2169,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
       </div>
     </div>
 
-    <button class="submit" style="background:var(--purple)" onclick="submitOk(this,'parts-new','parts-menu')">Сохранить закупку</button>
+    <button class="submit" style="background:var(--purple)" onclick="submitPartsPurchase(this)">Сохранить закупку</button>
   </div>
 
 </div>
@@ -2098,6 +2189,11 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
           <button class="role-btn" onclick="loginAs('driver')">
             <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
             <div class="role-info"><div class="role-name">Водитель</div><div class="role-sub">Рейсы · топливо · кабинет</div></div>
+            <span style="color:var(--t4);">›</span>
+          </button>
+          <button class="role-btn" onclick="loginAs('mixer')">
+            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
+            <div class="role-info"><div class="role-name">Миксеры</div><div class="role-sub">Бетон · раствор · рейс</div></div>
             <span style="color:var(--t4);">›</span>
           </button>
           <button class="role-btn" onclick="loginAs('mechanic')">
@@ -2418,40 +2514,6 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <button class="submit orange" onclick="submitMechFuel()">Сохранить заправку</button>
   </div>
 </div>
-    <div style="background:var(--bg3);border-radius:var(--r2);padding:20px 18px;margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
-        <div>
-          <div style="font-size:13px;color:var(--t3);margin-bottom:4px;">Заработано за март</div>
-          <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:var(--green);">₽ 108 000</div>
-          <div style="font-size:12px;color:var(--t3);margin-top:4px;">18 смен × ₽6 000</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:13px;color:var(--t3);margin-bottom:4px;">Авансы</div>
-          <div style="font-size:22px;font-weight:700;color:var(--red);">− ₽ 35 000</div>
-        </div>
-      </div>
-      <div style="height:1px;background:var(--sep);margin-bottom:14px;"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <div style="font-size:13px;color:var(--t3);">К выплате</div>
-          <div style="font-size:24px;font-weight:700;">₽ 73 000</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:12px;color:var(--t3);">Дата выплаты</div>
-          <div style="font-size:14px;font-weight:600;">1 апреля</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Ставка -->
-    <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
-      <div style="font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">Ставка</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-size:14px;">Оклад за смену</span>
-        <span style="font-size:16px;font-weight:700;color:var(--green);">₽ 6 000</span>
-      </div>
-      <div style="font-size:12px;color:var(--t3);">Включает ведение отчётности за обоих слесарей</div>
-    </div>
   </div>
 
   <!-- СМЕНЫ -->
@@ -2549,21 +2611,14 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
   <button class="nav-item" onclick="nav(this,'s-tonary')">
     <span class="nav-icon">🚛</span>Тонары
   </button>
-  <button class="nav-item" onclick="nav(this,'s-mixer')">
-    <span class="nav-icon">🔄</span>Миксеры
+  <button class="nav-item" onclick="nav(this,'s-dlinn')">
+    <span class="nav-icon">🚚</span>Длинномеры
   </button>
   <button class="nav-item" onclick="nav(this,'s-dt')">
     <span class="nav-icon">⛽</span>ДТ
   </button>
-  <button class="nav-item" onclick="nav(this,'s-director')">
-    <span class="nav-icon">📊</span>Директор
-  </button>
-  <button class="nav-item" onclick="nav(this,'s-service')">
-    <span class="nav-icon">🔧</span>Сервис
-  </button>
-
-  <button class="nav-item" onclick="nav(this,'s-driver-dash')">
-    <span class="nav-icon">👤</span>Кабинет
+  <button class="nav-item" onclick="nav(this,'s-expense')">
+    <span class="nav-icon">🧾</span>Расходы
   </button>
 </div>
 
@@ -2584,15 +2639,88 @@ var DRIVERS = {
 
 var currentDriver = null;
 
+var DRIVER_RECENT_TRIPS = [
+  { route: '\u041C\u043E\u0440\u043E\u0437\u043E\u0432\u0441\u043A\u0438\u0439 \u2192 \u0421\u0442\u0440\u043E\u0439\u0413\u0440\u0443\u043F\u043F', sub: '\u0429\u0435\u0431\u0435\u043D\u044C 20-40 \u00B7 32 \u0442 \u00B7 \u0422\u041D \u2713', tons: '32 \u0442', time: '18.04 \u00B7 14:20' },
+  { route: '\u0412\u041D\u041A \u0411\u0435\u0440\u0435\u0437\u043E\u0432\u043A\u0430 \u2192 \u0416\u0411\u0418', sub: '\u0413\u0440\u0430\u0432\u0438\u0439 5-20 \u00B7 28 \u0442 \u00B7 \u0422\u041D \u2713', tons: '28 \u0442', time: '17.04 \u00B7 12:10' },
+  { route: '\u0411\u0430\u0440\u0437\u0430\u0441\u0441\u043A\u0438\u0439 \u2192 \u0410\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F', sub: '\u041F\u0435\u0441\u043E\u043A 2.0-2.5 \u00B7 26 \u0442 \u00B7 \u0422\u041D \u2713', tons: '26 \u0442', time: '16.04 \u00B7 09:45' }
+];
+
+function renderDriverRecentTrips() {
+  var card = document.querySelector('#ton-menu .card');
+  if (!card) return;
+  card.innerHTML = DRIVER_RECENT_TRIPS.map(function(trip){
+    return '<div class=\"list-row\">'
+      + '<div class=\"row-dot dot-green\"></div>'
+      + '<div class=\"row-info\"><div class=\"row-title\">' + trip.route + '</div><div class=\"row-sub\">' + trip.sub + '</div></div>'
+      + '<div class=\"row-right\"><div class=\"row-val\">' + trip.tons + '</div><div class=\"row-time\">' + trip.time + '</div></div>'
+      + '</div>';
+  }).join('');
+}
+
+function applyDriverLayout() {
+  var repeatHome = document.getElementById('home-repeat-trip');
+  if (repeatHome) {
+    repeatHome.onclick = function(){ go('s-driver-dash'); };
+    var t = repeatHome.querySelector('.rep-title');
+    var s = repeatHome.querySelector('.rep-sub');
+    var b = repeatHome.querySelector('.rep-btn');
+    var i = repeatHome.querySelector('.rep-icon');
+    if (i) i.textContent = '👤';
+    if (t) t.textContent = '\u0414\u0430\u0448\u0431\u043E\u0440\u0434 \u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044F';
+    if (s) s.textContent = '\u0417\u041F, \u0440\u0435\u0439\u0441\u044B, \u0442\u043E\u043D\u043D\u044B \u0438 \u043E\u0441\u0442\u0430\u0442\u043A\u0438 \u043F\u043B\u0430\u043D\u043E\u0432';
+    if (b) b.textContent = '\u041E\u0442\u043A\u0440\u044B\u0442\u044C';
+  }
+
+  var mixerBtn = document.getElementById('btn-mixer');
+  if (mixerBtn) mixerBtn.style.display = 'none';
+
+  var homeStatsTitle = document.querySelector('#s-home .sec-lbl:last-of-type');
+  var homeStats = document.querySelector('#s-home .stats2');
+  if (homeStatsTitle) homeStatsTitle.style.display = 'none';
+  if (homeStats) homeStats.style.display = 'none';
+
+  var tonRepeat = document.querySelector('#ton-menu .repeat-card');
+  if (tonRepeat) tonRepeat.style.display = 'none';
+  renderDriverRecentTrips();
+
+  var dlnMenu = document.getElementById('dln-menu');
+  if (dlnMenu) {
+    var dlnTitle = dlnMenu.querySelector('.sec-lbl');
+    var dlnCard = dlnMenu.querySelector('.card');
+    if (dlnTitle) dlnTitle.style.display = 'none';
+    if (dlnCard) dlnCard.style.display = 'none';
+  }
+
+  var dtMenu = document.getElementById('dt-menu');
+  if (dtMenu) {
+    var dtTitle = dtMenu.querySelector('.sec-lbl');
+    var dtCard = dtMenu.querySelector('.card');
+    if (dtTitle) dtTitle.style.display = 'none';
+    if (dtCard) dtCard.style.display = 'none';
+  }
+
+  var expMenu = document.getElementById('exp-menu');
+  if (expMenu) {
+    var expTitle = expMenu.querySelector('.sec-lbl');
+    if (expTitle) expTitle.textContent = '\u041F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0435 2 \u0440\u0430\u0441\u0445\u043E\u0434\u0430';
+  }
+
+  var dashTitle = document.querySelector('#s-driver-dash .page-title');
+  if (dashTitle) dashTitle.textContent = '\u0414\u0430\u0448\u0431\u043E\u0440\u0434 \u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044F';
+}
+
 function updateHomeScreen(driverKey) {
   var driver = DRIVERS[driverKey];
   if (!driver) return;
   currentDriver = driver;
+  var homeInfo = document.getElementById('home-driver-info');
+  if (homeInfo) homeInfo.textContent = 'Дашборд водителя';
+  applyDriverLayout();
+  loadDriverStats(driverKey);
+  return;
   
   document.getElementById('home-greeting').textContent = 'Добрый день, ' + driver.name.split(' ')[0] + '!';
   document.getElementById('home-driver-info').textContent = driver.name + ' · КамАЗ ' + driver.truck;
-  document.getElementById('home-avatar').textContent = driver.initials;
-  
   if (driver.type === 'mixer') {
     document.getElementById('btn-tonary').style.display = 'none';
     document.getElementById('btn-mixer').style.display = 'flex';
@@ -2605,6 +2733,9 @@ function updateHomeScreen(driverKey) {
 }
 
 function loadDriverStats(driverKey) {
+  var expenseCount = document.getElementById('home-expense-count');
+  if (expenseCount) expenseCount.textContent = '\u0032 \u0437\u0430\u043f\u0438\u0441\u0438';
+  return;
   document.getElementById('home-trip-count').textContent = '--';
   document.getElementById('home-ton-count').textContent = '--';
   document.getElementById('home-last-trip').textContent = 'Загрузка из отчётов...';
@@ -2614,6 +2745,7 @@ function loadDriverStats(driverKey) {
 var ROLE_HOME = {
   "login": "s-login",
   "driver": "s-home", 
+  "mixer": "s-mixer",
   "mechanic": "s-mechanic-dash",
   "economist": "s-economist-cash",
   "logist": "s-dlinn",
@@ -2624,9 +2756,12 @@ var ROLE_NAV = {
   "driver": [
     {icon:"🏠", label:"Главная", screen:"s-home"},
     {icon:"🚛", label:"Тонары", screen:"s-tonary"},
-    {icon:"🔄", label:"Миксеры", screen:"s-mixer"},
+    {icon:"🚚", label:"Длинномеры", screen:"s-dlinn"},
     {icon:"⛽", label:"ДТ", screen:"s-dt"},
-    {icon:"👤", label:"Кабинет", screen:"s-driver-dash"}
+    {icon:"🧾", label:"Расходы", screen:"s-expense"}
+  ],
+  "mixer": [
+    {icon:"🔄", label:"Миксеры", screen:"s-mixer"}
   ],
   "mechanic": [
     {icon:"🔧", label:"Ремонты", screen:"s-service"},
@@ -2674,8 +2809,8 @@ function loginAs(role) {
   
   // Если водитель — определяем и обновляем главный экран
   if (role === 'driver') {
-    // Для MVP: показываем первого водителя
-    updateHomeScreen('shabanov');
+    var firstDriverKey = Object.keys(DRIVERS || {})[0];
+    if (firstDriverKey) updateHomeScreen(firstDriverKey);
   }
 }
 
@@ -2685,6 +2820,15 @@ function updateNav(role) {
   if (role === "login") { nav.style.display = "none"; return; }
   nav.style.display = "flex";
   var items = ROLE_NAV[role] || ROLE_NAV["driver"];
+  if (role === "driver") {
+    items = [
+      {icon:"🏠", label:"Главная", screen:"s-home"},
+      {icon:"🚛", label:"Тонары", screen:"s-tonary"},
+      {icon:"🚚", label:"Длинномеры", screen:"s-dlinn"},
+      {icon:"⛽", label:"ДТ", screen:"s-dt"},
+      {icon:"🧾", label:"Расходы", screen:"s-expense"}
+    ];
+  }
   var html = "";
   for (var i = 0; i < items.length; i++) {
     html += "<button class=\"nav-item" + (i===0?" active":"") + "\" onclick=\"switchToScreen('" + items[i].screen + "',this)\">";
@@ -2717,7 +2861,7 @@ function go(id){
     var el = document.getElementById(id);
     if(el) el.classList.add('active');
     window.scrollTo(0,0);
-    var map={'s-home':0,'s-tonary':1,'s-mixer':2,'s-dlinn':-1,'s-dt':3,'s-expense':-1,'s-director':4,'s-service':5,'s-driver-dash':6};
+    var map={'s-home':0,'s-tonary':1,'s-dlinn':2,'s-dt':3,'s-expense':4,'s-driver-dash':-1,'s-director':0,'s-service':0};
     document.querySelectorAll('.nav-item').forEach(function(n,i){n.classList.toggle('active',i===map[id]);});
   } catch(e) { console.error('go error:',e); }
 }
@@ -3662,43 +3806,27 @@ function submitTonarTrip(btn){
 
   // Собрать данные из формы
   var form = btn.closest('.sub-screen');
-  var driverChip = form.querySelector('#ton-truck-chips .chip.on, .form-block:nth-child(3) .chip.on');
-  var driver = driverChip ? driverChip.textContent.trim() : '';
-  
-  var matChip = form.querySelector('#mat-chips .chip.on');
-  var material = matChip ? matChip.textContent.trim() : '';
-  
-  var quarryChip = form.querySelector('#quarry-chips .chip.on');
-  var quarry = quarryChip ? quarryChip.textContent.trim() : '';
-  if(quarry === '+ Другое') quarry = (form.querySelector('#quarry-other input')||{}).value || '';
-  
-  var frakChip = form.querySelector('#frak-chips .chip.on');
-  var fraction = frakChip ? frakChip.textContent.trim() : '';
-  
-  var clientChip = form.querySelector('#client-chips .chip.on');
-  var client = clientChip ? clientChip.textContent.trim() : '';
-  if(client === '+ Другое') client = (form.querySelector('#client-other input')||{}).value || '';
-  
-  var objChip = form.querySelector('#object-chips .chip.on');
-  var object = objChip ? objChip.textContent.trim() : '';
-
-  var inputs = form.querySelectorAll('.inp');
-  var loadTonnage = inputs[0] ? inputs[0].value : '';
-  var unloadTonnage = inputs[1] ? inputs[1].value : '';
+  var blocks = form.querySelectorAll('.form-block');
+  var loadInput = blocks[9] ? blocks[9].querySelector('.inp') : null;
+  var unloadInput = blocks[10] ? blocks[10].querySelector('.inp') : null;
+  var loadTonnage = loadInput ? loadInput.value : '';
+  var unloadTonnage = unloadInput ? unloadInput.value : '';
 
   var now = new Date();
   var data = {
     date: now.toLocaleDateString('ru'),
     time: now.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}),
-    driver: driver,
-    truck: '',
-    quarry: quarry,
-    material: material,
-    fraction: fraction,
-    client: client,
-    object: object,
+    driver: getFieldValue(blocks[2]),
+    truck: getFieldValue(blocks[1]),
+    quarry: getFieldValue(blocks[4]),
+    material: getFieldValue(blocks[3]),
+    fraction: getFieldValue(blocks[5]),
+    client: getFieldValue(blocks[7]),
+    object: getFieldValue(blocks[8]),
     load_tonnage: loadTonnage,
     unload_tonnage: unloadTonnage,
+    tn_front: getPreviewImageSrc('tn-front-img'),
+    tn_back: getPreviewImageSrc('tn-back-img'),
     status: 'ok'
   };
 
@@ -3731,29 +3859,27 @@ function submitMixerTrip(btn){
 
   var form = btn.closest('.sub-screen');
   var inputs = form.querySelectorAll('.inp');
-  
-  function getChipVal(id){
-    var c = form.querySelector('#'+id+' .chip.on');
-    return c ? c.textContent.trim() : '';
-  }
+  var blocks = form.querySelectorAll('.form-block');
 
   var data = {
     date: new Date().toLocaleDateString('ru'),
     arrive_time: inputs[2] ? inputs[2].value : '',
     depart_time: inputs[3] ? inputs[3].value : '',
-    driver: '',
-    truck: '',
-    plant: getChipVal(''),
-    mix_type: getChipVal(''),
-    grade: getChipVal(''),
+    driver: getFieldValue(blocks[1]),
+    truck: getFieldValue(blocks[0]),
+    plant: getFieldValue(blocks[2]),
+    mix_type: getFieldValue(blocks[3]),
+    grade: getFieldValue(blocks[4]),
     volume: inputs[4] ? inputs[4].value : '',
-    client: getChipVal(''),
+    client: getFieldValue(blocks[7]),
     address: inputs[5] ? inputs[5].value : '',
     concrete_cost: inputs[6] ? inputs[6].value : '',
     delivery_cost: inputs[7] ? inputs[7].value : '',
-    payment_type: getChipVal(''),
-    money_with: getChipVal(''),
+    payment_type: getFieldValue(blocks[10]),
+    money_with: getFieldValue(blocks[11]),
     tn_number: inputs[8] ? inputs[8].value : '',
+    tn_photo: getPreviewImageSrc('mix-tn-img'),
+    report_photo: getPreviewImageSrc('mix-raport-img'),
     status: 'ok'
   };
 
@@ -3778,6 +3904,246 @@ function submitMixerTrip(btn){
 }
 
 // ═══════════════════ СЛЕСАРЬ — ОТПРАВКИ ═══════════════════
+function getActiveChipText(root){
+  var chip = root ? root.querySelector('.chip.on') : null;
+  return chip ? chip.textContent.trim() : '';
+}
+
+function getOtherInputText(root){
+  if(!root) return '';
+  var shown = root.querySelector('.other-input.show input');
+  if(shown && shown.value.trim()) return shown.value.trim();
+  var fallback = root.querySelector('.other-input input');
+  return fallback ? fallback.value.trim() : '';
+}
+
+function getFieldValue(root){
+  var other = getOtherInputText(root);
+  if(other) return other;
+  var selected = getActiveChipText(root);
+  if(selected === '+ \u0414\u0440\u0443\u0433\u043e\u0435' || selected === '\u0414\u0440\u0443\u0433\u043e\u0435') return '';
+  return selected;
+}
+
+function getPreviewImageSrc(imageId){
+  var img = document.getElementById(imageId);
+  return img ? (img.getAttribute('src') || '') : '';
+}
+
+function startSubmit(btn, pendingText){
+  var orig = btn.textContent;
+  btn.textContent = pendingText;
+  btn.disabled = true;
+  return function(doneText, doneColor, delay){
+    btn.textContent = doneText;
+    if(doneColor) btn.style.background = doneColor;
+    setTimeout(function(){
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.disabled = false;
+    }, delay || 1600);
+  };
+}
+
+function submitDlinnTrip(btn){
+  var finish = startSubmit(btn, '\u23f3 \u041e\u0442\u043f\u0440\u0430\u0432\u043a\u0430...');
+  var form = document.getElementById('dln-new');
+  var blocks = form.querySelectorAll('.form-block');
+  var cargoInput = blocks[6] ? blocks[6].querySelector('.inp') : null;
+  var qtyInput = blocks[8] ? blocks[8].querySelector('.inp') : null;
+  var fromCity = getFieldValue(blocks[2]);
+  var fromAddr = getFieldValue(blocks[3]);
+  var toCity = getFieldValue(blocks[4]);
+  var toAddr = getFieldValue(blocks[5]);
+
+  var data = {
+    date: new Date().toLocaleDateString('ru'),
+    truck: getFieldValue(blocks[0]),
+    driver: getFieldValue(blocks[1]),
+    from: [fromCity, fromAddr].filter(Boolean).join(', '),
+    to: [toCity, toAddr].filter(Boolean).join(', '),
+    cargo: [cargoInput ? cargoInput.value.trim() : '', qtyInput ? qtyInput.value.trim() : '', getFieldValue(blocks[7])].filter(Boolean).join(' '),
+    tn_photo: getPreviewImageSrc('dln-tn-img'),
+    status: 'ok'
+  };
+
+  sendToAPI('dlinn_trip', data, function(res){
+    showNotification('\u0420\u0435\u0439\u0441 \u0434\u043b\u0438\u043d\u043d\u043e\u043c\u0435\u0440\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0451\u043d' + (res.id ? ' (' + res.id + ')' : ''));
+    finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
+    setTimeout(function(){ hideSub('dln-menu','dln-new'); }, 1200);
+  }, function(){
+    showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0440\u0435\u0439\u0441\u0430');
+    finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
+  });
+}
+
+function submitDlinnFuel(btn){
+  var finish = startSubmit(btn, '\u23f3 \u041e\u0442\u043f\u0440\u0430\u0432\u043a\u0430...');
+  var form = document.getElementById('dt-new');
+  var blocks = form.querySelectorAll('.form-block');
+  var litersInput = blocks[3] ? blocks[3].querySelector('.inp') : null;
+  var priceInput = blocks[4] ? blocks[4].querySelector('.inp') : null;
+  var liters = litersInput ? Number(litersInput.value || 0) : 0;
+  var pricePerLiter = priceInput ? Number(priceInput.value || 0) : 0;
+
+  var data = {
+    date: (document.getElementById('dt-date-val') || {}).textContent || new Date().toLocaleDateString('ru'),
+    truck: getFieldValue(blocks[0]),
+    liters: liters,
+    cost: liters && pricePerLiter ? Math.round(liters * pricePerLiter * 100) / 100 : '',
+    price_per_liter: pricePerLiter || '',
+    station: getFieldValue(blocks[5]),
+    receipt_photo: getPreviewImageSrc('fuel-check-img'),
+    comment: getFieldValue(blocks[1]) ? ('\u0412\u043e\u0434\u0438\u0442\u0435\u043b\u044c: ' + getFieldValue(blocks[1])) : ''
+  };
+
+  sendToAPI('dlinn_fuel', data, function(res){
+    showNotification('\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0430' + (res.id ? ' (' + res.id + ')' : ''));
+    finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
+    setTimeout(function(){ hideSub('dt-menu','dt-new'); }, 1200);
+  }, function(){
+    showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0437\u0430\u043f\u0440\u0430\u0432\u043a\u0438');
+    finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
+  });
+}
+
+function submitDlinnExpense(btn){
+  var finish = startSubmit(btn, '\u23f3 \u041e\u0442\u043f\u0440\u0430\u0432\u043a\u0430...');
+  var form = document.getElementById('exp-new');
+  var blocks = form.querySelectorAll('.form-block');
+  var descInput = blocks[4] ? blocks[4].querySelector('.inp') : null;
+  var amountInput = blocks[5] ? blocks[5].querySelector('.inp') : null;
+
+  var data = {
+    date: (document.getElementById('exp-date-val') || {}).textContent || new Date().toLocaleDateString('ru'),
+    category: getFieldValue(blocks[3]),
+    amount: amountInput ? amountInput.value.trim() : '',
+    description: descInput ? descInput.value.trim() : '',
+    photo: getPreviewImageSrc('expense-check-img'),
+    comment: [
+      getFieldValue(blocks[0]) ? ('\u041c\u0430\u0448\u0438\u043d\u0430: ' + getFieldValue(blocks[0])) : '',
+      getFieldValue(blocks[1]) ? ('\u0412\u043e\u0434\u0438\u0442\u0435\u043b\u044c: ' + getFieldValue(blocks[1])) : '',
+      getFieldValue(blocks[6]) ? ('\u041c\u0435\u0441\u0442\u043e: ' + getFieldValue(blocks[6])) : ''
+    ].filter(Boolean).join(' | ')
+  };
+
+  sendToAPI('dlinn_expense', data, function(res){
+    showNotification('\u0420\u0430\u0441\u0445\u043e\u0434 \u0441\u043e\u0445\u0440\u0430\u043d\u0451\u043d' + (res.id ? ' (' + res.id + ')' : ''));
+    finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
+    setTimeout(function(){ hideSub('exp-menu','exp-new'); }, 1200);
+  }, function(){
+    showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0440\u0430\u0441\u0445\u043e\u0434\u0430');
+    finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
+  });
+}
+
+function submitServiceRepair(btn){
+  var finish = startSubmit(btn, '\u23f3 \u041e\u0442\u043f\u0440\u0430\u0432\u043a\u0430...');
+  var form = document.getElementById('svc-open');
+  var blocks = form.querySelectorAll('.form-block');
+  var mileageInput = blocks[1] ? blocks[1].querySelector('.inp') : null;
+  var descInput = blocks[3] ? blocks[3].querySelector('.inp') : null;
+  var externalBlock = document.getElementById('external-block');
+  var externalForms = externalBlock ? externalBlock.querySelectorAll('.form-block') : [];
+  var externalInputs = externalBlock ? externalBlock.querySelectorAll('.inp') : [];
+  var isExternal = externalBlock && externalBlock.style.display !== 'none';
+  var serviceName = isExternal ? getFieldValue(externalForms[0]) : '';
+  var serviceCost = isExternal && externalInputs[1] ? externalInputs[1].value.trim() : '';
+  var repairMode = getFieldValue(blocks[4]);
+
+  var data = {
+    date: new Date().toLocaleDateString('ru'),
+    truck: getFieldValue(blocks[0]),
+    repair_type: getFieldValue(blocks[2]),
+    description: descInput ? descInput.value.trim() : '',
+    parts: '',
+    cost: serviceCost,
+    status: 'open',
+    mechanic: isExternal ? serviceName : repairMode,
+    comment: [
+      mileageInput && mileageInput.value.trim() ? ('\u041f\u0440\u043e\u0431\u0435\u0433: ' + mileageInput.value.trim() + ' \u043a\u043c') : '',
+      repairMode ? ('\u0424\u043e\u0440\u043c\u0430\u0442: ' + repairMode) : ''
+    ].filter(Boolean).join(' | ')
+  };
+
+  sendToAPI('dlinn_repair', data, function(res){
+    showNotification('\u0420\u0435\u043c\u043e\u043d\u0442 \u043e\u0442\u043a\u0440\u044b\u0442' + (res.id ? ' (' + res.id + ')' : ''));
+    finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
+    setTimeout(function(){ hideSub('svc-menu','svc-open'); }, 1200);
+  }, function(){
+    showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0440\u0435\u043c\u043e\u043d\u0442\u0430');
+    finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
+  });
+}
+
+function closeServiceRepair(btn){
+  var finish = startSubmit(btn, '\u23f3 \u041e\u0442\u043f\u0440\u0430\u0432\u043a\u0430...');
+  var form = document.getElementById('svc-card');
+  var statusBlock = form.querySelector('.form-block');
+  var commentInput = form.querySelectorAll('.form-block .inp');
+  var title = form.querySelector('div[style*=\"font-size:20px\"]');
+  var titleText = title ? title.textContent.trim() : '';
+  var titleParts = titleText.split('\u00b7').map(function(v){ return v.trim(); });
+
+  var data = {
+    date: new Date().toLocaleDateString('ru'),
+    truck: titleParts[0] || '803',
+    repair_type: titleParts[1] || '\u0420\u0435\u043c\u043e\u043d\u0442',
+    description: '\u0417\u0430\u043a\u0440\u044b\u0442\u0438\u0435 \u0440\u0435\u043c\u043e\u043d\u0442\u0430',
+    parts: '',
+    cost: '3200',
+    status: getFieldValue(statusBlock) || '\u0417\u0430\u043a\u0440\u044b\u0442',
+    mechanic: '\u0421\u043b\u0435\u0441\u0430\u0440\u044c',
+    comment: commentInput.length ? commentInput[commentInput.length - 1].value.trim() : ''
+  };
+
+  sendToAPI('dlinn_repair', data, function(res){
+    showNotification('\u0420\u0435\u043c\u043e\u043d\u0442 \u043e\u0431\u043d\u043e\u0432\u043b\u0451\u043d' + (res.id ? ' (' + res.id + ')' : ''));
+    finish('\u2705 \u0417\u0430\u043a\u0440\u044b\u0442\u043e!', 'var(--green)', 1200);
+    setTimeout(function(){ hideSub('svc-menu','svc-card'); }, 1200);
+  }, function(){
+    showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u043a\u0440\u044b\u0442\u0438\u044f \u0440\u0435\u043c\u043e\u043d\u0442\u0430');
+    finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
+  });
+}
+
+function submitPartsPurchase(btn){
+  var finish = startSubmit(btn, '\u23f3 \u041e\u0442\u043f\u0440\u0430\u0432\u043a\u0430...');
+  var form = document.getElementById('parts-new');
+  var blocks = form.querySelectorAll('.form-block');
+  var nameInput = blocks[2] ? blocks[2].querySelector('.inp') : null;
+  var priceInput = blocks[4] ? blocks[4].querySelector('.inp') : null;
+  var debtBlock = document.getElementById('parts-debt-block');
+  var debtInputs = debtBlock ? debtBlock.querySelectorAll('.inp') : [];
+  var debtForms = debtBlock ? debtBlock.querySelectorAll('.form-block') : [];
+  var payment = document.getElementById('pay-dolg').checked ? '\u0412 \u0434\u043e\u043b\u0433' : (document.getElementById('pay-beznal').checked ? '\u0411\u0435\u0437\u043d\u0430\u043b' : (document.getElementById('pay-nal').checked ? '\u041d\u0430\u043b' : ''));
+
+  var data = {
+    date: new Date().toLocaleDateString('ru'),
+    name: nameInput ? nameInput.value.trim() : '',
+    quantity: '1',
+    price: priceInput ? priceInput.value.trim() : '',
+    payment: payment,
+    debt: debtInputs[0] ? debtInputs[0].value.trim() : '',
+    comment: [
+      getFieldValue(blocks[0]) ? ('\u041c\u0430\u0448\u0438\u043d\u0430: ' + getFieldValue(blocks[0])) : '',
+      getFieldValue(blocks[1]) ? ('\u041a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u044f: ' + getFieldValue(blocks[1])) : '',
+      getFieldValue(blocks[3]) ? ('\u041f\u043e\u0441\u0442\u0430\u0432\u0449\u0438\u043a: ' + getFieldValue(blocks[3])) : '',
+      debtForms[1] ? ('\u0421\u0440\u043e\u043a \u043e\u043f\u043b\u0430\u0442\u044b: ' + getFieldValue(debtForms[1])) : '',
+      getFieldValue(blocks[6]) ? ('\u0420\u0435\u043c\u043e\u043d\u0442: ' + getFieldValue(blocks[6])) : ''
+    ].filter(Boolean).join(' | ')
+  };
+
+  sendToAPI('dlinn_parts', data, function(res){
+    showNotification('\u0417\u0430\u043a\u0443\u043f\u043a\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0430' + (res.id ? ' (' + res.id + ')' : ''));
+    finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
+    setTimeout(function(){ hideSub('parts-menu','parts-new'); }, 1200);
+  }, function(){
+    showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0437\u0430\u043a\u0443\u043f\u043a\u0438');
+    finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
+  });
+}
+
 function submitMechFuel(){
   var inputs = document.querySelectorAll('#mech-fuel-new .inp');
   var data = {
@@ -3785,7 +4151,9 @@ function submitMechFuel(){
     type: 'fuel',
     fuel_liters: inputs[0] ? inputs[0].value : '',
     fuel_cost: inputs[1] ? inputs[1].value : '',
+    fuel_price_per_liter: inputs[2] ? inputs[2].value : '',
     fuel_station: (document.querySelector('#mech-fuel-new .chip.on')||{}).textContent.trim() || '',
+    receipt_photo: getPreviewImageSrc('mech-fuel-img'),
     rate: '6000'
   };
 
@@ -3906,6 +4274,8 @@ function handlePhotoUpload(input, type) {
       previewId = 'parts-check-preview'; imgId = 'parts-check-img';
     } else if (type === 'service-check') {
       previewId = 'service-check-preview'; imgId = 'service-check-img';
+    } else if (type === 'mech-fuel') {
+      previewId = 'mech-fuel-preview'; imgId = 'mech-fuel-img';
     }
     if (previewId && imgId) {
       document.getElementById(imgId).src = e.target.result;
@@ -3915,36 +4285,434 @@ function handlePhotoUpload(input, type) {
   reader.readAsDataURL(file);
 }
 
-// ═══════════════════ ГОЛОСОВОЙ ВВОД ═══════════════════
+function normalizeVoiceText(text) {
+  return (text || '').toLowerCase().replace(/ё/g, 'е');
+}
+
+function setChipByText(containerSelector, value) {
+  if (!value) return false;
+  var root = document.querySelector(containerSelector);
+  if (!root) return false;
+  var normalized = normalizeVoiceText(value);
+  var matched = false;
+  root.querySelectorAll('.chip').forEach(function(chip){
+    chip.classList.remove('on');
+    if (!matched && normalizeVoiceText(chip.textContent).indexOf(normalized) !== -1) {
+      chip.classList.add('on');
+      matched = true;
+    }
+  });
+  return matched;
+}
+
+function setTonInput(index, value) {
+  var inputs = document.querySelectorAll('#ton-new .inp');
+  if (inputs[index] && value) inputs[index].value = value;
+}
+
+function parseVoiceTrip(text) {
+  var src = normalizeVoiceText(text);
+  var result = {};
+  var truckMatch = src.match(/\b(803|008|709|143|555|137|729)\b/);
+  if (truckMatch) result.truck = truckMatch[1];
+  [['шабанов','\u0428\u0430\u0431\u0430\u043d\u043e\u0432 \u0424.\u0410.'],['алексеев','\u0410\u043b\u0435\u043a\u0441\u0435\u0435\u0432 \u041e.\u0415.'],['гааль','\u0413\u0430\u0430\u043b\u044c \u0420.\u0410.']].forEach(function(pair){ if (!result.driver && src.indexOf(pair[0]) !== -1) result.driver = pair[1]; });
+  [['щебень','\u0429\u0435\u0431\u0435\u043d\u044c'],['песок','\u041f\u0435\u0441\u043e\u043a'],['отсев','\u041e\u0442\u0441\u0435\u0432'],['гравий','\u0413\u0440\u0430\u0432\u0438\u0439']].forEach(function(pair){ if (!result.material && src.indexOf(pair[0]) !== -1) result.material = pair[1]; });
+  [['морозов','\u041c\u043e\u0440\u043e\u0437\u043e\u0432\u0441\u043a\u0438\u0439'],['внк','\u0412\u041d\u041a \u0411\u0435\u0440\u0435\u0437\u043e\u0432\u043a\u0430'],['березовк','\u0412\u041d\u041a \u0411\u0435\u0440\u0435\u0437\u043e\u0432\u043a\u0430'],['барзасс','\u0411\u0430\u0440\u0437\u0430\u0441\u0441\u043a\u0438\u0439'],['северн','\u041a\u0430\u0440\u044c\u0435\u0440 \u0421\u0435\u0432\u0435\u0440\u043d\u044b\u0439']].forEach(function(pair){ if (!result.quarry && src.indexOf(pair[0]) !== -1) result.quarry = pair[1]; });
+  [['стройгрупп','\u0421\u0442\u0440\u043e\u0439\u0413\u0440\u0443\u043f\u043f'],['дск','\u0414\u0421\u041a'],['жби','\u0417\u0416\u0411\u0418'],['администрац','\u0410\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f'],['бетон м','\u0411\u0435\u0442\u043e\u043d \u041c']].forEach(function(pair){ if (!result.client && src.indexOf(pair[0]) !== -1) result.client = pair[1]; });
+  var tonsMatch = src.match(/(\d+[.,]?\d*)\s*(тонн|тонны|т)\b/);
+  if (tonsMatch) result.tons = tonsMatch[1].replace(',', '.');
+  var tnMatch = src.match(/тн\s*([a-zа-я0-9-]+)/i);
+  if (tnMatch) result.tn = tnMatch[1];
+  return result;
+}
+
+function applyVoiceTripToForm(text) {
+  var parsed = parseVoiceTrip(text);
+  if (parsed.truck) setChipByText('#ton-truck-chips', parsed.truck);
+  if (parsed.driver) setChipByText('#ton-new .form-block:nth-of-type(3) .chips', parsed.driver);
+  if (parsed.material) {
+    setChipByText('#mat-chips', parsed.material);
+    if (typeof updateQuarries === 'function') {
+      var chip = Array.from(document.querySelectorAll('#mat-chips .chip')).find(function(el){
+        return normalizeVoiceText(el.textContent).indexOf(normalizeVoiceText(parsed.material)) !== -1;
+      });
+      if (chip) updateQuarries(chip);
+    }
+  }
+  if (parsed.quarry) setChipByText('#quarry-chips', parsed.quarry);
+  if (parsed.client) setChipByText('#ton-client-chips', parsed.client);
+  if (parsed.tons) setTonInput(1, parsed.tons);
+  if (parsed.tn) setTonInput(3, parsed.tn);
+  showNotification('\u0413\u043e\u043b\u043e\u0441\u043e\u0432\u043e\u0439 \u0440\u0435\u0439\u0441 \u0440\u0430\u0437\u043d\u0435\u0441\u0451\u043d \u043f\u043e \u043f\u043e\u043b\u044f\u043c');
+}
+
 function startVoiceInput(formType) {
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { alert('Голосовой ввод не поддерживается. Используйте Chrome.'); return; }
+  if (!SR) { alert('\u0413\u043e\u043b\u043e\u0441\u043e\u0432\u043e\u0439 \u0432\u0432\u043e\u0434 \u043d\u0435 \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442\u0441\u044f. \u0418\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0439\u0442\u0435 Chrome.'); return; }
   var recognition = new SR();
   recognition.lang = 'ru-RU';
   recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
   var btn = document.getElementById('btn-voice-trip');
-  btn.textContent = '🎙 Слушаю...';
-  btn.style.borderColor = 'var(--accent)';
-  btn.style.color = 'var(--accent)';
+  if (btn) {
+    btn.textContent = '\ud83c\udf99 \u0421\u043b\u0443\u0448\u0430\u044e...';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = 'var(--accent)';
+  }
   recognition.onresult = function(event) {
     var text = event.results[0][0].transcript;
-    alert('Распознано: "' + text + '"\n\n(AI-анализ и автозаполнение полей — будет подключено)');
-    btn.textContent = '🎙 Надиктовать рейс';
-    btn.style.borderColor = '';
-    btn.style.color = '';
+    if (formType === 'ton') applyVoiceTripToForm(text);
   };
   recognition.onerror = function() {
-    btn.textContent = '🎙 Надиктовать рейс';
-    btn.style.borderColor = '';
-    btn.style.color = '';
+    showNotification('\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0442\u044c \u0433\u043e\u043b\u043e\u0441');
   };
   recognition.onend = function() {
-    btn.textContent = '🎙 Надиктовать рейс';
-    btn.style.borderColor = '';
-    btn.style.color = '';
+    if (btn) {
+      btn.textContent = '\ud83c\udf99 \u041d\u0430\u0434\u0438\u043a\u0442\u043e\u0432\u0430\u0442\u044c \u0440\u0435\u0439\u0441';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }
   };
   recognition.start();
 }
+
+var APP_SESSION = null;
+var DIRECTORY = { users: [], vehicles: [], trip_prices: [], quarry_plans: [] };
+var DRIVER_DASHBOARD = null;
+
+function tgWebApp() {
+  return window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+}
+
+function buildAuthData() {
+  var tg = tgWebApp();
+  var user = tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
+  return {
+    init_data: tg ? (tg.initData || '') : '',
+    telegram_user_id: user ? user.id : '',
+    username: user ? (user.username || '') : ''
+  };
+}
+
+function apiRequest(action, data) {
+  var payload = Object.assign({}, data || {}, buildAuthData());
+  return fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': API_KEY
+    },
+    body: JSON.stringify({ action: action, data: payload })
+  }).then(function(r){ return r.json(); });
+}
+
+function getActiveChipTextIn(containerId) {
+  var el = document.querySelector('#' + containerId + ' .chip.on');
+  return el ? el.textContent.trim() : '';
+}
+
+function money(v) {
+  var n = Number(v || 0);
+  return '₽ ' + n.toLocaleString('ru-RU');
+}
+
+function renderChipButtons(items, selected, allowOther) {
+  var html = '';
+  (items || []).forEach(function(item, idx){
+    var value = typeof item === 'string' ? item : item.value;
+    var label = typeof item === 'string' ? item : (item.label || item.value);
+    var active = selected ? selected === value : idx === 0;
+    html += '<button class="chip' + (active ? ' on' : '') + '" onclick="sel(this);checkOther(this)">' + label + '</button>';
+  });
+  if (allowOther) {
+    html += '<button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>';
+  }
+  return html;
+}
+
+function replaceChipsInScreen(screenSelector, labelText, items, selected, allowOther) {
+  var screen = document.querySelector(screenSelector);
+  if (!screen) return;
+  var blocks = screen.querySelectorAll('.form-block');
+  Array.prototype.forEach.call(blocks, function(block){
+    var lbl = block.querySelector('.form-lbl');
+    var chips = block.querySelector('.chips');
+    if (!lbl || !chips) return;
+    if (lbl.textContent.indexOf(labelText) === -1) return;
+    chips.innerHTML = renderChipButtons(items, selected, allowOther);
+  });
+}
+
+function buildDriversMap(users) {
+  var map = {};
+  (users || []).forEach(function(user){
+    map[user.id] = {
+      name: user.name,
+      truck: user.default_truck || '',
+      type: user.vehicle_type || 'tonary',
+      initials: user.initials || '--'
+    };
+  });
+  DRIVERS = map;
+}
+
+function activeUsersByType(type) {
+  return DIRECTORY.users.filter(function(user){
+    return user.active && (!type || user.vehicle_type === type || (type === 'tonary' && !user.vehicle_type));
+  });
+}
+
+function activeVehiclesByType(type) {
+  return DIRECTORY.vehicles.filter(function(vehicle){
+    return vehicle.active && (!type || vehicle.type === type);
+  });
+}
+
+function refreshDirectoryChips() {
+  buildDriversMap(DIRECTORY.users);
+  replaceChipsInScreen('#ton-new', 'Автомобиль', activeVehiclesByType('tonary').map(function(v){ return v.truck; }), APP_SESSION && APP_SESSION.profile ? APP_SESSION.profile.default_truck : '', false);
+  replaceChipsInScreen('#ton-new', 'Водитель', activeUsersByType('tonary').map(function(u){ return u.name; }), APP_SESSION && APP_SESSION.profile ? APP_SESSION.profile.name : '', true);
+  replaceChipsInScreen('#mix-new', 'Автомобиль', activeVehiclesByType('mixer').map(function(v){ return v.truck; }), '', true);
+  replaceChipsInScreen('#mix-new', 'Водитель', activeUsersByType('mixer').map(function(u){ return u.name; }), '', true);
+  replaceChipsInScreen('#dln-new', 'Автомобиль', activeVehiclesByType('dlinn').map(function(v){ return v.truck; }), '', true);
+  replaceChipsInScreen('#dln-new', 'Водитель', activeUsersByType('dlinn').map(function(u){ return u.name; }), '', true);
+  replaceChipsInScreen('#dt-new', 'Автомобиль', DIRECTORY.vehicles.filter(function(v){ return v.active; }).map(function(v){ return v.truck; }), '', false);
+  replaceChipsInScreen('#dt-new', 'Водитель', DIRECTORY.users.filter(function(u){ return u.active; }).map(function(u){ return u.name; }), '', true);
+  replaceChipsInScreen('#exp-new', 'Автомобиль', DIRECTORY.vehicles.filter(function(v){ return v.active; }).map(function(v){ return v.truck; }), '', false);
+  replaceChipsInScreen('#exp-new', 'Водитель', DIRECTORY.users.filter(function(u){ return u.active; }).map(function(u){ return u.name; }), '', true);
+  replaceChipsInScreen('#svc-open', 'Автомобиль', DIRECTORY.vehicles.filter(function(v){ return v.active; }).map(function(v){ return v.truck; }), '', true);
+  replaceChipsInScreen('#parts-new', 'Автомобиль', DIRECTORY.vehicles.filter(function(v){ return v.active; }).map(function(v){ return v.truck; }), '', true);
+
+  var dirDriverChips = document.getElementById('dir-driver-chips');
+  if (dirDriverChips) {
+    dirDriverChips.innerHTML = renderChipButtons(DIRECTORY.users.filter(function(u){ return u.active && u.role === 'driver'; }).map(function(u){ return u.name; }), '', false);
+  }
+}
+
+function renderDriverDashboard(dashboard) {
+  if (!dashboard) return;
+  DRIVER_DASHBOARD = dashboard;
+  DRIVER_RECENT_TRIPS = dashboard.recent_trips || [];
+  renderDriverRecentTrips();
+  setDriverPeriod('day');
+
+  var plansHtml = (dashboard.plans || []).map(function(plan, idx){
+    var color = idx === 0 ? 'green' : (idx === 1 ? 'orange' : 'blue');
+    return '<div class="plan-row' + (idx === dashboard.plans.length - 1 ? ' style="margin-bottom:6px;"' : '') + '">'
+      + '<div class="plan-info"><div class="plan-name">' + plan.name + '</div><div class="plan-sub">Перевезено: '
+      + Number(plan.actual_tonnage || 0).toLocaleString('ru-RU') + ' т из ' + Number(plan.planned_tonnage || 0).toLocaleString('ru-RU')
+      + ' т</div></div><div class="plan-pct ' + color + '">' + plan.progress_pct + '%</div></div>'
+      + '<div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;' + (idx < dashboard.plans.length - 1 ? 'margin-bottom:14px;' : '') + '">'
+      + '<div style="width:' + Math.min(100, plan.progress_pct || 0) + '%;height:100%;background:var(--' + (color === 'blue' ? 'accent2' : color) + ');border-radius:3px;"></div></div>';
+  }).join('');
+  var plansEl = document.getElementById('drv-plan-list');
+  if (plansEl) {
+    plansEl.innerHTML = plansHtml || '<div style="color:var(--t4);text-align:center;padding:12px;">Нет активных планов</div>';
+  }
+
+  var service = dashboard.service || {};
+  var remaining = Number(service.remaining_km || 0);
+  var interval = Number(service.interval_km || 0);
+  var pct = interval > 0 ? Math.max(0, Math.min(100, Math.round(((interval - remaining) / interval) * 100))) : 0;
+  var setText = function(id, value){ var el = document.getElementById(id); if (el) el.textContent = value; };
+  setText('drv-service-truck', service.truck ? ('КамАЗ ' + service.truck) : 'Автомобиль не назначен');
+  setText('drv-service-label', service.label || 'ТО не настроено');
+  setText('drv-service-remaining', remaining ? (remaining.toLocaleString('ru-RU') + ' км') : '—');
+  setText('drv-service-caption', interval ? ('Пробег до ТО: осталось ' + remaining.toLocaleString('ru-RU') + ' из ' + interval.toLocaleString('ru-RU') + ' км') : 'Интервал ТО не задан');
+  setText('drv-service-interval', interval ? interval.toLocaleString('ru-RU') : '—');
+  var bar = document.getElementById('drv-service-bar');
+  if (bar) bar.style.width = pct + '%';
+
+  var advEl = document.getElementById('drv-advances-list');
+  if (advEl) {
+    var advances = dashboard.advances || [];
+    advEl.innerHTML = advances.length ? advances.map(function(item, idx){
+      return '<div class="advance-row' + (idx === advances.length - 1 ? '" style="border:none;">' : '">')
+        + '<div style="font-size:14px;font-weight:500;">' + item.date + '</div>'
+        + '<div style="font-size:13px;color:var(--t3);">' + (item.comment || 'аванс') + '</div>'
+        + '<div style="font-size:15px;font-weight:700;color:var(--red);">− ' + money(item.amount) + '</div></div>';
+    }).join('') : '<div style="text-align:center;color:var(--t4);padding:12px;">Авансов пока нет</div>';
+  }
+}
+
+function setDriverPeriod(period, btn) {
+  if (btn) {
+    document.querySelectorAll('#s-driver-dash .period-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  if (!DRIVER_DASHBOARD) return;
+  var s = DRIVER_DASHBOARD.summary || {};
+  var setText = function(id, value){ var el = document.getElementById(id); if (el) el.textContent = value; };
+  setText('drv-earned', money(period === 'day' ? s.earned_today : s.earned_month));
+  setText('drv-advance', '− ' + money(s.advances_total));
+  setText('drv-topay', money(s.to_pay));
+  setText('drv-payday', s.payday_label || '1 числа');
+  setText('drv-trips-day', period === 'day' ? String(s.trips_today || 0) : String(s.trips_month || 0));
+  setText('drv-tons-day', (period === 'day' ? s.tons_today : s.tons_month).toLocaleString('ru-RU') + ' т');
+  setText('drv-trips-month', String(s.trips_month || 0));
+  setText('drv-tons-month', (s.tons_month || 0).toLocaleString('ru-RU') + ' т');
+
+  var rows = period === 'day' ? (DRIVER_DASHBOARD.today_trips || []) : (DRIVER_DASHBOARD.recent_trips || []);
+  var heading = document.getElementById('drv-trip-heading');
+  if (heading) heading.textContent = period === 'day' ? 'Рейсы сегодня' : 'Последние рейсы месяца';
+  var rowsEl = document.getElementById('drv-trip-rows');
+  if (rowsEl) {
+    rowsEl.innerHTML = rows.length ? rows.map(function(item, idx){
+      return '<div class="salary-row' + (item.pay > 0 && idx === rows.length - 1 && period === 'day' ? ' bonus' : '') + '">'
+        + '<div class="salary-num">' + (idx + 1) + '</div><div class="salary-info"><div class="salary-title">' + item.route + '</div>'
+        + '<div class="salary-sub">' + (item.sub || '') + '</div></div><div class="salary-rate">' + (item.pay ? money(item.pay) : '—') + '</div></div>';
+    }).join('') : '<div style="text-align:center;color:var(--t4);padding:12px;">Рейсов пока нет</div>';
+  }
+  setText('drv-day-total', money(period === 'day' ? s.earned_today : s.earned_month));
+}
+
+function effectiveRole(profile) {
+  if (!profile) return 'login';
+  return profile.role || 'login';
+}
+
+function activateRoleForProfile(profile) {
+  var role = effectiveRole(profile);
+  currentRole = role;
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  var homeId = ROLE_HOME[role] || 's-login';
+  var home = document.getElementById(homeId);
+  if (home) home.classList.add('active');
+  updateNav(role);
+  if (role === 'driver') {
+    updateHomeScreen(profile.id);
+  }
+  if (role === 'director') {
+    renderDirectoryLists();
+  }
+}
+
+function renderDirectoryLists() {
+  var usersEl = document.getElementById('dir-users-list');
+  if (usersEl) {
+    usersEl.innerHTML = DIRECTORY.users.length ? DIRECTORY.users.map(function(user){
+      return '<div class="list-row"><div class="row-info"><div class="row-title">' + user.name + '</div><div class="row-sub">'
+        + [user.role, user.telegram_user_id || 'без Telegram ID', user.default_truck || 'без машины'].join(' · ')
+        + '</div></div><div class="row-right"><button class="chip' + (user.active ? '' : ' on') + '" onclick="toggleDirectoryUser(\'' + user.id + '\',' + (!user.active) + ')">'
+        + (user.active ? 'Скрыть' : 'Вернуть') + '</button></div></div>';
+    }).join('') : '<div style="text-align:center;padding:20px;color:var(--t4);">Сотрудников пока нет</div>';
+  }
+
+  var vehiclesEl = document.getElementById('dir-vehicles-list');
+  if (vehiclesEl) {
+    vehiclesEl.innerHTML = DIRECTORY.vehicles.length ? DIRECTORY.vehicles.map(function(vehicle){
+      return '<div class="list-row"><div class="row-info"><div class="row-title">' + vehicle.truck + '</div><div class="row-sub">'
+        + [vehicle.type || 'тип не задан', vehicle.assigned_driver || 'без водителя', vehicle.service_label || 'без ТО'].join(' · ')
+        + '</div></div><div class="row-right"><button class="chip' + (vehicle.active ? '' : ' on') + '" onclick="toggleDirectoryVehicle(\'' + vehicle.id + '\',' + (!vehicle.active) + ')">'
+        + (vehicle.active ? 'Скрыть' : 'Вернуть') + '</button></div></div>';
+    }).join('') : '<div style="text-align:center;padding:20px;color:var(--t4);">Транспорта пока нет</div>';
+  }
+}
+
+function setDirTab(tab, btn) {
+  document.querySelectorAll('#s-director .period-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  ['dashboard','trip-prices','quarry-plans','directory'].forEach(function(t){
+    var el = document.getElementById('dir-tab-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+}
+
+function saveDirectoryUser() {
+  var user = {
+    name: (document.getElementById('dir-user-name') || {}).value || '',
+    role: getActiveChipTextIn('dir-user-role-chips'),
+    telegram_user_id: (document.getElementById('dir-user-telegram-id') || {}).value || '',
+    phone: (document.getElementById('dir-user-phone') || {}).value || '',
+    default_truck: (document.getElementById('dir-user-truck') || {}).value || '',
+    vehicle_type: getActiveChipTextIn('dir-user-vehicle-type-chips'),
+    active: true
+  };
+  apiRequest('save_directory_user', { user: user }).then(function(res){
+    if (res.status !== 'ok') throw new Error(res.message || 'Не удалось сохранить сотрудника');
+    showNotification('Сотрудник сохранён');
+    loadDirectory();
+  }).catch(function(err){
+    showNotification(err.message || 'Ошибка сохранения сотрудника');
+  });
+}
+
+function saveDirectoryVehicle() {
+  var vehicle = {
+    truck: (document.getElementById('dir-vehicle-truck') || {}).value || '',
+    type: getActiveChipTextIn('dir-vehicle-type-chips'),
+    label: (document.getElementById('dir-vehicle-label') || {}).value || '',
+    assigned_driver: (document.getElementById('dir-vehicle-driver') || {}).value || '',
+    service_label: (document.getElementById('dir-vehicle-service-label') || {}).value || '',
+    service_interval_km: (document.getElementById('dir-vehicle-service-interval') || {}).value || '',
+    service_remaining_km: (document.getElementById('dir-vehicle-service-remaining') || {}).value || '',
+    active: true
+  };
+  apiRequest('save_directory_vehicle', { vehicle: vehicle }).then(function(res){
+    if (res.status !== 'ok') throw new Error(res.message || 'Не удалось сохранить автомобиль');
+    showNotification('Автомобиль сохранён');
+    loadDirectory();
+  }).catch(function(err){
+    showNotification(err.message || 'Ошибка сохранения автомобиля');
+  });
+}
+
+function toggleDirectoryUser(userId, active) {
+  apiRequest('set_directory_user_active', { user_id: userId, active: active }).then(function(res){
+    if (res.status !== 'ok') throw new Error(res.message || 'Не удалось обновить сотрудника');
+    loadDirectory();
+  }).catch(function(err){
+    showNotification(err.message || 'Ошибка обновления сотрудника');
+  });
+}
+
+function toggleDirectoryVehicle(vehicleId, active) {
+  apiRequest('set_directory_vehicle_active', { vehicle_id: vehicleId, active: active }).then(function(res){
+    if (res.status !== 'ok') throw new Error(res.message || 'Не удалось обновить автомобиль');
+    loadDirectory();
+  }).catch(function(err){
+    showNotification(err.message || 'Ошибка обновления автомобиля');
+  });
+}
+
+function loadDirectory() {
+  return apiRequest('get_directory', {}).then(function(res){
+    if (res.status !== 'ok') throw new Error(res.message || 'Не удалось загрузить справочник');
+    DIRECTORY = res.directory || DIRECTORY;
+    refreshDirectoryChips();
+    renderDirectoryLists();
+    return DIRECTORY;
+  });
+}
+
+function bootstrapFromSession(res) {
+  APP_SESSION = res;
+  DIRECTORY = res.directory || DIRECTORY;
+  refreshDirectoryChips();
+  if (res.profile) {
+    currentDriver = DRIVERS[res.profile.id] || null;
+    activateRoleForProfile(res.profile);
+  }
+  if (res.driver_dashboard) {
+    renderDriverDashboard(res.driver_dashboard);
+  }
+}
+
+function initTelegramSession() {
+  var tg = tgWebApp();
+  if (!tg || !tg.initData) return;
+  try { tg.ready(); } catch (e) {}
+  apiRequest('get_session', {}).then(function(res){
+    if (res.status !== 'ok') throw new Error(res.message || 'Нет доступа');
+    bootstrapFromSession(res);
+  }).catch(function(err){
+    showNotification(err.message || 'Не удалось авторизовать Telegram-сессию');
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+  initTelegramSession();
+});
 </script>
 </body>
 </html>
