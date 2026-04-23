@@ -3763,15 +3763,35 @@ function sendToAPI(action, data, onSuccess, onError) {
     return;
   }
 
+  var completed = false;
+
+  function finishSuccess(result) {
+    if (completed) return;
+    completed = true;
+    if (onSuccess) onSuccess(result || {});
+  }
+
+  function finishError(errorLike) {
+    if (completed) return;
+    completed = true;
+    if (onError) onError(errorLike || {});
+  }
+
   function fallbackToTelegram(errorLike) {
     if (window.Telegram && window.Telegram.WebApp) {
       Telegram.WebApp.sendData(JSON.stringify({action: action, data: data}));
-      if (onSuccess) onSuccess({fallback: true, offline: true});
+      finishSuccess({fallback: true, offline: true});
       return true;
     }
-    if (onError) onError(errorLike);
+    finishError(errorLike);
     return false;
   }
+
+  var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  var timeoutId = setTimeout(function(){
+    fallbackToTelegram({status:'error', message:'API timeout'});
+    if (controller) controller.abort();
+  }, 8000);
 
   fetch(API_URL, {
     method: 'POST',
@@ -3779,30 +3799,33 @@ function sendToAPI(action, data, onSuccess, onError) {
       'Content-Type': 'application/json',
       'X-API-Key': API_KEY
     },
-    body: JSON.stringify({action: action, data: data})
+    body: JSON.stringify({action: action, data: data}),
+    signal: controller ? controller.signal : undefined
   })
   .then(function(r){
     return r.json().catch(function(){
-      return {status:'error', message:'???????????? ????? ???????'};
+      return {status:'error', message:'Bad server response'};
     }).then(function(res){
       res.http_status = r.status;
       return res;
     });
   })
   .then(function(res){
+    clearTimeout(timeoutId);
+    if (completed) return;
     if(res.status === 'ok') {
-      if (onSuccess) onSuccess(res);
+      finishSuccess(res);
       return;
     }
     if (res.http_status >= 500 && fallbackToTelegram(res)) return;
-    if(onError) onError(res);
-    else showNotification(res.message || '?????????');
+    finishError(res);
   })
   .catch(function(e){
+    clearTimeout(timeoutId);
+    if (completed) return;
     fallbackToTelegram(e);
   });
 }
-
 function submitOk(btn,subId,menuId){
   const orig=btn.textContent;
   btn.textContent='✓ Сохранено!';
