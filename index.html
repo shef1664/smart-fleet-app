@@ -3757,11 +3757,20 @@ var API_URL = 'https://worker-production-96a0.up.railway.app/api';
 var API_KEY = 'pulsar-api-secret-2026';
 
 function sendToAPI(action, data, onSuccess, onError) {
-  // Если MiniApp запущен локально — отправляем через Telegram WebApp
   if (window.Telegram && window.Telegram.WebApp && !window.location.hostname) {
     Telegram.WebApp.sendData(JSON.stringify({action: action, data: data}));
     if (onSuccess) onSuccess({fallback: true});
     return;
+  }
+
+  function fallbackToTelegram(errorLike) {
+    if (window.Telegram && window.Telegram.WebApp) {
+      Telegram.WebApp.sendData(JSON.stringify({action: action, data: data}));
+      if (onSuccess) onSuccess({fallback: true, offline: true});
+      return true;
+    }
+    if (onError) onError(errorLike);
+    return false;
   }
 
   fetch(API_URL, {
@@ -3772,18 +3781,25 @@ function sendToAPI(action, data, onSuccess, onError) {
     },
     body: JSON.stringify({action: action, data: data})
   })
-  .then(function(r){ return r.json(); })
+  .then(function(r){
+    return r.json().catch(function(){
+      return {status:'error', message:'???????????? ????? ???????'};
+    }).then(function(res){
+      res.http_status = r.status;
+      return res;
+    });
+  })
   .then(function(res){
-    if(res.status === 'ok' && onSuccess) onSuccess(res);
-    else if(onError) onError(res);
-    else showNotification(res.message || 'Сохранено');
+    if(res.status === 'ok') {
+      if (onSuccess) onSuccess(res);
+      return;
+    }
+    if (res.http_status >= 500 && fallbackToTelegram(res)) return;
+    if(onError) onError(res);
+    else showNotification(res.message || '?????????');
   })
   .catch(function(e){
-    // Fallback — отправить через Telegram WebApp
-    if (window.Telegram && window.Telegram.WebApp) {
-      Telegram.WebApp.sendData(JSON.stringify({action: action, data: data}));
-    }
-    if (onError) onError(e);
+    fallbackToTelegram(e);
   });
 }
 
@@ -4315,13 +4331,13 @@ function parseVoiceTrip(text) {
   var result = {};
   var truckMatch = src.match(/\b(803|008|709|143|555|137|729)\b/);
   if (truckMatch) result.truck = truckMatch[1];
-  [['шабанов','\u0428\u0430\u0431\u0430\u043d\u043e\u0432 \u0424.\u0410.'],['алексеев','\u0410\u043b\u0435\u043a\u0441\u0435\u0435\u0432 \u041e.\u0415.'],['гааль','\u0413\u0430\u0430\u043b\u044c \u0420.\u0410.']].forEach(function(pair){ if (!result.driver && src.indexOf(pair[0]) !== -1) result.driver = pair[1]; });
-  [['щебень','\u0429\u0435\u0431\u0435\u043d\u044c'],['песок','\u041f\u0435\u0441\u043e\u043a'],['отсев','\u041e\u0442\u0441\u0435\u0432'],['гравий','\u0413\u0440\u0430\u0432\u0438\u0439']].forEach(function(pair){ if (!result.material && src.indexOf(pair[0]) !== -1) result.material = pair[1]; });
-  [['морозов','\u041c\u043e\u0440\u043e\u0437\u043e\u0432\u0441\u043a\u0438\u0439'],['внк','\u0412\u041d\u041a \u0411\u0435\u0440\u0435\u0437\u043e\u0432\u043a\u0430'],['березовк','\u0412\u041d\u041a \u0411\u0435\u0440\u0435\u0437\u043e\u0432\u043a\u0430'],['барзасс','\u0411\u0430\u0440\u0437\u0430\u0441\u0441\u043a\u0438\u0439'],['северн','\u041a\u0430\u0440\u044c\u0435\u0440 \u0421\u0435\u0432\u0435\u0440\u043d\u044b\u0439']].forEach(function(pair){ if (!result.quarry && src.indexOf(pair[0]) !== -1) result.quarry = pair[1]; });
-  [['стройгрупп','\u0421\u0442\u0440\u043e\u0439\u0413\u0440\u0443\u043f\u043f'],['дск','\u0414\u0421\u041a'],['жби','\u0417\u0416\u0411\u0418'],['администрац','\u0410\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f'],['бетон м','\u0411\u0435\u0442\u043e\u043d \u041c']].forEach(function(pair){ if (!result.client && src.indexOf(pair[0]) !== -1) result.client = pair[1]; });
-  var tonsMatch = src.match(/(\d+[.,]?\d*)\s*(тонн|тонны|т)\b/);
+  [['\u0448\u0430\u0431\u0430\u043d\u043e\u0432','\u0428\u0430\u0431\u0430\u043d\u043e\u0432 \u0424.\u0410.'],['\u0430\u043b\u0435\u043a\u0441\u0435\u0435\u0432','\u0410\u043b\u0435\u043a\u0441\u0435\u0435\u0432 \u041e.\u0415.'],['\u0433\u0430\u0430\u043b\u044c','\u0413\u0430\u0430\u043b\u044c \u0420.\u0410.']].forEach(function(pair){ if (!result.driver && src.indexOf(pair[0]) !== -1) result.driver = pair[1]; });
+  [['\u0449\u0435\u0431\u0435\u043d\u044c','\u0429\u0435\u0431\u0435\u043d\u044c'],['\u043f\u0435\u0441\u043e\u043a','\u041f\u0435\u0441\u043e\u043a'],['\u043e\u0442\u0441\u0435\u0432','\u041e\u0442\u0441\u0435\u0432'],['\u0433\u0440\u0430\u0432\u0438\u0439','\u0413\u0440\u0430\u0432\u0438\u0439']].forEach(function(pair){ if (!result.material && src.indexOf(pair[0]) !== -1) result.material = pair[1]; });
+  [['\u043c\u043e\u0440\u043e\u0437\u043e\u0432','\u041c\u043e\u0440\u043e\u0437\u043e\u0432\u0441\u043a\u0438\u0439'],['\u0432\u043d\u043a','\u0412\u041d\u041a \u0411\u0435\u0440\u0435\u0437\u043e\u0432\u043a\u0430'],['\u0431\u0435\u0440\u0435\u0437\u043e\u0432\u043a','\u0412\u041d\u041a \u0411\u0435\u0440\u0435\u0437\u043e\u0432\u043a\u0430'],['\u0431\u0430\u0440\u0437\u0430\u0441\u0441','\u0411\u0430\u0440\u0437\u0430\u0441\u0441\u043a\u0438\u0439'],['\u0441\u0435\u0432\u0435\u0440\u043d','\u041a\u0430\u0440\u044c\u0435\u0440 \u0421\u0435\u0432\u0435\u0440\u043d\u044b\u0439']].forEach(function(pair){ if (!result.quarry && src.indexOf(pair[0]) !== -1) result.quarry = pair[1]; });
+  [['\u0441\u0442\u0440\u043e\u0439\u0433\u0440\u0443\u043f\u043f','\u0421\u0442\u0440\u043e\u0439\u0413\u0440\u0443\u043f\u043f'],['\u0434\u0441\u043a','\u0414\u0421\u041a'],['\u0436\u0431\u0438','\u0417\u0416\u0411\u0418'],['\u0430\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0446','\u0410\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f'],['\u0431\u0435\u0442\u043e\u043d \u043c','\u0411\u0435\u0442\u043e\u043d \u041c']].forEach(function(pair){ if (!result.client && src.indexOf(pair[0]) !== -1) result.client = pair[1]; });
+  var tonsMatch = src.match(/(\d+[.,]?\d*)\s*(\u0442\u043e\u043d\u043d|\u0442\u043e\u043d\u043d\u044b|\u0442)\b/);
   if (tonsMatch) result.tons = tonsMatch[1].replace(',', '.');
-  var tnMatch = src.match(/тн\s*([a-zа-я0-9-]+)/i);
+  var tnMatch = src.match(/\u0442\u043d\s*([a-z\u0430-\u044f0-9-]+)/i);
   if (tnMatch) result.tn = tnMatch[1];
   return result;
 }
@@ -4347,9 +4363,27 @@ function applyVoiceTripToForm(text) {
 }
 
 function startVoiceInput(formType) {
+  function fallbackManualVoice(reasonText) {
+    if (reasonText) showNotification(reasonText);
+    var text = window.prompt('\u041f\u0440\u043e\u0434\u0438\u043a\u0442\u0443\u0439\u0442\u0435 \u0440\u0435\u0439\u0441 \u0442\u0435\u043a\u0441\u0442\u043e\u043c. \u041d\u0430\u043f\u0440\u0438\u043c\u0435\u0440: "803 \u0410\u043b\u0435\u043a\u0441\u0435\u0435\u0432 \u0449\u0435\u0431\u0435\u043d\u044c \u0421\u0414\u0415 \u041c\u043e\u0437\u0436\u0443\u0445\u0430 \u041c\u0435\u0440\u043a\u0443\u0440\u0438\u0439 32 \u0442\u043e\u043d\u043d\u044b"');
+    if (!text || !text.trim()) return;
+    if (formType === 'ton') applyVoiceTripToForm(text.trim());
+  }
+
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { alert('\u0413\u043e\u043b\u043e\u0441\u043e\u0432\u043e\u0439 \u0432\u0432\u043e\u0434 \u043d\u0435 \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442\u0441\u044f. \u0418\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0439\u0442\u0435 Chrome.'); return; }
-  var recognition = new SR();
+  if (!SR) {
+    fallbackManualVoice('\u0412 Telegram \u0433\u043e\u043b\u043e\u0441\u043e\u0432\u043e\u0439 \u0432\u0432\u043e\u0434 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0430 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u0435\u043d. \u041e\u0442\u043a\u0440\u044b\u043b \u0437\u0430\u043f\u0430\u0441\u043d\u043e\u0439 \u0432\u0432\u043e\u0434 \u0442\u0435\u043a\u0441\u0442\u043e\u043c.');
+    return;
+  }
+
+  var recognition;
+  try {
+    recognition = new SR();
+  } catch (e) {
+    fallbackManualVoice('\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0432\u043a\u043b\u044e\u0447\u0438\u0442\u044c \u043c\u0438\u043a\u0440\u043e\u0444\u043e\u043d. \u041e\u0442\u043a\u0440\u044b\u043b \u0437\u0430\u043f\u0430\u0441\u043d\u043e\u0439 \u0432\u0432\u043e\u0434 \u0442\u0435\u043a\u0441\u0442\u043e\u043c.');
+    return;
+  }
+
   recognition.lang = 'ru-RU';
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
@@ -4363,8 +4397,12 @@ function startVoiceInput(formType) {
     var text = event.results[0][0].transcript;
     if (formType === 'ton') applyVoiceTripToForm(text);
   };
-  recognition.onerror = function() {
-    showNotification('\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0442\u044c \u0433\u043e\u043b\u043e\u0441');
+  recognition.onerror = function(event) {
+    var message = '\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0442\u044c \u0433\u043e\u043b\u043e\u0441';
+    if (event && event.error === 'not-allowed') message = '\u041d\u0435\u0442 \u0434\u043e\u0441\u0442\u0443\u043f\u0430 \u043a \u043c\u0438\u043a\u0440\u043e\u0444\u043e\u043d\u0443';
+    else if (event && event.error === 'no-speech') message = '\u0420\u0435\u0447\u044c \u043d\u0435 \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u043d\u0430';
+    else if (event && event.error === 'service-not-allowed') message = '\u0413\u043e\u043b\u043e\u0441\u043e\u0432\u043e\u0439 \u0432\u0432\u043e\u0434 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u0435\u043d \u0432 \u044d\u0442\u043e\u043c Telegram WebView';
+    fallbackManualVoice(message + '. \u041e\u0442\u043a\u0440\u044b\u043b \u0437\u0430\u043f\u0430\u0441\u043d\u043e\u0439 \u0432\u0432\u043e\u0434 \u0442\u0435\u043a\u0441\u0442\u043e\u043c.');
   };
   recognition.onend = function() {
     if (btn) {
@@ -4373,8 +4411,13 @@ function startVoiceInput(formType) {
       btn.style.color = '';
     }
   };
-  recognition.start();
+  try {
+    recognition.start();
+  } catch (e) {
+    fallbackManualVoice('\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u043f\u0443\u0441\u0442\u0438\u0442\u044c \u0433\u043e\u043b\u043e\u0441\u043e\u0432\u043e\u0439 \u0432\u0432\u043e\u0434. \u041e\u0442\u043a\u0440\u044b\u043b \u0437\u0430\u043f\u0430\u0441\u043d\u043e\u0439 \u0432\u0432\u043e\u0434 \u0442\u0435\u043a\u0441\u0442\u043e\u043c.');
+  }
 }
+
 
 var APP_SESSION = null;
 var DIRECTORY = { users: [], vehicles: [], trip_prices: [], quarry_plans: [] };
