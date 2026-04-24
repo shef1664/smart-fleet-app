@@ -3989,25 +3989,42 @@ function compressImageFile(file, done) {
   var img = new Image();
 
   img.onload = function() {
-    var maxSide = 1600;
-    var width = img.width || maxSide;
-    var height = img.height || maxSide;
+    var originalWidth = img.width || 1600;
+    var originalHeight = img.height || 1600;
+    var maxLen = 48000;
+    var sizes = [1280, 1024, 900, 768, 640];
+    var qualities = [0.72, 0.6, 0.5, 0.42, 0.35];
+    var result = '';
 
-    if (width > maxSide || height > maxSide) {
-      var scale = Math.min(maxSide / width, maxSide / height);
-      width = Math.round(width * scale);
-      height = Math.round(height * scale);
+    for (var s = 0; s < sizes.length && !result; s++) {
+      for (var q = 0; q < qualities.length && !result; q++) {
+        var maxSide = sizes[s];
+        var width = originalWidth;
+        var height = originalHeight;
+
+        if (width > maxSide || height > maxSide) {
+          var scale = Math.min(maxSide / width, maxSide / height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+
+        var canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        var candidate = canvas.toDataURL('image/jpeg', qualities[q]);
+        if (candidate.length <= maxLen) {
+          result = candidate;
+        }
+      }
     }
 
-    var canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-
-    var ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, width, height);
-
-    var quality = file.size > 5 * 1024 * 1024 ? 0.6 : (file.size > 2 * 1024 * 1024 ? 0.7 : 0.78);
-    var result = canvas.toDataURL('image/jpeg', quality);
+    if (!result) {
+      result = '';
+    }
 
     URL.revokeObjectURL(objectUrl);
     done(result);
