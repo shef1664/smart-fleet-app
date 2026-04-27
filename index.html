@@ -25,7 +25,7 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
 .app{max-width:430px;margin:0 auto;padding:0 0 88px;}
-.screen{display:none;padding:20px 16px 0;animation:fadeUp .2s ease;}
+.screen{display:none;padding:20px 16px 100px;animation:fadeUp .2s ease;min-height:calc(100vh - 60px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .screen.active{display:block;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(8,8,16,.97);border-top:1px solid var(--sep);display:flex;z-index:100;padding:10px 0 max(10px,env(safe-area-inset-bottom));}
@@ -208,7 +208,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
 .cash-status.orange{color:var(--orange);}
 .other-input{display:none;margin-top:8px;}
 .other-input.show{display:block;}
-.sub-screen{display:none;}
+.sub-screen{display:none;padding-bottom:100px;min-height:calc(100vh - 60px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .sub-screen.active{display:block;}
 .back-btn{background:none;border:none;color:var(--accent2);font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px;}
 .role-btn{width:100%;background:var(--bg3);border:1px solid var(--sep);border-radius:var(--r2);padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;font-family:'Inter',sans-serif;text-align:left;transition:all .2s;margin-bottom:8px;}
@@ -722,7 +722,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
       <div class="photo-zone" onclick="document.getElementById('mix-tn-photo').click()">
         <div class="pz-icon">📷</div>
         <div class="pz-title">Фото ТН</div>
-        <input type="file" id="mix-tn-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'mix-tn')">
+        <input type="file" id="mix-tn-photo" accept="image/*" style="display:none" onchange="handlePhotoUpload(this, 'mix-tn')">
       </div>
       <div id="mix-tn-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="mix-tn-img">
@@ -730,7 +730,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
       <div class="photo-zone" onclick="document.getElementById('mix-raport-photo').click()">
         <div class="pz-icon">📄</div>
         <div class="pz-title">Фото рапорт-наряда</div>
-        <input type="file" id="mix-raport-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'mix-raport')">
+        <input type="file" id="mix-raport-photo" accept="image/*" style="display:none" onchange="handlePhotoUpload(this, 'mix-raport')">
       </div>
       <div id="mix-raport-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="mix-raport-img">
@@ -907,7 +907,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
         <div class="pz-icon">📎</div>
         <div class="pz-title">Добавить ТН</div>
         <div class="pz-sub">Можно до 5 накладных, 2 фото каждая</div>
-        <input type="file" id="dln-tn-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'dln-tn')">
+        <input type="file" id="dln-tn-photo" accept="image/*" style="display:none" onchange="handlePhotoUpload(this, 'dln-tn')">
       </div>
       <div id="dln-tn-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="dln-tn-img">
@@ -2180,9 +2180,17 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:20px;">
     <div style="font-size:48px;margin-bottom:16px;">📋</div>
     <div class="page-title" style="text-align:center;margin-bottom:6px;">Ежедневный отчёт</div>
-    <div class="page-sub" style="text-align:center;margin-bottom:40px;">Пульсар · Кемерово</div>
+    <div class="page-sub" id="login-subtitle" style="text-align:center;margin-bottom:40px;">Пульсар · Кемерово</div>
 
     <div style="width:100%;max-width:320px;">
+      <div class="form-block" id="phone-bind-block">
+        <div class="form-lbl">Привязка телефона</div>
+        <input class="inp" type="tel" id="login-phone" placeholder="+79991234567" style="margin-bottom:10px;">
+        <div id="login-help" style="font-size:12px;color:var(--t3);line-height:1.5;margin-bottom:12px;">
+          Если Telegram ещё не привязан к сотруднику, введите номер телефона из справочника один раз.
+        </div>
+        <button class="submit" id="login-phone-btn" onclick="submitPhoneLogin(this)" style="margin-top:0;">Войти по номеру</button>
+      </div>
       <div class="form-block">
         <div class="form-lbl">Выберите свою роль</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
@@ -2219,7 +2227,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
           </button>
         </div>
       </div>
-      <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--t4);">
+      <div id="login-status" style="text-align:center;margin-top:16px;font-size:12px;color:var(--t4);">
         🔒 Вход через Telegram авторизацию
       </div>
     </div>
@@ -2626,6 +2634,17 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
 
 <script>
 
+// HTML-escape helper. Apply to any string interpolated into innerHTML or
+// template literals that build HTML — names, comments, routes, etc. coming
+// from Google Sheets are not trusted: a row with "<img src=x onerror=...>"
+// would otherwise execute inside the Mini App.
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+  });
+}
+
 var currentRole = "login";
 
 // ═══════════════════ СПРАВОЧНИК ВОДИТЕЛЕЙ ═══════════════════
@@ -2651,8 +2670,8 @@ function renderDriverRecentTrips() {
   card.innerHTML = DRIVER_RECENT_TRIPS.map(function(trip){
     return '<div class=\"list-row\">'
       + '<div class=\"row-dot dot-green\"></div>'
-      + '<div class=\"row-info\"><div class=\"row-title\">' + trip.route + '</div><div class=\"row-sub\">' + trip.sub + '</div></div>'
-      + '<div class=\"row-right\"><div class=\"row-val\">' + trip.tons + '</div><div class=\"row-time\">' + trip.time + '</div></div>'
+      + '<div class=\"row-info\"><div class=\"row-title\">' + esc(trip.route) + '</div><div class=\"row-sub\">' + esc(trip.sub) + '</div></div>'
+      + '<div class=\"row-right\"><div class=\"row-val\">' + esc(trip.tons) + '</div><div class=\"row-time\">' + esc(trip.time) + '</div></div>'
       + '</div>';
   }).join('');
 }
@@ -3326,8 +3345,8 @@ function renderDirTripPrices(){
   for(var i = 0; i < directorTripPrices.length; i++){
     var p = directorTripPrices[i];
     html += '<div class="list-row">';
-    html += '<div class="row-info"><div class="row-title">' + p.driver + '</div><div class="row-sub">' + p.quarry + ' → ' + p.client + '</div></div>';
-    html += '<div class="row-right"><div class="row-val" style="color:var(--green);">₽' + p.price.toLocaleString() + '</div></div>';
+    html += '<div class="row-info"><div class="row-title">' + esc(p.driver) + '</div><div class="row-sub">' + esc(p.quarry) + ' → ' + esc(p.client) + '</div></div>';
+    html += '<div class="row-right"><div class="row-val" style="color:var(--green);">₽' + Number(p.price || 0).toLocaleString() + '</div></div>';
     html += '</div>';
   }
   list.innerHTML = html;
@@ -3380,13 +3399,13 @@ function renderDirQuarryPlans(){
     var pct = p.tonnage > 0 ? Math.round(p.current / p.tonnage * 100) : 0;
     var color = pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--orange)' : 'var(--red)';
     html += '<div class="list-row">';
-    html += '<div class="row-info"><div class="row-title">' + p.quarry + '</div><div class="row-sub">' + p.period + ' · план</div></div>';
-    html += '<div class="row-right"><div class="row-val">' + p.tonnage.toLocaleString() + ' т</div></div>';
+    html += '<div class="row-info"><div class="row-title">' + esc(p.quarry) + '</div><div class="row-sub">' + esc(p.period) + ' · план</div></div>';
+    html += '<div class="row-right"><div class="row-val">' + Number(p.tonnage || 0).toLocaleString() + ' т</div></div>';
     html += '</div>';
     progressHtml += '<div class="prog-row">';
-    progressHtml += '<div class="prog-lbl">' + p.quarry + '</div>';
-    progressHtml += '<div class="prog-track"><div class="prog-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
-    progressHtml += '<div class="prog-count">' + p.current + '/' + p.tonnage + '</div>';
+    progressHtml += '<div class="prog-lbl">' + esc(p.quarry) + '</div>';
+    progressHtml += '<div class="prog-track"><div class="prog-fill" style="width:' + Number(pct) + '%;background:' + color + '"></div></div>';
+    progressHtml += '<div class="prog-count">' + Number(p.current || 0) + '/' + Number(p.tonnage || 0) + '</div>';
     progressHtml += '</div>';
   }
   list.innerHTML = html;
@@ -3754,7 +3773,11 @@ function showNotification(msg){
 
 // ═══════════════════ ОТПРАВКА К API ═══════════════════
 var API_URL = 'https://worker-production-96a0.up.railway.app/api';
-var API_KEY = 'pulsar-api-secret-2026';
+// Public — visible to anyone who views source. Real auth happens server-side
+// via Telegram initData (HMAC-signed by BOT_TOKEN). This key is just a filter
+// against random scanner traffic; rotate it together with the API_SECRET env
+// var on Railway. Generated 2026-04-27.
+var API_KEY = 'a39ee47e6602d0b4be6a91680fd69a4b474e1ff8e22091d091ab5159d2bcd418';
 
 function sendToAPI(action, data, onSuccess, onError) {
   if (window.Telegram && window.Telegram.WebApp && !window.location.hostname) {
@@ -3793,13 +3816,23 @@ function sendToAPI(action, data, onSuccess, onError) {
     if (controller) controller.abort();
   }, 8000);
 
+  // Server now requires verified Telegram WebApp identity on every call. Inject
+  // initData (HMAC-signed by Telegram) and telegram_user_id for the server to
+  // verify against BOT_TOKEN. Without these the request is rejected (401).
+  var tgWebApp = window.Telegram && window.Telegram.WebApp;
+  var tgUser = tgWebApp && tgWebApp.initDataUnsafe ? tgWebApp.initDataUnsafe.user : null;
+  var authedData = Object.assign({}, data || {}, {
+    init_data: tgWebApp ? (tgWebApp.initData || '') : '',
+    telegram_user_id: tgUser ? tgUser.id : (data && data.telegram_user_id) || ''
+  });
+
   fetch(API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-API-Key': API_KEY
     },
-    body: JSON.stringify({action: action, data: data}),
+    body: JSON.stringify({action: action, data: authedData}),
     signal: controller ? controller.signal : undefined
   })
   .then(function(r){
@@ -4559,7 +4592,7 @@ function renderChipButtons(items, selected, allowOther) {
     var value = typeof item === 'string' ? item : item.value;
     var label = typeof item === 'string' ? item : (item.label || item.value);
     var active = selected ? selected === value : idx === 0;
-    html += '<button class="chip' + (active ? ' on' : '') + '" onclick="sel(this);checkOther(this)">' + label + '</button>';
+    html += '<button class="chip' + (active ? ' on' : '') + '" onclick="sel(this);checkOther(this)">' + esc(label) + '</button>';
   });
   if (allowOther) {
     html += '<button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>';
@@ -4636,11 +4669,11 @@ function renderDriverDashboard(dashboard) {
   var plansHtml = (dashboard.plans || []).map(function(plan, idx){
     var color = idx === 0 ? 'green' : (idx === 1 ? 'orange' : 'blue');
     return '<div class="plan-row' + (idx === dashboard.plans.length - 1 ? ' style="margin-bottom:6px;"' : '') + '">'
-      + '<div class="plan-info"><div class="plan-name">' + plan.name + '</div><div class="plan-sub">Перевезено: '
+      + '<div class="plan-info"><div class="plan-name">' + esc(plan.name) + '</div><div class="plan-sub">Перевезено: '
       + Number(plan.actual_tonnage || 0).toLocaleString('ru-RU') + ' т из ' + Number(plan.planned_tonnage || 0).toLocaleString('ru-RU')
-      + ' т</div></div><div class="plan-pct ' + color + '">' + plan.progress_pct + '%</div></div>'
+      + ' т</div></div><div class="plan-pct ' + color + '">' + Number(plan.progress_pct || 0) + '%</div></div>'
       + '<div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;' + (idx < dashboard.plans.length - 1 ? 'margin-bottom:14px;' : '') + '">'
-      + '<div style="width:' + Math.min(100, plan.progress_pct || 0) + '%;height:100%;background:var(--' + (color === 'blue' ? 'accent2' : color) + ');border-radius:3px;"></div></div>';
+      + '<div style="width:' + Math.min(100, Number(plan.progress_pct) || 0) + '%;height:100%;background:var(--' + (color === 'blue' ? 'accent2' : color) + ');border-radius:3px;"></div></div>';
   }).join('');
   var plansEl = document.getElementById('drv-plan-list');
   if (plansEl) {
@@ -4665,8 +4698,8 @@ function renderDriverDashboard(dashboard) {
     var advances = dashboard.advances || [];
     advEl.innerHTML = advances.length ? advances.map(function(item, idx){
       return '<div class="advance-row' + (idx === advances.length - 1 ? '" style="border:none;">' : '">')
-        + '<div style="font-size:14px;font-weight:500;">' + item.date + '</div>'
-        + '<div style="font-size:13px;color:var(--t3);">' + (item.comment || 'аванс') + '</div>'
+        + '<div style="font-size:14px;font-weight:500;">' + esc(item.date) + '</div>'
+        + '<div style="font-size:13px;color:var(--t3);">' + esc(item.comment || 'аванс') + '</div>'
         + '<div style="font-size:15px;font-weight:700;color:var(--red);">− ' + money(item.amount) + '</div></div>';
     }).join('') : '<div style="text-align:center;color:var(--t4);padding:12px;">Авансов пока нет</div>';
   }
@@ -4696,8 +4729,8 @@ function setDriverPeriod(period, btn) {
   if (rowsEl) {
     rowsEl.innerHTML = rows.length ? rows.map(function(item, idx){
       return '<div class="salary-row' + (item.pay > 0 && idx === rows.length - 1 && period === 'day' ? ' bonus' : '') + '">'
-        + '<div class="salary-num">' + (idx + 1) + '</div><div class="salary-info"><div class="salary-title">' + item.route + '</div>'
-        + '<div class="salary-sub">' + (item.sub || '') + '</div></div><div class="salary-rate">' + (item.pay ? money(item.pay) : '—') + '</div></div>';
+        + '<div class="salary-num">' + (idx + 1) + '</div><div class="salary-info"><div class="salary-title">' + esc(item.route) + '</div>'
+        + '<div class="salary-sub">' + esc(item.sub || '') + '</div></div><div class="salary-rate">' + (item.pay ? money(item.pay) : '—') + '</div></div>';
     }).join('') : '<div style="text-align:center;color:var(--t4);padding:12px;">Рейсов пока нет</div>';
   }
   setText('drv-day-total', money(period === 'day' ? s.earned_today : s.earned_month));
@@ -4728,9 +4761,11 @@ function renderDirectoryLists() {
   var usersEl = document.getElementById('dir-users-list');
   if (usersEl) {
     usersEl.innerHTML = DIRECTORY.users.length ? DIRECTORY.users.map(function(user){
-      return '<div class="list-row"><div class="row-info"><div class="row-title">' + user.name + '</div><div class="row-sub">'
-        + [user.role, user.telegram_user_id || 'без Telegram ID', user.default_truck || 'без машины'].join(' · ')
-        + '</div></div><div class="row-right"><button class="chip' + (user.active ? '' : ' on') + '" onclick="toggleDirectoryUser(\'' + user.id + '\',' + (!user.active) + ')">'
+      var subline = [user.role, user.telegram_user_id || 'без Telegram ID', user.default_truck || 'без машины'].map(esc).join(' · ');
+      var safeUserId = String(user.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+      return '<div class="list-row"><div class="row-info"><div class="row-title">' + esc(user.name) + '</div><div class="row-sub">'
+        + subline
+        + '</div></div><div class="row-right"><button class="chip' + (user.active ? '' : ' on') + '" onclick="toggleDirectoryUser(\'' + safeUserId + '\',' + (!user.active) + ')">'
         + (user.active ? 'Скрыть' : 'Вернуть') + '</button></div></div>';
     }).join('') : '<div style="text-align:center;padding:20px;color:var(--t4);">Сотрудников пока нет</div>';
   }
@@ -4738,9 +4773,11 @@ function renderDirectoryLists() {
   var vehiclesEl = document.getElementById('dir-vehicles-list');
   if (vehiclesEl) {
     vehiclesEl.innerHTML = DIRECTORY.vehicles.length ? DIRECTORY.vehicles.map(function(vehicle){
-      return '<div class="list-row"><div class="row-info"><div class="row-title">' + vehicle.truck + '</div><div class="row-sub">'
-        + [vehicle.type || 'тип не задан', vehicle.assigned_driver || 'без водителя', vehicle.service_label || 'без ТО'].join(' · ')
-        + '</div></div><div class="row-right"><button class="chip' + (vehicle.active ? '' : ' on') + '" onclick="toggleDirectoryVehicle(\'' + vehicle.id + '\',' + (!vehicle.active) + ')">'
+      var subline = [vehicle.type || 'тип не задан', vehicle.assigned_driver || 'без водителя', vehicle.service_label || 'без ТО'].map(esc).join(' · ');
+      var safeVehId = String(vehicle.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+      return '<div class="list-row"><div class="row-info"><div class="row-title">' + esc(vehicle.truck) + '</div><div class="row-sub">'
+        + subline
+        + '</div></div><div class="row-right"><button class="chip' + (vehicle.active ? '' : ' on') + '" onclick="toggleDirectoryVehicle(\'' + safeVehId + '\',' + (!vehicle.active) + ')">'
         + (vehicle.active ? 'Скрыть' : 'Вернуть') + '</button></div></div>';
     }).join('') : '<div style="text-align:center;padding:20px;color:var(--t4);">Транспорта пока нет</div>';
   }
@@ -4826,6 +4863,8 @@ function bootstrapFromSession(res) {
   APP_SESSION = res;
   DIRECTORY = res.directory || DIRECTORY;
   refreshDirectoryChips();
+  var phoneInput = document.getElementById('login-phone');
+  if (phoneInput) phoneInput.value = '';
   if (res.profile) {
     currentDriver = DRIVERS[res.profile.id] || null;
     activateRoleForProfile(res.profile);
@@ -4835,15 +4874,81 @@ function bootstrapFromSession(res) {
   }
 }
 
+function showPhoneBindScreen(message) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  var loginScreen = document.getElementById('s-login');
+  if (loginScreen) loginScreen.classList.add('active');
+
+  var subtitle = document.getElementById('login-subtitle');
+  if (subtitle) subtitle.textContent = 'Telegram не найден в справочнике';
+
+  var help = document.getElementById('login-help');
+  if (help) help.textContent = message || 'Введите номер телефона из справочника, чтобы привязать этот Telegram.';
+
+  var status = document.getElementById('login-status');
+  if (status) status.textContent = 'После привязки следующие входы будут автоматическими.';
+
+  document.querySelectorAll('#s-login .role-btn').forEach(function(btn){
+    btn.style.display = 'none';
+  });
+  var oldRoleBlock = document.querySelectorAll('#s-login .form-block')[1];
+  if (oldRoleBlock) oldRoleBlock.style.display = 'none';
+}
+
+function submitPhoneLogin(btn) {
+  var input = document.getElementById('login-phone');
+  var phone = input ? String(input.value || '').trim() : '';
+  if (!phone) {
+    showNotification('Введите номер телефона');
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Проверяем...';
+  }
+
+  apiRequest('bind_phone_session', { phone: phone }).then(function(res){
+    if (res.status !== 'ok') throw new Error(res.message || 'Не удалось привязать номер');
+    bootstrapFromSession(res);
+    showNotification('Номер привязан. Вход выполнен.');
+  }).catch(function(err){
+    showNotification(err.message || 'Не удалось привязать номер');
+  }).finally(function(){
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Войти по номеру';
+    }
+  });
+}
+
 function initTelegramSession() {
   var tg = tgWebApp();
-  if (!tg || !tg.initData) return;
+  if (!tg || !tg.initData) {
+    showPhoneBindScreen('Откройте mini app из Telegram, чтобы завершить вход.');
+    return;
+  }
   try { tg.ready(); } catch (e) {}
   apiRequest('get_session', {}).then(function(res){
     if (res.status !== 'ok') throw new Error(res.message || 'Нет доступа');
     bootstrapFromSession(res);
   }).catch(function(err){
     showNotification(err.message || 'Не удалось авторизовать Telegram-сессию');
+  });
+}
+
+function initTelegramSession() {
+  var tg = tgWebApp();
+  if (!tg || !tg.initData) {
+    showPhoneBindScreen('Откройте mini app из Telegram, чтобы завершить вход.');
+    return;
+  }
+  try { tg.ready(); } catch (e) {}
+  apiRequest('get_session', {}).then(function(res){
+    if (res.status !== 'ok') throw new Error(res.message || 'Нет доступа');
+    bootstrapFromSession(res);
+  }).catch(function(err){
+    showPhoneBindScreen(err.message || 'Не удалось авторизовать Telegram-сессию');
   });
 }
 
