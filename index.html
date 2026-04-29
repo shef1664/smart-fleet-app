@@ -2095,33 +2095,42 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
 
+  <!-- Период -->
+  <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+    <button class="period-btn" onclick="setEcoPeriod('today',this)">Сегодня</button>
+    <button class="period-btn" onclick="setEcoPeriod('week',this)">Неделя</button>
+    <button class="period-btn active" onclick="setEcoPeriod('month',this)">Месяц</button>
+    <button class="period-btn" onclick="pickEcoMonth(this)">Выбрать месяц</button>
+    <button class="period-btn" onclick="setEcoPeriod('all',this)">Всё</button>
+  </div>
+
   <!-- Главные карточки -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-    <div class="dir-card" style="grid-column:1/-1;">
+    <div class="dir-card" style="grid-column:1/-1;cursor:pointer" onclick="ecoFilterHistory('all')">
       <div class="dir-card-lbl">💵 Касса (нал)</div>
       <div class="dir-card-val orange" id="eco-cash">—</div>
       <div class="dir-card-delta" id="eco-cash-delta" style="color:var(--t3);font-size:12px"></div>
     </div>
-    <div class="dir-card">
+    <div class="dir-card" style="cursor:pointer" onclick="showEcoDriversBreakdown()">
       <div class="dir-card-lbl">👥 У водителей</div>
       <div class="dir-card-val red" id="eco-drivers">—</div>
       <div class="dir-card-delta" id="eco-drivers-delta" style="color:var(--t3);font-size:12px"></div>
     </div>
-    <div class="dir-card">
+    <div class="dir-card" style="cursor:pointer" onclick="showEcoDebtsBreakdown()">
       <div class="dir-card-lbl">📋 Долги клиентов</div>
       <div class="dir-card-val red" id="eco-debts">—</div>
       <div class="dir-card-delta" id="eco-debts-delta" style="color:var(--t3);font-size:12px"></div>
     </div>
   </div>
 
-  <!-- Сегодня -->
+  <!-- За период -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-    <div class="dir-card">
-      <div class="dir-card-lbl">📅 Поступления сегодня</div>
+    <div class="dir-card" style="cursor:pointer" onclick="ecoFilterHistory('in')">
+      <div class="dir-card-lbl">📅 Поступления</div>
       <div class="dir-card-val green" id="eco-today-in">—</div>
     </div>
-    <div class="dir-card">
-      <div class="dir-card-lbl">📤 Расходы сегодня</div>
+    <div class="dir-card" style="cursor:pointer" onclick="ecoFilterHistory('out')">
+      <div class="dir-card-lbl">📤 Расходы</div>
       <div class="dir-card-val red" id="eco-today-out">—</div>
     </div>
   </div>
@@ -4684,9 +4693,75 @@ function activateRoleForProfile(profile) {
 }
 
 // ═══════════════════ ЭКОНОМИСТ ═══════════════════
+var ecoPeriod = 'month';
+var ecoMonth = null; // YYYY-MM, когда выбран конкретный месяц
+var ecoData = {};
+var ecoHistoryFilter = 'all';
+
 function fmtMoney(n) {
   n = Number(n) || 0;
   return '₽ ' + Math.round(n).toLocaleString('ru-RU');
+}
+
+function setEcoPeriod(p, btn) {
+  ecoPeriod = p;
+  ecoMonth = null;
+  document.querySelectorAll('#s-economist-cash > div .period-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  var label = document.getElementById('eco-period-label');
+  if (label) {
+    var map = { today: 'Сегодня', week: 'Эта неделя', month: 'Этот месяц', all: 'За всё время' };
+    label.textContent = map[p] || 'Кабинет экономиста';
+  }
+  loadEconomistDashboard();
+}
+
+function pickEcoMonth(btn) {
+  let picker = document.getElementById('eco-month-picker');
+  if (!picker) {
+    picker = document.createElement('input');
+    picker.type = 'month';
+    picker.id = 'eco-month-picker';
+    picker.style.position = 'fixed';
+    picker.style.left = '-9999px';
+    document.body.appendChild(picker);
+    picker.addEventListener('change', function(){
+      if (!picker.value) return;
+      ecoPeriod = 'month-pick';
+      ecoMonth = picker.value;
+      document.querySelectorAll('#s-economist-cash > div .period-btn').forEach(function(b){ b.classList.remove('active'); });
+      if (btn) btn.classList.add('active');
+      var d = new Date(picker.value + '-01');
+      var months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+      var label = document.getElementById('eco-period-label');
+      if (label) label.textContent = months[d.getMonth()] + ' ' + d.getFullYear();
+      loadEconomistDashboard();
+    });
+  }
+  picker.showPicker ? picker.showPicker() : picker.click();
+}
+
+function ecoFilterHistory(filter) {
+  ecoHistoryFilter = filter;
+  renderEconomistDashboard(ecoData);
+  var hist = document.getElementById('eco-history-list');
+  if (hist) hist.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showEcoDriversBreakdown() {
+  var d = ecoData || {};
+  var rows = d.drivers_breakdown || [];
+  if (!rows.length) { alert('Нет данных по водителям'); return; }
+  var lines = rows.map(function(r){ return r.driver + ' — ' + fmtMoney(r.amount); });
+  alert('У водителей:\n\n' + lines.join('\n'));
+}
+
+function showEcoDebtsBreakdown() {
+  var d = ecoData || {};
+  var rows = d.debts_breakdown || [];
+  if (!rows.length) { alert('Нет данных по долгам'); return; }
+  var lines = rows.map(function(r){ return r.client + ' — ' + fmtMoney(r.amount); });
+  alert('Долги клиентов:\n\n' + lines.join('\n'));
 }
 
 function populateEcoDriverChips() {
@@ -4703,12 +4778,15 @@ function populateEcoDriverChips() {
 }
 
 function loadEconomistDashboard() {
-  apiRequest('get_economist_dashboard', {}).then(function(res){
+  var params = { period: ecoPeriod };
+  if (ecoMonth) params.month = ecoMonth;
+  apiRequest('get_economist_dashboard', params).then(function(res){
     if (res.status !== 'ok') {
       showNotification(res.message || 'Не удалось загрузить кассу');
       return;
     }
-    renderEconomistDashboard(res.dashboard || {});
+    ecoData = res.dashboard || {};
+    renderEconomistDashboard(ecoData);
   }).catch(function(err){
     showNotification(err.message || 'Ошибка загрузки');
   });
@@ -4719,18 +4797,25 @@ function renderEconomistDashboard(d) {
   setT('eco-cash', fmtMoney(d.cash || 0));
   setT('eco-cash-delta', d.cash_delta || '');
   setT('eco-drivers', fmtMoney(d.with_drivers || 0));
-  setT('eco-drivers-delta', d.drivers_count ? (d.drivers_count + ' водителей') : '');
+  setT('eco-drivers-delta', d.drivers_count ? (d.drivers_count + ' водителей · нажмите для разбивки') : 'нажмите для разбивки');
   setT('eco-debts', fmtMoney(d.client_debts || 0));
-  setT('eco-debts-delta', d.debt_count ? (d.debt_count + ' клиентов') : '');
-  setT('eco-today-in', fmtMoney(d.today_in || 0));
-  setT('eco-today-out', fmtMoney(d.today_out || 0));
+  setT('eco-debts-delta', d.debt_count ? (d.debt_count + ' клиентов · нажмите для разбивки') : 'нажмите для разбивки');
+  setT('eco-today-in', fmtMoney(d.period_in || d.today_in || 0));
+  setT('eco-today-out', fmtMoney(d.period_out || d.today_out || 0));
   var hist = document.getElementById('eco-history-list');
   if (hist) {
-    var movements = d.recent || [];
+    var movements = (d.recent || []).filter(function(m){
+      if (ecoHistoryFilter === 'all') return true;
+      return m.direction === ecoHistoryFilter;
+    });
     if (!movements.length) {
-      hist.innerHTML = '<div style="text-align:center;padding:18px;color:var(--t4);font-size:13px;">Нет движений</div>';
+      var msg = ecoHistoryFilter === 'in' ? 'Нет поступлений' : ecoHistoryFilter === 'out' ? 'Нет расходов' : 'Нет движений';
+      hist.innerHTML = '<div style="text-align:center;padding:18px;color:var(--t4);font-size:13px;">' + msg + '</div>';
     } else {
       var html = '';
+      if (ecoHistoryFilter !== 'all') {
+        html += '<div style="padding:6px 0;font-size:11px;color:var(--t3);"><a href="#" onclick="event.preventDefault();ecoFilterHistory(\'all\')" style="color:var(--accent2);text-decoration:none">← Показать все</a></div>';
+      }
       for (var i = 0; i < movements.length; i++) {
         var m = movements[i];
         var sign = m.direction === 'in' ? '+' : '−';
