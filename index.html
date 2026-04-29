@@ -1379,7 +1379,6 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
           <button class="chip on" onclick="sel(this)">driver</button>
           <button class="chip" onclick="sel(this)">mechanic</button>
           <button class="chip" onclick="sel(this)">economist</button>
-          <button class="chip" onclick="sel(this)">logist</button>
           <button class="chip" onclick="sel(this)">director</button>
         </div>
       </div>
@@ -2025,11 +2024,6 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
             <div class="role-info"><div class="role-name">Экономист</div><div class="role-sub">Миксеры · наличные · ДДС</div></div>
             <span style="color:var(--t4);">›</span>
           </button>
-          <button class="role-btn" onclick="loginAs('logist')">
-            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
-            <div class="role-info"><div class="role-name">Логист</div><div class="role-sub">Длинномеры · заказы</div></div>
-            <span style="color:var(--t4);">›</span>
-          </button>
           <button class="role-btn" onclick="loginAs('director')" style="border-color:rgba(48,209,88,.3);">
             <span class="role-icon" style="font-size:20px;color:var(--green);">○</span>
             <div class="role-info"><div class="role-name" style="color:var(--green);">Директор</div><div class="role-sub">Полный доступ</div></div>
@@ -2577,7 +2571,6 @@ var ROLE_HOME = {
   "mixer": "s-mixer",
   "mechanic": "s-mechanic-dash",
   "economist": "s-economist-cash",
-  "logist": "s-dlinn",
   "director": "s-director"
 };
 
@@ -2600,9 +2593,6 @@ var ROLE_NAV = {
   "economist": [
     {icon:"🔄", label:"Миксеры", screen:"s-mixer"},
     {icon:"💵", label:"Наличные", screen:"s-economist-cash"}
-  ],
-  "logist": [
-    {icon:"🚚", label:"Длинномеры", screen:"s-dlinn"}
   ],
   "director": [
     {icon:"📊", label:"Дашборд", screen:"s-director"},
