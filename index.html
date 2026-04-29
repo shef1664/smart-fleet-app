@@ -382,10 +382,6 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <button class="back-btn" onclick="hideSub('ton-menu','ton-new')">‹ Тонары</button>
     <div class="page-title" style="margin-bottom:20px">Новый рейс</div>
 
-    <div class="form-block">
-      <div class="form-lbl">🎙 Голосовой ввод</div>
-      <button class="voice-row" id="btn-voice-trip" onclick="startVoiceInput('ton')">🎙 Надиктовать рейс</button>
-    </div>
 
     <div class="form-block">
       <div class="form-lbl">Автомобиль</div>
@@ -535,18 +531,9 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
       <div class="btn-body"><div class="btn-title">Новый рейс</div><div class="btn-sub">Бетон · раствор · пескобетон</div></div>
       <span class="chevron">›</span>
     </button>
-    <div class="sec-lbl">Сегодня — миксер 729</div>
-    <div class="card">
-      <div class="list-row">
-        <div class="row-dot dot-green"></div>
-        <div class="row-info"><div class="row-title">Кем ДСК → Молодёжная, 12</div><div class="row-sub">М300 · 7 м³ · нал ✓</div></div>
-        <div class="row-right"><div class="row-val">28 000 ₽</div><div class="row-time">13:10</div></div>
-      </div>
-      <div class="list-row">
-        <div class="row-dot dot-blue"></div>
-        <div class="row-info"><div class="row-title">Бетон М → ДСК заявка</div><div class="row-sub">М200 · 8 м³ · безнал</div></div>
-        <div class="row-right"><div class="row-val">24 000 ₽</div><div class="row-time">10:30</div></div>
-      </div>
+    <div class="sec-lbl">Последние рейсы</div>
+    <div class="card" id="mix-recent-list">
+      <div style="text-align:center;padding:18px;color:var(--t4);font-size:13px;">Нет рейсов</div>
     </div>
   </div>
 
@@ -3678,6 +3665,51 @@ function submitTonarTrip(btn){
 }
 
 // ═══════════════════ МИКСЕР — ОТПРАВКА ═══════════════════
+var mixerRecent = [];
+try {
+  var saved = localStorage.getItem('pulsar_mix_recent');
+  if (saved) mixerRecent = JSON.parse(saved) || [];
+} catch(e) {}
+
+function pushMixerRecent(data){
+  mixerRecent.unshift({
+    plant: data.plant || '',
+    client: data.client || '',
+    address: data.address || '',
+    grade: data.grade || '',
+    volume: data.volume || '',
+    payment_type: data.payment_type || '',
+    delivery_cost: data.delivery_cost || '',
+    concrete_cost: data.concrete_cost || '',
+    arrive_time: data.arrive_time || '',
+    truck: data.truck || ''
+  });
+  mixerRecent = mixerRecent.slice(0, 2);
+  try { localStorage.setItem('pulsar_mix_recent', JSON.stringify(mixerRecent)); } catch(e) {}
+}
+
+function renderMixerRecent(){
+  var list = document.getElementById('mix-recent-list');
+  if (!list) return;
+  if (!mixerRecent.length) {
+    list.innerHTML = '<div style="text-align:center;padding:18px;color:var(--t4);font-size:13px;">Нет рейсов</div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < mixerRecent.length; i++) {
+    var t = mixerRecent[i];
+    var route = [t.plant, t.client || t.address].filter(Boolean).join(' → ');
+    var sub = [t.grade, t.volume ? t.volume + ' м³' : '', t.payment_type].filter(Boolean).join(' · ');
+    var total = (parseFloat(t.concrete_cost)||0) + (parseFloat(t.delivery_cost)||0);
+    var dot = i === 0 ? 'dot-green' : 'dot-blue';
+    html += '<div class="list-row"><div class="row-dot ' + dot + '"></div>'
+      + '<div class="row-info"><div class="row-title">' + esc(route || '—') + '</div><div class="row-sub">' + esc(sub || '—') + '</div></div>'
+      + '<div class="row-right"><div class="row-val">' + (total ? total.toLocaleString('ru-RU') + ' ₽' : '') + '</div><div class="row-time">' + esc(t.arrive_time || '') + '</div></div>'
+      + '</div>';
+  }
+  list.innerHTML = html;
+}
+
 function submitMixerTrip(btn){
   const orig = btn.textContent;
   btn.textContent = '⏳ Отправка...';
@@ -3713,6 +3745,8 @@ function submitMixerTrip(btn){
     btn.textContent = '✅ Сохранено!';
     btn.style.background = 'var(--green)';
     showNotification('Рейс миксера сохранён' + (res.id ? ' ('+res.id+')' : ''));
+    pushMixerRecent(data);
+    renderMixerRecent();
     setTimeout(function(){
       hideSub('mix-menu','mix-new');
       btn.textContent = orig;
@@ -4720,6 +4754,7 @@ function initKeyboardInset(){
 window.addEventListener('DOMContentLoaded', function(){
   initTelegramSession();
   initKeyboardInset();
+  if (typeof renderMixerRecent === 'function') renderMixerRecent();
 });
 </script>
 </body>
