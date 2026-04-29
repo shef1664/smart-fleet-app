@@ -24,11 +24,11 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
-.app{max-width:430px;margin:0 auto;padding:0 0 88px;}
-.screen{display:none;padding:20px 16px 100px;animation:fadeUp .2s ease;min-height:calc(100vh - 60px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.app{max-width:430px;margin:0 auto;padding:0 0 calc(88px + var(--kb,0px));}
+.screen{display:none;padding:20px 16px calc(100px + var(--kb,0px));scroll-padding-bottom:calc(120px + var(--kb,0px));animation:fadeUp .2s ease;min-height:calc(100vh - 60px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .screen.active{display:block;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(8,8,16,.97);border-top:1px solid var(--sep);display:flex;z-index:100;padding:10px 0 max(10px,env(safe-area-inset-bottom));}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--kb,0px));width:100%;max-width:430px;background:rgba(8,8,16,.97);border-top:1px solid var(--sep);display:flex;z-index:100;padding:10px 0 max(10px,env(safe-area-inset-bottom));transition:transform .15s ease;}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;border:none;background:transparent;color:var(--t4);font-size:9px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.3px;text-transform:uppercase;}
 .nav-item.active{color:var(--accent2);}
 .nav-icon{font-size:18px;line-height:1;}
@@ -208,7 +208,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
 .cash-status.orange{color:var(--orange);}
 .other-input{display:none;margin-top:8px;}
 .other-input.show{display:block;}
-.sub-screen{display:none;padding-bottom:100px;min-height:calc(100vh - 60px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.sub-screen{display:none;padding-bottom:calc(100px + var(--kb,0px));scroll-padding-bottom:calc(120px + var(--kb,0px));min-height:calc(100vh - 60px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .sub-screen.active{display:block;}
 .back-btn{background:none;border:none;color:var(--accent2);font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px;}
 .role-btn{width:100%;background:var(--bg3);border:1px solid var(--sep);border-radius:var(--r2);padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;font-family:'Inter',sans-serif;text-align:left;transition:all .2s;margin-bottom:8px;}
@@ -579,11 +579,6 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
         <button class="chip" onclick="sel(this);checkOther(this)">Шевченко С.С.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
       </div>
-    
-      <div class="other-input">
-        <input class="inp" type="text" placeholder="Введите значение">
-      </div>
-    </div>
       <div class="other-input">
         <input class="inp" type="text" placeholder="Введите ФИО водителя">
       </div>
@@ -1184,22 +1179,28 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <button class="period-btn" onclick="setPeriod('month',this)">Месяц</button>
   </div>
 
+  <!-- Заглушка пока нет API get_director_dashboard -->
+  <div class="dir-card" style="border-color:var(--orange);background:rgba(255,149,0,.06);margin-bottom:12px;">
+    <div class="dir-card-lbl" style="color:var(--orange)">Данные подключаются</div>
+    <div style="font-size:13px;color:var(--t2);margin-top:4px;line-height:1.4">Дашборд директора собирается из отчётов водителей и слесарей. После подключения API в bot/api_server.py (action: get_director_dashboard) цифры появятся автоматически.</div>
+  </div>
+
   <!-- Главные цифры -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
     <div class="dir-card" style="grid-column:1/-1;">
       <div class="dir-card-lbl">Выручка</div>
-      <div class="dir-card-val green" id="dir-revenue">₽ 187 400</div>
-      <div class="dir-card-delta" id="dir-revenue-delta">↑ +12% к вчера</div>
+      <div class="dir-card-val green" id="dir-revenue">—</div>
+      <div class="dir-card-delta" id="dir-revenue-delta"></div>
     </div>
     <div class="dir-card">
       <div class="dir-card-lbl">Расходы</div>
-      <div class="dir-card-val red" id="dir-expenses">₽ 19 580</div>
-      <div class="dir-card-delta" id="dir-exp-delta" style="color:var(--t3)">топливо + ремонт</div>
+      <div class="dir-card-val red" id="dir-expenses">—</div>
+      <div class="dir-card-delta" id="dir-exp-delta" style="color:var(--t3)"></div>
     </div>
     <div class="dir-card">
       <div class="dir-card-lbl">Прибыль</div>
-      <div class="dir-card-val green" id="dir-profit">₽ 167 820</div>
-      <div class="dir-card-delta" style="color:var(--green)">маржа 89%</div>
+      <div class="dir-card-val green" id="dir-profit">—</div>
+      <div class="dir-card-delta" style="color:var(--green)"></div>
     </div>
   </div>
 
@@ -1207,13 +1208,13 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
     <div class="dir-card">
       <div class="dir-card-lbl">💵 Касса (нал)</div>
-      <div class="dir-card-val orange">₽ 42 000</div>
-      <div class="dir-card-delta" style="color:var(--t3)">у водителей: 18 000</div>
+      <div class="dir-card-val orange" id="dir-cash">—</div>
+      <div class="dir-card-delta" style="color:var(--t3)"></div>
     </div>
     <div class="dir-card">
       <div class="dir-card-lbl">📋 Долги клиентов</div>
-      <div class="dir-card-val red">₽ 45 000</div>
-      <div class="dir-card-delta" style="color:var(--red)">просрочка 3 дня</div>
+      <div class="dir-card-val red" id="dir-debts">—</div>
+      <div class="dir-card-delta" style="color:var(--red)"></div>
     </div>
   </div>
 
@@ -1221,66 +1222,28 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
     <div class="dir-card">
       <div class="dir-card-lbl">Рейсов</div>
-      <div class="dir-card-val blue">34</div>
+      <div class="dir-card-val blue" id="dir-trips-count">—</div>
     </div>
     <div class="dir-card">
       <div class="dir-card-lbl">В работе</div>
-      <div class="dir-card-val green">6</div>
+      <div class="dir-card-val green" id="dir-active-count">—</div>
     </div>
     <div class="dir-card">
       <div class="dir-card-lbl">В ремонте</div>
-      <div class="dir-card-val red">2</div>
+      <div class="dir-card-val red" id="dir-repair-count">—</div>
     </div>
   </div>
 
   <!-- Алерты -->
   <div class="sec-lbl">⚠️ Требует внимания</div>
-  <div class="dir-alerts-card">
-    <div class="dir-alert-row red">
-      <div class="dir-alert-dot"></div>
-      <div class="dir-alert-body">
-        <div class="dir-alert-title">Алексеев О.Е. — нет отчёта</div>
-        <div class="dir-alert-sub">803 · последний рейс в 12:00</div>
-      </div>
-      <div class="dir-alert-time">2 ч</div>
-    </div>
-    <div class="dir-alert-row orange">
-      <div class="dir-alert-dot" style="background:var(--orange)"></div>
-      <div class="dir-alert-body">
-        <div class="dir-alert-title">ООО СтройГрупп — долг ₽ 45 000</div>
-        <div class="dir-alert-sub">Просрочка 3 дня</div>
-      </div>
-      <div class="dir-alert-time">3 д</div>
-    </div>
+  <div class="dir-alerts-card" id="dir-alerts-list">
+    <div style="text-align:center;padding:20px;color:var(--t4);font-size:13px;">Нет данных</div>
   </div>
 
   <!-- Загрузка парка -->
   <div class="sec-lbl">🚛 Загрузка парка</div>
   <div class="dir-card" style="padding:14px 16px;" id="dir-fleet-list">
-    <div class="fleet-row">
-      <span class="fleet-num">803</span>
-      <span class="fleet-type">тонар</span>
-      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:85%;background:var(--green)"></div></div>
-      <span class="fleet-stat green">5 р.</span>
-    </div>
-    <div class="fleet-row">
-      <span class="fleet-num">008</span>
-      <span class="fleet-type">тонар</span>
-      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:70%;background:var(--green)"></div></div>
-      <span class="fleet-stat green">4 р.</span>
-    </div>
-    <div class="fleet-row">
-      <span class="fleet-num">709</span>
-      <span class="fleet-type">тонар</span>
-      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:50%;background:var(--orange)"></div></div>
-      <span class="fleet-stat orange">3 р.</span>
-    </div>
-    <div class="fleet-row" style="border:none">
-      <span class="fleet-num">729</span>
-      <span class="fleet-type">миксер</span>
-      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:90%;background:var(--accent2)"></div></div>
-      <span class="fleet-stat blue">6 р.</span>
-    </div>
+    <div style="text-align:center;padding:14px;color:var(--t4);font-size:13px;">Нет данных</div>
   </div>
   </div>
 
@@ -1525,22 +1488,22 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
       <div>
         <div style="font-size:13px;color:var(--t3);margin-bottom:4px;">Заработано</div>
-        <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:var(--green)" id="drv-earned">₽ 10 000</div>
+        <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:var(--green)" id="drv-earned">—</div>
       </div>
       <div style="text-align:right;">
         <div style="font-size:13px;color:var(--t3);margin-bottom:4px;">Аванс</div>
-        <div style="font-size:22px;font-weight:700;color:var(--red)" id="drv-advance">− ₽ 3 000</div>
+        <div style="font-size:22px;font-weight:700;color:var(--red)" id="drv-advance">—</div>
       </div>
     </div>
     <div style="height:1px;background:var(--sep);margin-bottom:14px;"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <div>
         <div style="font-size:13px;color:var(--t3);">К выплате</div>
-        <div style="font-size:24px;font-weight:700;color:var(--t1)" id="drv-topay">₽ 7 000</div>
+        <div style="font-size:24px;font-weight:700;color:var(--t1)" id="drv-topay">—</div>
       </div>
       <div style="text-align:right;">
         <div style="font-size:12px;color:var(--t3);">Дата выплаты</div>
-        <div style="font-size:14px;font-weight:600;color:var(--t2);" id="drv-payday">1 апреля</div>
+        <div style="font-size:14px;font-weight:600;color:var(--t2);" id="drv-payday">—</div>
       </div>
     </div>
   </div>
@@ -1549,43 +1512,12 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
   <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
     <div style="font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;" id="drv-trip-heading">Рейсы сегодня</div>
     <div id="drv-trip-rows">
-    <div class="salary-row">
-      <div class="salary-num">1</div>
-      <div class="salary-info">
-        <div class="salary-title">Рейс 1</div>
-        <div class="salary-sub">Щебень 20-40 · 32 т</div>
-      </div>
-      <div class="salary-rate">₽ 2 000</div>
-    </div>
-    <div class="salary-row">
-      <div class="salary-num">2</div>
-      <div class="salary-info">
-        <div class="salary-title">Рейс 2</div>
-        <div class="salary-sub">Щебень 20-40 · 31 т</div>
-      </div>
-      <div class="salary-rate">₽ 2 000</div>
-    </div>
-    <div class="salary-row">
-      <div class="salary-num">3</div>
-      <div class="salary-info">
-        <div class="salary-title">Рейс 3</div>
-        <div class="salary-sub">Щебень 5-20 · 30 т</div>
-      </div>
-      <div class="salary-rate">₽ 2 000</div>
-    </div>
-    <div class="salary-row bonus">
-      <div class="salary-num" style="background:var(--orange);color:#000;">4</div>
-      <div class="salary-info">
-        <div class="salary-title" style="color:var(--orange);">Рейс 4 — бонус!</div>
-        <div class="salary-sub">Щебень 20-40 · 32 т</div>
-      </div>
-      <div class="salary-rate" style="color:var(--orange);">₽ 4 000</div>
-    </div>
+      <div style="text-align:center;color:var(--t4);font-size:13px;padding:14px;">Нет рейсов</div>
     </div>
     <div style="height:1px;background:var(--sep);margin:10px 0;"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:14px;color:var(--t3);">Итого за день</span>
-      <span style="font-size:18px;font-weight:700;color:var(--green);" id="drv-day-total">₽ 10 000</span>
+      <span style="font-size:18px;font-weight:700;color:var(--green);" id="drv-day-total">—</span>
     </div>
   </div>
 
@@ -1593,55 +1525,26 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
       <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Рейсов сегодня</div>
-      <div style="font-size:28px;font-weight:700;color:var(--gold)" id="drv-trips-day">4</div>
+      <div style="font-size:28px;font-weight:700;color:var(--gold)" id="drv-trips-day">—</div>
     </div>
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
       <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Тонн сегодня</div>
-      <div style="font-size:28px;font-weight:700;color:var(--green)" id="drv-tons-day">125 т</div>
+      <div style="font-size:28px;font-weight:700;color:var(--green)" id="drv-tons-day">—</div>
     </div>
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
       <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Рейсов за месяц</div>
-      <div style="font-size:28px;font-weight:700;color:var(--gold)" id="drv-trips-month">68</div>
+      <div style="font-size:28px;font-weight:700;color:var(--gold)" id="drv-trips-month">—</div>
     </div>
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
       <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Тонн за месяц</div>
-      <div style="font-size:28px;font-weight:700;color:var(--green)" id="drv-tons-month">2 140 т</div>
+      <div style="font-size:28px;font-weight:700;color:var(--green)" id="drv-tons-month">—</div>
     </div>
   </div>
 
   <!-- План по объектам -->
   <div class="sec-lbl">📦 План по объектам</div>
   <div style="background:var(--bg3);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;" id="drv-plan-list">
-    <div class="plan-row">
-      <div class="plan-info">
-        <div class="plan-name">Морозовский → СтройГрупп</div>
-        <div class="plan-sub">Перевезено: 1 240 т из 2 000 т</div>
-      </div>
-      <div class="plan-pct green">62%</div>
-    </div>
-    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:14px;">
-      <div style="width:62%;height:100%;background:var(--green);border-radius:3px;"></div>
-    </div>
-    <div class="plan-row">
-      <div class="plan-info">
-        <div class="plan-name">Барзасский → Администрация</div>
-        <div class="plan-sub">Перевезено: 380 т из 800 т</div>
-      </div>
-      <div class="plan-pct orange">48%</div>
-    </div>
-    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:14px;">
-      <div style="width:48%;height:100%;background:var(--orange);border-radius:3px;"></div>
-    </div>
-    <div class="plan-row" style="margin-bottom:6px;">
-      <div class="plan-info">
-        <div class="plan-name">ВНК → ЗЖБИ</div>
-        <div class="plan-sub">Перевезено: 720 т из 720 т</div>
-      </div>
-      <div class="plan-pct blue">100%</div>
-    </div>
-    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;">
-      <div style="width:100%;height:100%;background:var(--accent2);border-radius:3px;"></div>
-    </div>
+    <div style="text-align:center;color:var(--t4);font-size:13px;padding:14px;">Нет планов</div>
   </div>
 
   <!-- ТО машины -->
@@ -1649,37 +1552,28 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
   <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <div>
-        <div style="font-size:15px;font-weight:600;" id="drv-service-truck">КамАЗ 803</div>
-        <div style="font-size:13px;color:var(--t3);margin-top:2px;" id="drv-service-label">Замена масла</div>
+        <div style="font-size:15px;font-weight:600;" id="drv-service-truck">—</div>
+        <div style="font-size:13px;color:var(--t3);margin-top:2px;" id="drv-service-label">—</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:22px;font-weight:700;color:var(--orange);" id="drv-service-remaining">1 200 км</div>
+        <div style="font-size:22px;font-weight:700;color:var(--orange);" id="drv-service-remaining">—</div>
         <div style="font-size:12px;color:var(--t3);">осталось</div>
       </div>
     </div>
     <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;">
-      <div style="width:76%;height:100%;background:var(--orange);border-radius:3px;" id="drv-service-bar"></div>
+      <div style="width:0%;height:100%;background:var(--orange);border-radius:3px;" id="drv-service-bar"></div>
     </div>
     <div style="display:flex;justify-content:space-between;margin-top:6px;">
       <span style="font-size:11px;color:var(--t4);">0</span>
-      <span style="font-size:11px;color:var(--t3);" id="drv-service-caption">Пробег до ТО: осталось 1 200 из 5 000 км</span>
-      <span style="font-size:11px;color:var(--t4);" id="drv-service-interval">5 000</span>
+      <span style="font-size:11px;color:var(--t3);" id="drv-service-caption">—</span>
+      <span style="font-size:11px;color:var(--t4);" id="drv-service-interval">—</span>
     </div>
   </div>
 
   <!-- Авансы -->
   <div class="sec-lbl">💸 Авансы</div>
   <div style="background:var(--bg3);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;" id="drv-advances-list">
-    <div class="advance-row">
-      <div style="font-size:14px;font-weight:500;">15 марта</div>
-      <div style="font-size:13px;color:var(--t3);">аванс</div>
-      <div style="font-size:15px;font-weight:700;color:var(--red);">− ₽ 3 000</div>
-    </div>
-    <div class="advance-row" style="border:none;">
-      <div style="font-size:14px;font-weight:500;">1 марта</div>
-      <div style="font-size:13px;color:var(--t3);">аванс</div>
-      <div style="font-size:15px;font-weight:700;color:var(--red);">− ₽ 5 000</div>
-    </div>
+    <div style="text-align:center;color:var(--t4);font-size:13px;padding:14px;">Нет авансов</div>
   </div>
 
 </div>
@@ -1704,7 +1598,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     </button>
     <button class="big-btn dark" onclick="showSub('svc-active')">
       <div class="btn-ico">🔧</div>
-      <div class="btn-body"><div class="btn-title">Активные ремонты</div><div class="btn-sub">2 в работе · 1 ожидает</div></div>
+      <div class="btn-body"><div class="btn-title">Активные ремонты</div><div class="btn-sub" id="svc-active-counter">—</div></div>
       <span class="chevron">›</span>
     </button>
     <button class="big-btn" style="background:var(--purple)" onclick="showSub('parts-new-svc')">
@@ -1714,40 +1608,8 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     </button>
 
     <div class="sec-lbl">Последние ремонты</div>
-    <div class="card">
-      <div class="svc-card-row" onclick="showSub('svc-card')">
-        <div class="svc-status-dot" style="background:var(--orange)"></div>
-        <div class="svc-card-info">
-          <div class="svc-card-title">803 · Ходовка</div>
-          <div class="svc-card-sub">Замена шаровой · свой ремонт · 2 дня</div>
-        </div>
-        <div class="svc-card-right">
-          <div class="svc-badge orange">в работе</div>
-          <div class="svc-card-km">142 500 км</div>
-        </div>
-      </div>
-      <div class="svc-card-row" onclick="showSub('svc-card')">
-        <div class="svc-status-dot" style="background:var(--red)"></div>
-        <div class="svc-card-info">
-          <div class="svc-card-title">555 · Двигатель</div>
-          <div class="svc-card-sub">СТО Агат · сторонний · ₽ 28 000</div>
-        </div>
-        <div class="svc-card-right">
-          <div class="svc-badge red">ожидает запчасти</div>
-          <div class="svc-card-km">98 300 км</div>
-        </div>
-      </div>
-      <div class="svc-card-row">
-        <div class="svc-status-dot" style="background:var(--green)"></div>
-        <div class="svc-card-info">
-          <div class="svc-card-title">137 · Тормозная система</div>
-          <div class="svc-card-sub">Замена колодок · свой · ₽ 4 800</div>
-        </div>
-        <div class="svc-card-right">
-          <div class="svc-badge green">закрыт</div>
-          <div class="svc-card-km">76 100 км</div>
-        </div>
-      </div>
+    <div class="card" id="svc-recent-list">
+      <div style="text-align:center;padding:18px;color:var(--t4);font-size:13px;">Нет данных</div>
     </div>
   </div>
 
@@ -1826,31 +1688,8 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <button class="back-btn" onclick="hideSub('svc-menu','svc-active')">‹ Сервис</button>
     <div class="page-title" style="margin-bottom:20px">Активные ремонты</div>
 
-    <div class="svc-active-card" onclick="showSub('svc-card')">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-        <div class="svc-status-dot" style="background:var(--orange);width:12px;height:12px;"></div>
-        <div style="font-size:16px;font-weight:600;">803 · Ходовка</div>
-        <div class="svc-badge orange" style="margin-left:auto">в работе</div>
-      </div>
-      <div style="font-size:13px;color:var(--t3);margin-bottom:8px;">Замена шаровой опоры · свой ремонт · открыт 28.03</div>
-      <div style="display:flex;gap:16px;">
-        <div><div style="font-size:11px;color:var(--t4);">Работ</div><div style="font-size:15px;font-weight:600;">2</div></div>
-        <div><div style="font-size:11px;color:var(--t4);">Расходов</div><div style="font-size:15px;font-weight:600;">₽ 3 200</div></div>
-        <div><div style="font-size:11px;color:var(--t4);">Дней</div><div style="font-size:15px;font-weight:600;">2</div></div>
-      </div>
-    </div>
-
-    <div class="svc-active-card" style="margin-top:10px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-        <div class="svc-status-dot" style="background:var(--red);width:12px;height:12px;"></div>
-        <div style="font-size:16px;font-weight:600;">555 · Двигатель</div>
-        <div class="svc-badge red" style="margin-left:auto">ожидает запчасти</div>
-      </div>
-      <div style="font-size:13px;color:var(--t3);margin-bottom:8px;">СТО Агат · сторонний сервис · открыт 27.03</div>
-      <div style="display:flex;gap:16px;">
-        <div><div style="font-size:11px;color:var(--t4);">Сумма</div><div style="font-size:15px;font-weight:600;">₽ 28 000</div></div>
-        <div><div style="font-size:11px;color:var(--t4);">Дней</div><div style="font-size:15px;font-weight:600;">3</div></div>
-      </div>
+    <div id="svc-active-list">
+      <div class="card" style="text-align:center;color:var(--t4);font-size:13px;padding:24px;">Нет активных ремонтов</div>
     </div>
   </div>
 
@@ -1859,19 +1698,19 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <button class="back-btn" onclick="hideSub('svc-menu','svc-card')">‹ Сервис</button>
 
     <!-- Шапка карточки -->
-    <div style="background:var(--bg3);border-radius:var(--r2);padding:18px;margin-bottom:10px;">
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:18px;margin-bottom:10px;" id="svc-card-header">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div>
-          <div style="font-size:20px;font-weight:700;">803 · Ходовка</div>
-          <div style="font-size:13px;color:var(--t3);margin-top:3px;">ID #247 · открыт 28.03.2026</div>
+          <div style="font-size:20px;font-weight:700;" id="svc-card-title">—</div>
+          <div style="font-size:13px;color:var(--t3);margin-top:3px;" id="svc-card-meta">—</div>
         </div>
-        <div class="svc-badge orange" style="font-size:13px;padding:6px 12px;">в работе</div>
+        <div class="svc-badge orange" style="font-size:13px;padding:6px 12px;" id="svc-card-status">—</div>
       </div>
       <div style="height:1px;background:var(--sep);margin-bottom:12px;"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div><div style="font-size:11px;color:var(--t4);">Пробег при открытии</div><div style="font-size:15px;font-weight:600;">142 500 км</div></div>
-        <div><div style="font-size:11px;color:var(--t4);">Тип ремонта</div><div style="font-size:15px;font-weight:600;">Свой</div></div>
-        <div style="grid-column:1/-1"><div style="font-size:11px;color:var(--t4);">Описание</div><div style="font-size:14px;margin-top:2px;">Стук при повороте, замена шаровой опоры передней левой</div></div>
+        <div><div style="font-size:11px;color:var(--t4);">Пробег при открытии</div><div style="font-size:15px;font-weight:600;" id="svc-card-km">—</div></div>
+        <div><div style="font-size:11px;color:var(--t4);">Тип ремонта</div><div style="font-size:15px;font-weight:600;" id="svc-card-type">—</div></div>
+        <div style="grid-column:1/-1"><div style="font-size:11px;color:var(--t4);">Описание</div><div style="font-size:14px;margin-top:2px;" id="svc-card-desc">—</div></div>
       </div>
     </div>
 
@@ -1888,19 +1727,8 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
 
     <!-- Работы -->
     <div class="sec-lbl">Работы</div>
-    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;">
-      <div class="svc-work-row">
-        <div class="svc-work-info">
-          <div class="svc-work-title">Снятие и установка шаровой опоры</div>
-          <div class="svc-work-sub">Механик Сидоров · 28.03</div>
-        </div>
-      </div>
-      <div class="svc-work-row" style="border:none">
-        <div class="svc-work-info">
-          <div class="svc-work-title">Развал-схождение</div>
-          <div class="svc-work-sub">Механик Сидоров · 29.03</div>
-        </div>
-      </div>
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;" id="svc-card-works">
+      <div style="text-align:center;color:var(--t4);font-size:13px;padding:14px;">Нет работ</div>
     </div>
     <button class="big-btn dark" style="margin-bottom:10px;" onclick="alert('Добавить работу')">
       <div class="btn-ico">➕</div>
@@ -1909,21 +1737,8 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
 
     <!-- Расходы -->
     <div class="sec-lbl">Расходы</div>
-    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;">
-      <div class="svc-work-row">
-        <div class="svc-work-info">
-          <div class="svc-work-title">Шаровая опора БЕЛКАРД</div>
-          <div class="svc-work-sub">Автозапчасти · нал · 28.03</div>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:var(--red);">₽ 2 800</div>
-      </div>
-      <div class="svc-work-row" style="border:none">
-        <div class="svc-work-info">
-          <div class="svc-work-title">Расходники (болты, гайки)</div>
-          <div class="svc-work-sub">Автозапчасти · нал · 28.03</div>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:var(--red);">₽ 400</div>
-      </div>
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;" id="svc-card-expenses">
+      <div style="text-align:center;color:var(--t4);font-size:13px;padding:14px;">Нет расходов</div>
     </div>
     <button class="big-btn dark" style="margin-bottom:10px;" onclick="alert('Добавить расход')">
       <div class="btn-ico">➕</div>
@@ -1934,7 +1749,7 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:14px;color:var(--t3);">Итого расходов</span>
-        <span style="font-size:20px;font-weight:700;color:var(--red);">₽ 3 200</span>
+        <span style="font-size:20px;font-weight:700;color:var(--red);" id="svc-card-total">—</span>
       </div>
     </div>
 
@@ -3262,20 +3077,10 @@ function toggleDengi(show){
   if(b) b.style.display = show ? 'block' : 'none';
 }
 
-const PERIOD_DATA = {
-  day:  {revenue:'₽ 187 400', delta:'↑ +12% к вчера', exp:'₽ 19 580', expDelta:'топливо + ремонт', profit:'₽ 167 820'},
-  week: {revenue:'₽ 1 124 000', delta:'↑ +8% к прошлой', exp:'₽ 98 200', expDelta:'за 7 дней', profit:'₽ 1 025 800'},
-  month:{revenue:'₽ 4 870 000', delta:'↑ +15% к прошлому', exp:'₽ 412 000', expDelta:'за 30 дней', profit:'₽ 4 458 000'},
-};
 function setPeriod(p, btn){
   document.querySelectorAll('#dir-tab-dashboard .period-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const d = PERIOD_DATA[p];
-  document.getElementById('dir-revenue').textContent = d.revenue;
-  document.getElementById('dir-revenue-delta').textContent = d.delta;
-  document.getElementById('dir-expenses').textContent = d.exp;
-  document.getElementById('dir-exp-delta').textContent = d.expDelta;
-  document.getElementById('dir-profit').textContent = d.profit;
+  // TODO: вызвать get_director_dashboard(period=p) когда появится API
 }
 
 // ═══════════════════ ДИРЕКТОР — ВКЛАДКИ ═══════════════════
@@ -3432,21 +3237,7 @@ function initDirDate(){
   const el = document.getElementById('dir-date');
   if(el) el.textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} · обновлено ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
-const DRIVER_DATA = {
-  day:  {earned:'₽ 10 000', advance:'− ₽ 3 000', topay:'₽ 7 000', trips:'4', tons:'125 т'},
-  month:{earned:'₽ 136 000', advance:'− ₽ 8 000', topay:'₽ 128 000', trips:'68', tons:'2 140 т'},
-};
-function setDriverPeriod(p, btn){
-  document.querySelectorAll('#s-driver-dash .period-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const d = DRIVER_DATA[p];
-  const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
-  set('drv-earned', d.earned);
-  set('drv-advance', d.advance);
-  set('drv-topay', d.topay);
-  set('drv-trips-day', p==='day' ? d.trips : '68');
-  set('drv-tons-day', p==='day' ? d.tons : '2 140 т');
-}
+// Старая mock-версия setDriverPeriod удалена — реальная функция определена ниже (использует API)
 
 // Система ролей
 
@@ -4952,8 +4743,24 @@ function initTelegramSession() {
   });
 }
 
+function initKeyboardInset(){
+  var tg = tgWebApp();
+  if (!tg) return;
+  try { tg.expand(); } catch(e) {}
+  function apply(){
+    var kb = Math.max(0, (tg.viewportStableHeight || 0) - (tg.viewportHeight || 0));
+    document.documentElement.style.setProperty('--kb', kb + 'px');
+    if (kb > 0 && document.activeElement && document.activeElement.tagName === 'INPUT') {
+      try { document.activeElement.scrollIntoView({block:'center', behavior:'smooth'}); } catch(e) {}
+    }
+  }
+  try { tg.onEvent('viewportChanged', apply); } catch(e) {}
+  apply();
+}
+
 window.addEventListener('DOMContentLoaded', function(){
   initTelegramSession();
+  initKeyboardInset();
 });
 </script>
 </body>
