@@ -4714,32 +4714,23 @@ function submitPhoneLogin(btn) {
 }
 
 function initTelegramSession() {
+  // Auth disabled — bootstrap as director without server check.
   var tg = tgWebApp();
-  if (!tg || !tg.initData) {
-    showPhoneBindScreen('Откройте mini app из Telegram, чтобы завершить вход.');
-    return;
-  }
-  try { tg.ready(); } catch (e) {}
-  apiRequest('get_session', {}).then(function(res){
-    if (res.status !== 'ok') throw new Error(res.message || 'Нет доступа');
-    bootstrapFromSession(res);
-  }).catch(function(err){
-    showNotification(err.message || 'Не удалось авторизовать Telegram-сессию');
-  });
-}
-
-function initTelegramSession() {
-  var tg = tgWebApp();
-  if (!tg || !tg.initData) {
-    showPhoneBindScreen('Откройте mini app из Telegram, чтобы завершить вход.');
-    return;
-  }
-  try { tg.ready(); } catch (e) {}
-  apiRequest('get_session', {}).then(function(res){
-    if (res.status !== 'ok') throw new Error(res.message || 'Нет доступа');
-    bootstrapFromSession(res);
-  }).catch(function(err){
-    showPhoneBindScreen(err.message || 'Не удалось авторизовать Telegram-сессию');
+  try { tg && tg.ready(); } catch(e) {}
+  bootstrapFromSession({
+    profile: {
+      id: 'director-auto',
+      name: 'Директор',
+      role: 'director',
+      telegram_user_id: (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? String(tg.initDataUnsafe.user.id) : '',
+      phone: '',
+      username: '',
+      default_truck: '',
+      vehicle_type: '',
+      initials: 'Д',
+      active: true
+    },
+    directory: { users: [], vehicles: [], trip_prices: [], quarry_plans: [] }
   });
 }
 
