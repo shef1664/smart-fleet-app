@@ -511,6 +511,15 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
       </div>
     </div>
 
+    <div class="form-block">
+      <div class="form-lbl">Оплата</div>
+      <label class="pay-toggle-row">
+        <input type="checkbox" id="ton-paid">
+        <span class="pay-toggle-label">Оплачено</span>
+        <span class="pay-toggle-hint">если деньги уже получены</span>
+      </label>
+    </div>
+
     <button class="submit" onclick="submitTonarTrip(this)">Отправить рейс</button>
   </div>
 </div>
@@ -714,6 +723,15 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
       </div>
     </div>
 
+    <div class="form-block">
+      <div class="form-lbl">Оплата</div>
+      <label class="pay-toggle-row">
+        <input type="checkbox" id="mix-paid">
+        <span class="pay-toggle-label">Оплачено</span>
+        <span class="pay-toggle-hint">если деньги уже получены</span>
+      </label>
+    </div>
+
     <button class="submit green" onclick="submitMixerTrip(this)">Отправить рейс</button>
   </div>
 </div>
@@ -890,6 +908,15 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="dln-tn-img">
       </div>
     </div>
+    <div class="form-block">
+      <div class="form-lbl">Оплата</div>
+      <label class="pay-toggle-row">
+        <input type="checkbox" id="dln-paid">
+        <span class="pay-toggle-label">Оплачено</span>
+        <span class="pay-toggle-hint">если деньги уже получены</span>
+      </label>
+    </div>
+
     <button class="submit" style="background:var(--purple)" onclick="submitDlinnTrip(this)">Сохранить рейс</button>
   </div>
 </div>
@@ -3398,7 +3425,9 @@ function addMechShift(dateStr) {
     return db.localeCompare(da);
   });
   renderMechShifts();
-  alert('Смена ' + dateStr + ' отмечена! +₽6 000');
+  sendToAPI('mechanic_record', { type: 'shift', date: dateStr, rate: 6000 }, function(){
+    showNotification('Смена ' + dateStr + ' сохранена');
+  });
 }
 
 function renderMechShifts() {
@@ -3417,6 +3446,37 @@ function renderMechShifts() {
     }
   }
   recalcMechSalary();
+}
+
+function loadMechanicDashboard() {
+  apiRequest('get_mechanic_dashboard', {}).then(function(res){
+    if (res.status !== 'ok') { recalcMechSalary(); return; }
+    var d = res.dashboard || {};
+    mechState.shifts = (d.shifts || []).map(function(s){ return { date: s.date, pay: s.pay || 6000 }; });
+    mechState.advances = (d.advances || []).map(function(a){ return { date: a.date, amount: a.amount || 0 }; });
+    mechState.fuels = (d.fuels || []).map(function(f){ return { date: f.date, liters: f.liters || 0, cost: f.cost || 0, station: f.station || '' }; });
+    mechState.shifts.sort(function(a, b){
+      var da = (a.date||'').split('.').reverse().join('');
+      var db = (b.date||'').split('.').reverse().join('');
+      return db.localeCompare(da);
+    });
+    if (typeof renderMechShifts === 'function') renderMechShifts();
+    if (typeof renderMechAdvances === 'function') renderMechAdvances();
+    // обновить fuel-list если открыт
+    var fuelList = document.getElementById('mech-fuel-list');
+    if (fuelList) {
+      var html = '';
+      var total = 0;
+      for (var i = 0; i < mechState.fuels.length; i++) {
+        var f = mechState.fuels[i];
+        total += f.cost || 0;
+        html += '<div class="list-row"><div class="row-dot dot-orange"></div><div class="row-info"><div class="row-title">Заправка ' + (f.liters ? f.liters + ' л' : '') + '</div><div class="row-sub">' + (f.date || '') + '</div></div><div class="row-right"><div class="row-val" style="color:var(--red);">−₽' + (f.cost||0).toLocaleString() + '</div></div></div>';
+      }
+      if (total > 0) html += '<div class="list-row" style="border:none"><div class="row-info"><div class="row-title" style="color:var(--t3)">Итого вычитается</div></div><div class="row-right"><div class="row-val" style="color:var(--red);font-weight:700">−₽' + total.toLocaleString() + '</div></div></div>';
+      fuelList.innerHTML = html || '<div style="text-align:center;padding:20px;color:var(--t4);">Пока нет заправок</div>';
+    }
+    recalcMechSalary();
+  }).catch(function(){ recalcMechSalary(); });
 }
 
 function recalcMechSalary() {
@@ -3445,7 +3505,9 @@ function requestAdvance() {
   const today = new Date().toLocaleDateString('ru');
   mechState.advances.push({ date: today, amount: num });
   renderMechAdvances();
-  alert('Запрос на ₽' + num.toLocaleString() + ' отправлен директору!');
+  sendToAPI('mechanic_record', { type: 'advance', date: today, advance_amount: num }, function(){
+    showNotification('Аванс ₽' + num.toLocaleString() + ' сохранён');
+  });
 }
 
 function renderMechAdvances() {
@@ -3486,6 +3548,14 @@ function submitMechFuel() {
     list.innerHTML = html;
   }
   recalcMechSalary();
+  var stationChip = document.querySelector('#mech-fuel-new .chip.on');
+  var station = stationChip ? stationChip.textContent.trim() : '';
+  sendToAPI('mechanic_record', {
+    type: 'fuel', date: today,
+    fuel_liters: liters, fuel_cost: cost, fuel_station: station
+  }, function(){
+    showNotification('Заправка сохранена');
+  });
   // очистить поля
   inputs.forEach(function(i){ if (i) i.value = ''; });
   alert('Заправка сохранена! −₽' + cost.toLocaleString() + ' из ЗП');
@@ -3777,6 +3847,7 @@ function submitTonarTrip(btn){
     unload_tonnage: unloadTonnage,
     tn_front: getPreviewImageSrc('tn-front-img'),
     tn_back: getPreviewImageSrc('tn-back-img'),
+    paid: (document.getElementById('ton-paid') && document.getElementById('ton-paid').checked) ? 'Да' : 'Нет',
     status: 'ok'
   };
 
@@ -3876,6 +3947,7 @@ function submitMixerTrip(btn){
     tn_number: inputs[8] ? inputs[8].value : '',
     tn_photo: getPreviewImageSrc('mix-tn-img'),
     report_photo: getPreviewImageSrc('mix-raport-img'),
+    paid: (document.getElementById('mix-paid') && document.getElementById('mix-paid').checked) ? 'Да' : 'Нет',
     status: 'ok'
   };
 
@@ -4034,6 +4106,7 @@ function submitDlinnTrip(btn){
     to: [toCity, toAddr].filter(Boolean).join(', '),
     cargo: [cargoInput ? cargoInput.value.trim() : '', qtyInput ? qtyInput.value.trim() : '', getFieldValue(blocks[7])].filter(Boolean).join(' '),
     tn_photo: getPreviewImageSrc('dln-tn-img'),
+    paid: (document.getElementById('dln-paid') && document.getElementById('dln-paid').checked) ? 'Да' : 'Нет',
     status: 'ok'
   };
 
@@ -4684,7 +4757,7 @@ function activateRoleForProfile(profile) {
     renderDirectoryLists();
   }
   if (role === 'mechanic') {
-    if (typeof recalcMechSalary === 'function') recalcMechSalary();
+    if (typeof loadMechanicDashboard === 'function') loadMechanicDashboard();
   }
   if (role === 'economist') {
     if (typeof populateEcoDriverChips === 'function') populateEcoDriverChips();
