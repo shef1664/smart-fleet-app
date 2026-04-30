@@ -690,12 +690,9 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     </div>
 
     <div class="form-block" id="dengi-block">
-      <div class="form-lbl">У кого деньги?</div>
-      <div class="chips">
-        <button class="chip on" onclick="sel(this)">У водителя</button>
-        <button class="chip" onclick="sel(this)">У директора</button>
-        <button class="chip" onclick="sel(this)">Не забирал</button>
-      </div>
+      <div class="form-lbl">Получено факт (₽)</div>
+      <input class="inp" type="number" placeholder="Если клиент дал больше/меньше" inputmode="numeric" id="mix-cash-received">
+      <div style="font-size:11px;color:var(--t4);margin-top:6px;">Если оставили сдачу клиенту, пишите сколько реально на руках. Пусто = ровно по сумме рейса.</div>
     </div>
 
     <div class="form-block">
@@ -1491,6 +1488,51 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
     <button class="period-btn" onclick="setDriverPeriod('month',this)">Месяц</button>
   </div>
 
+  <!-- НАЛИЧНЫЕ — только для миксеристов -->
+  <div id="drv-cash-block" style="display:none;background:linear-gradient(135deg,rgba(255,159,10,.10),rgba(255,159,10,.04));border:1px solid rgba(255,159,10,.3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+      <div>
+        <div style="font-size:12px;color:var(--orange);text-transform:uppercase;letter-spacing:.4px;font-weight:700;">💵 Наличные на руках</div>
+        <div style="font-size:30px;font-weight:800;color:var(--orange);margin-top:4px;" id="drv-cash-balance">₽ 47 000</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:4px;" id="drv-cash-meta">за 2 рейса · −₽ 5 000 расход</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+      <button class="big-btn green" style="margin:0;padding:12px;" onclick="showSub('drv-cash-hand')">
+        <div class="btn-ico" style="width:32px;height:32px;font-size:16px;">💸</div>
+        <div class="btn-body" style="text-align:left;"><div class="btn-title" style="font-size:13px;">Сдать нал</div><div class="btn-sub" style="font-size:10px;">директору</div></div>
+      </button>
+      <button class="big-btn" style="margin:0;padding:12px;background:var(--accent-dim);border-color:rgba(124,92,252,.3);" onclick="showSub('drv-cash-card')">
+        <div class="btn-ico" style="width:32px;height:32px;font-size:16px;">💳</div>
+        <div class="btn-body" style="text-align:left;"><div class="btn-title" style="font-size:13px;">На карту</div><div class="btn-sub" style="font-size:10px;">директора</div></div>
+      </button>
+      <button class="big-btn orange" style="margin:0;padding:12px;" onclick="showSub('drv-cash-fuel')">
+        <div class="btn-ico" style="width:32px;height:32px;font-size:16px;">⛽</div>
+        <div class="btn-body" style="text-align:left;"><div class="btn-title" style="font-size:13px;">Топливо</div><div class="btn-sub" style="font-size:10px;">расход</div></div>
+      </button>
+      <button class="big-btn red" style="margin:0;padding:12px;" onclick="showSub('drv-cash-repair')">
+        <div class="btn-ico" style="width:32px;height:32px;font-size:16px;">🔧</div>
+        <div class="btn-body" style="text-align:left;"><div class="btn-title" style="font-size:13px;">Ремонт</div><div class="btn-sub" style="font-size:10px;">расход</div></div>
+      </button>
+    </div>
+    <div style="height:1px;background:rgba(255,159,10,.2);margin:12px 0 8px;"></div>
+    <div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:6px;">Из них по рейсам</div>
+    <div id="drv-cash-trips" style="font-size:13px;">
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--sep2);">
+        <span style="color:var(--t2);">12.04 · Кем ДСК → Молодёжная</span>
+        <span style="color:var(--orange);font-weight:600;">₽ 28 000</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--sep2);">
+        <span style="color:var(--t2);">12.04 · Бетон М → Стройсити</span>
+        <span style="color:var(--orange);font-weight:600;">₽ 24 000</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;">
+        <span style="color:var(--t3);">Топливо · Газпромнефть</span>
+        <span style="color:var(--red);font-weight:600;">−₽ 5 000</span>
+      </div>
+    </div>
+  </div>
+
   <!-- ЗП карточка -->
   <div style="background:var(--bg3);border-radius:var(--r2);padding:20px 18px;margin-bottom:10px;">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
@@ -1582,6 +1624,85 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
   <div class="sec-lbl">💸 Авансы</div>
   <div style="background:var(--bg3);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;" id="drv-advances-list">
     <div style="text-align:center;color:var(--t4);font-size:13px;padding:14px;">Нет авансов</div>
+  </div>
+
+  <!-- ═══ САБ-ЭКРАНЫ КАССЫ ВОДИТЕЛЯ ═══ -->
+  <div class="sub-screen" id="drv-cash-hand">
+    <button class="back-btn" onclick="hideSub('s-driver-dash','drv-cash-hand')">‹ Кабинет</button>
+    <div class="page-title" style="margin-bottom:20px">Сдать нал директору</div>
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" placeholder="Сколько сдаёте" inputmode="numeric" id="drv-cash-hand-amount">
+      <div style="font-size:11px;color:var(--t3);margin-top:6px;" id="drv-cash-hand-hint">На руках: —</div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Комментарий</div>
+      <input class="inp" type="text" placeholder="Опционально" id="drv-cash-hand-comment">
+    </div>
+    <button class="submit green" onclick="submitDrvCashHand(this,'cash')">Сдать в кассу</button>
+  </div>
+
+  <div class="sub-screen" id="drv-cash-card">
+    <button class="back-btn" onclick="hideSub('s-driver-dash','drv-cash-card')">‹ Кабинет</button>
+    <div class="page-title" style="margin-bottom:20px">Перевёл на карту директора</div>
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" placeholder="Сколько перевели" inputmode="numeric" id="drv-cash-card-amount">
+      <div style="font-size:11px;color:var(--t3);margin-top:6px;" id="drv-cash-card-hint">На руках: —</div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Комментарий</div>
+      <input class="inp" type="text" placeholder="Опционально" id="drv-cash-card-comment">
+    </div>
+    <button class="submit" onclick="submitDrvCashHand(this,'card')">Подтвердить перевод</button>
+  </div>
+
+  <div class="sub-screen" id="drv-cash-fuel">
+    <button class="back-btn" onclick="hideSub('s-driver-dash','drv-cash-fuel')">‹ Кабинет</button>
+    <div class="page-title" style="margin-bottom:20px">Расход на топливо</div>
+    <div class="form-block">
+      <div class="form-lbl">АЗС</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">Газпромнефть</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Татнефть</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Лукойл</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Название АЗС">
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Литры</div>
+      <input class="inp" type="number" placeholder="Например: 50" inputmode="decimal" id="drv-cash-fuel-liters">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" placeholder="Сумма по чеку" inputmode="numeric" id="drv-cash-fuel-amount">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Комментарий</div>
+      <input class="inp" type="text" placeholder="Опционально" id="drv-cash-fuel-comment">
+    </div>
+    <button class="submit orange" onclick="submitDrvCashFuel(this)">Записать расход</button>
+  </div>
+
+  <div class="sub-screen" id="drv-cash-repair">
+    <button class="back-btn" onclick="hideSub('s-driver-dash','drv-cash-repair')">‹ Кабинет</button>
+    <div class="page-title" style="margin-bottom:20px">Расход на ремонт</div>
+    <div class="form-block">
+      <div class="form-lbl">Куда / у кого</div>
+      <input class="inp" type="text" placeholder="Например: Автозапчасти на Кузнецком" id="drv-cash-repair-service">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" placeholder="Сумма" inputmode="numeric" id="drv-cash-repair-amount">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Что сделано / куплено</div>
+      <input class="inp" type="text" placeholder="Описание" id="drv-cash-repair-comment">
+    </div>
+    <button class="submit red" onclick="submitDrvCashRepair(this)">Записать расход</button>
   </div>
 
 </div>
@@ -2116,8 +2237,8 @@ body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-hei
 <div class="screen" id="s-economist-cash">
   <div class="topbar">
     <div>
-      <div class="page-title">Касса</div>
-      <div class="page-sub" id="eco-period-label">Кабинет экономиста</div>
+      <div class="page-title">Движение наличных</div>
+      <div class="page-sub" id="eco-period-label">Этот месяц</div>
     </div>
     <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
@@ -2687,7 +2808,7 @@ var ROLE_NAV = {
     {icon:"📊", label:"Дашборд", screen:"s-director"},
     {icon:"🚛", label:"Рейсы", screen:"s-home"},
     {icon:"🔧", label:"Сервис", screen:"s-service"},
-    {icon:"🔩", label:"Запчасти", screen:"s-parts"},
+    {icon:"💵", label:"Касса", screen:"s-economist-cash"},
     {icon:"👥", label:"Команда", screen:"s-driver-dash"}
   ]
 };
@@ -3948,6 +4069,7 @@ function submitMixerTrip(btn){
     tn_photo: getPreviewImageSrc('mix-tn-img'),
     report_photo: getPreviewImageSrc('mix-raport-img'),
     paid: (document.getElementById('mix-paid') && document.getElementById('mix-paid').checked) ? 'Да' : 'Нет',
+    cash_received: (document.getElementById('mix-cash-received') && document.getElementById('mix-cash-received').value) || '',
     status: 'ok'
   };
 
@@ -3957,6 +4079,7 @@ function submitMixerTrip(btn){
     showNotification('Рейс миксера сохранён' + (res.id ? ' ('+res.id+')' : ''));
     pushMixerRecent(data);
     renderMixerRecent();
+    if (typeof loadDriverCashBalance === 'function') loadDriverCashBalance();
     setTimeout(function(){
       hideSub('mix-menu','mix-new');
       btn.textContent = orig;
@@ -4752,9 +4875,20 @@ function activateRoleForProfile(profile) {
   updateNav(role);
   if (role === 'driver') {
     updateHomeScreen(profile.id);
+    // Блок наличных только для миксеристов
+    var cashBlock = document.getElementById('drv-cash-block');
+    if (cashBlock) {
+      if (typeof isMixerDriver === 'function' && isMixerDriver(profile)) {
+        cashBlock.style.display = 'block';
+        if (typeof loadDriverCashBalance === 'function') loadDriverCashBalance();
+      } else {
+        cashBlock.style.display = 'none';
+      }
+    }
   }
   if (role === 'director') {
     renderDirectoryLists();
+    if (typeof loadEconomistDashboard === 'function') loadEconomistDashboard();
   }
   if (role === 'mechanic') {
     if (typeof loadMechanicDashboard === 'function') loadMechanicDashboard();
@@ -4763,6 +4897,134 @@ function activateRoleForProfile(profile) {
     if (typeof populateEcoDriverChips === 'function') populateEcoDriverChips();
     if (typeof loadEconomistDashboard === 'function') loadEconomistDashboard();
   }
+}
+
+// ═══════════════════ КАССА ВОДИТЕЛЯ ═══════════════════
+var drvCashState = { balance: 0, by_trip: [], operations: [] };
+
+function isMixerDriver(profile) {
+  if (!profile) return false;
+  var vt = (profile.vehicle_type || '').toLowerCase();
+  var truck = String(profile.default_truck || '');
+  if (vt === 'mixer') return true;
+  // Фолбэк по машине: миксеры у нас 729
+  if (truck.indexOf('729') >= 0) return true;
+  return false;
+}
+
+function loadDriverCashBalance() {
+  var profile = (APP_SESSION && APP_SESSION.profile) || {};
+  var driver = profile.name || '';
+  if (!driver) { renderDriverCashBlock(); return; }
+  apiRequest('get_driver_cash_balance', { driver: driver }).then(function(res){
+    if (res.status !== 'ok') { renderDriverCashBlock(); return; }
+    drvCashState = res.balance || drvCashState;
+    renderDriverCashBlock();
+  }).catch(function(){ renderDriverCashBlock(); });
+}
+
+function renderDriverCashBlock() {
+  var block = document.getElementById('drv-cash-block');
+  if (!block) return;
+  var s = drvCashState;
+  document.getElementById('drv-cash-balance').textContent = '₽ ' + Math.round(s.balance || 0).toLocaleString('ru-RU');
+  var meta = [];
+  if (s.received_total) meta.push('+₽' + Math.round(s.received_total).toLocaleString('ru-RU') + ' принято');
+  if (s.handed_total) meta.push('−₽' + Math.round(s.handed_total).toLocaleString('ru-RU') + ' сдано');
+  if (s.spent_total) meta.push('−₽' + Math.round(s.spent_total).toLocaleString('ru-RU') + ' расход');
+  document.getElementById('drv-cash-meta').textContent = meta.join(' · ') || 'нет операций';
+
+  var listEl = document.getElementById('drv-cash-trips');
+  if (listEl) {
+    var ops = s.operations || [];
+    if (!ops.length) {
+      listEl.innerHTML = '<div style="text-align:center;padding:8px 0;color:var(--t4);font-size:12px;">Операций пока нет</div>';
+    } else {
+      var html = '';
+      for (var i = 0; i < Math.min(ops.length, 5); i++) {
+        var o = ops[i];
+        var sign = o.direction === 'in' ? '+' : '−';
+        var color = o.direction === 'in' ? 'var(--orange)' : 'var(--red)';
+        var label = o.counterparty ? (o.date + ' · ' + o.counterparty) : (o.date + ' · ' + o.category);
+        html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--sep2);">'
+          + '<span style="color:var(--t2);font-size:12px;">' + esc(label) + '</span>'
+          + '<span style="color:' + color + ';font-weight:600;font-size:13px;">' + sign + '₽ ' + Math.round(Math.abs(o.amount||0)).toLocaleString('ru-RU') + '</span>'
+          + '</div>';
+      }
+      listEl.innerHTML = html;
+    }
+  }
+
+  // Подсказки в формах
+  var hand = document.getElementById('drv-cash-hand-hint');
+  if (hand) hand.textContent = 'На руках: ₽ ' + Math.round(s.balance||0).toLocaleString('ru-RU');
+  var card = document.getElementById('drv-cash-card-hint');
+  if (card) card.textContent = 'На руках: ₽ ' + Math.round(s.balance||0).toLocaleString('ru-RU');
+}
+
+function _drvCashSubmit(action, payload, btn, msg) {
+  var orig = btn.textContent;
+  btn.textContent = '⏳ Сохранение...';
+  btn.disabled = true;
+  var profile = (APP_SESSION && APP_SESSION.profile) || {};
+  payload.driver = profile.name || '';
+  sendToAPI(action, payload, function(){
+    btn.textContent = '✅ ' + msg;
+    showNotification(msg);
+    setTimeout(function(){
+      // закрыть саб и перезагрузить
+      var subId = btn.closest('.sub-screen').id;
+      hideSub('s-driver-dash', subId);
+      btn.textContent = orig;
+      btn.disabled = false;
+      loadDriverCashBalance();
+    }, 800);
+  }, function(){
+    btn.textContent = '❌ Ошибка';
+    setTimeout(function(){ btn.textContent = orig; btn.disabled = false; }, 1500);
+  });
+}
+
+function submitDrvCashHand(btn, mode) {
+  var amountId = mode === 'cash' ? 'drv-cash-hand-amount' : 'drv-cash-card-amount';
+  var commentId = mode === 'cash' ? 'drv-cash-hand-comment' : 'drv-cash-card-comment';
+  var amount = parseFloat(document.getElementById(amountId).value) || 0;
+  if (amount <= 0) { alert('Введите сумму'); return; }
+  if (amount > (drvCashState.balance || 0)) {
+    if (!confirm('Сумма больше остатка на руках. Всё равно сохранить?')) return;
+  }
+  var comment = document.getElementById(commentId).value || '';
+  _drvCashSubmit('cash_hand_to_director', { amount: amount, mode: mode, comment: comment }, btn,
+    mode === 'cash' ? 'Сдано в кассу' : 'Перевод сохранён');
+  document.getElementById(amountId).value = '';
+  document.getElementById(commentId).value = '';
+}
+
+function submitDrvCashFuel(btn) {
+  var amount = parseFloat(document.getElementById('drv-cash-fuel-amount').value) || 0;
+  var liters = parseFloat(document.getElementById('drv-cash-fuel-liters').value) || 0;
+  var comment = document.getElementById('drv-cash-fuel-comment').value || '';
+  if (amount <= 0) { alert('Введите сумму'); return; }
+  var stationChip = document.querySelector('#drv-cash-fuel .chip.on');
+  var stationOther = document.querySelector('#drv-cash-fuel .other-input input');
+  var station = stationChip && stationChip.textContent.trim() === '+ Другое'
+    ? (stationOther ? stationOther.value.trim() : '')
+    : (stationChip ? stationChip.textContent.trim() : '');
+  _drvCashSubmit('cash_spend_fuel', { amount: amount, liters: liters, station: station, comment: comment }, btn, 'Расход записан');
+  ['drv-cash-fuel-amount','drv-cash-fuel-liters','drv-cash-fuel-comment'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+
+function submitDrvCashRepair(btn) {
+  var amount = parseFloat(document.getElementById('drv-cash-repair-amount').value) || 0;
+  var service = document.getElementById('drv-cash-repair-service').value || '';
+  var comment = document.getElementById('drv-cash-repair-comment').value || '';
+  if (amount <= 0) { alert('Введите сумму'); return; }
+  _drvCashSubmit('cash_spend_repair', { amount: amount, service: service, comment: comment }, btn, 'Расход записан');
+  ['drv-cash-repair-amount','drv-cash-repair-service','drv-cash-repair-comment'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
 }
 
 // ═══════════════════ ЭКОНОМИСТ ═══════════════════
