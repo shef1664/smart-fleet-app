@@ -3505,28 +3505,85 @@ function hideMechSections() {
 
 function markMechShift(mode) {
   if (mode === 'pick-date') {
-    // Открыть нативный календарь
-    let picker = document.getElementById('mech-shift-picker');
-    if (!picker) {
-      picker = document.createElement('input');
-      picker.type = 'date';
-      picker.id = 'mech-shift-picker';
-      picker.style.position = 'fixed';
-      picker.style.left = '-9999px';
-      document.body.appendChild(picker);
-      picker.addEventListener('change', function() {
-        if (!picker.value) return;
-        const d = new Date(picker.value);
-        const dateStr = d.toLocaleDateString('ru');
-        addMechShift(dateStr);
-        picker.value = '';
-      });
-    }
-    picker.showPicker ? picker.showPicker() : picker.click();
+    openMechShiftCalendar();
     return;
   }
   const today = new Date().toLocaleDateString('ru');
   addMechShift(today);
+}
+
+var _mechCalState = { year: 0, month: 0 };
+
+function openMechShiftCalendar() {
+  var overlay = document.getElementById('mech-shift-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'mech-shift-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+    overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.style.display = 'none'; });
+    overlay.innerHTML = '<div style="background:var(--bg3);border-radius:18px;padding:18px;max-width:340px;width:100%;border:1px solid var(--sep);">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
+      +   '<div style="font-size:16px;font-weight:700;">Выберите дату смены</div>'
+      +   '<button onclick="document.getElementById(\'mech-shift-overlay\').style.display=\'none\'" style="background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;">×</button>'
+      + '</div>'
+      + '<div id="mech-shift-cal-body"></div>'
+      + '</div>';
+    document.body.appendChild(overlay);
+  }
+  overlay.style.display = 'flex';
+  var now = new Date();
+  _mechCalState.year = now.getFullYear();
+  _mechCalState.month = now.getMonth();
+  renderMechShiftCal();
+}
+
+function renderMechShiftCal() {
+  var body = document.getElementById('mech-shift-cal-body');
+  if (!body) return;
+  var year = _mechCalState.year;
+  var month = _mechCalState.month;
+  var firstDay = new Date(year, month, 1);
+  var lastDay = new Date(year, month + 1, 0);
+  var startDow = firstDay.getDay();
+  startDow = startDow === 0 ? 6 : startDow - 1;
+  var today = new Date();
+  var monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  var dayNames = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  var existing = {};
+  (mechState.shifts || []).forEach(function(s){ existing[s.date] = true; });
+  var prevY = month === 0 ? year - 1 : year;
+  var prevM = month === 0 ? 11 : month - 1;
+  var nextY = month === 11 ? year + 1 : year;
+  var nextM = month === 11 ? 0 : month + 1;
+  var html = '<div class="cal-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+    +   '<button class="cal-nav" onclick="_mechCalState={year:' + prevY + ',month:' + prevM + '};renderMechShiftCal()" style="background:none;border:none;color:var(--accent2);font-size:22px;cursor:pointer;padding:4px 10px;">‹</button>'
+    +   '<span class="cal-month">' + monthNames[month] + ' ' + year + '</span>'
+    +   '<button class="cal-nav" onclick="_mechCalState={year:' + nextY + ',month:' + nextM + '};renderMechShiftCal()" style="background:none;border:none;color:var(--accent2);font-size:22px;cursor:pointer;padding:4px 10px;">›</button>'
+    + '</div>'
+    + '<div class="cal-grid">';
+  dayNames.forEach(function(d){ html += '<div class="cal-day-name">' + d + '</div>'; });
+  for (var i = 0; i < startDow; i++) html += '<div></div>';
+  for (var d = 1; d <= lastDay.getDate(); d++) {
+    var dt = new Date(year, month, d);
+    var dateStr = dt.toLocaleDateString('ru');
+    var isToday = dt.toDateString() === today.toDateString();
+    var isFuture = dt > today;
+    var isExisting = !!existing[dateStr];
+    var bgColor = isExisting ? 'background:rgba(52,209,122,.25);color:var(--green);' : (isToday ? 'background:var(--accent-dim);color:var(--accent2);font-weight:700;' : '');
+    var disabled = isFuture ? 'opacity:.3;pointer-events:none;' : '';
+    html += '<button class="cal-day" style="' + bgColor + disabled + '" onclick="_pickMechShiftDay(\'' + dateStr + '\')">' + d + '</button>';
+  }
+  html += '</div>'
+    + '<div style="font-size:11px;color:var(--t3);margin-top:12px;text-align:center;">'
+    +   '<span style="color:var(--green)">●</span> уже отмечено · '
+    +   '<span style="color:var(--accent2)">●</span> сегодня'
+    + '</div>';
+  body.innerHTML = html;
+}
+
+function _pickMechShiftDay(dateStr) {
+  document.getElementById('mech-shift-overlay').style.display = 'none';
+  addMechShift(dateStr);
 }
 
 function addMechShift(dateStr) {
