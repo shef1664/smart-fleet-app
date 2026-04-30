@@ -4451,23 +4451,7 @@ function submitMechFuel(){
   }, function(){ showNotification('Ошибка сохранения'); });
 }
 
-function markMechShift(mode){
-  var data = {
-    date: new Date().toLocaleDateString('ru'),
-    type: 'shift',
-    rate: '6000'
-  };
-
-  sendToAPI('mechanic_record', data, function(res){
-    showNotification('Смена отмечена +₽6 000' + (res.id ? ' ('+res.id+')' : ''));
-    // Обновить UI
-    var total = mechState.shifts.length * 6000;
-    var el = document.getElementById('mech-total');
-    if(el) el.textContent = '₽ ' + (total + 6000).toLocaleString();
-    mechState.shifts.push({date: data.date, pay: 6000});
-    renderMechShifts();
-  }, function(){ showNotification('Ошибка'); });
-}
+// (удалён дубликат markMechShift — рабочая версия определена выше: с pick-date и проверкой дубликата)
 
 // ═══════════════════ ДИРЕКТОР — ОТПРАВКИ ═══════════════════
 function addTripPrice(){
