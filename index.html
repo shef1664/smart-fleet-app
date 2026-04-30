@@ -23,7 +23,8 @@
   --r:14px;--r2:18px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;overscroll-behavior-y:none;}
+html{overscroll-behavior-y:none;}
 .app{max-width:430px;margin:0 auto;padding:0 0 calc(88px + var(--kb,0px));}
 .screen{display:none;padding:20px 16px calc(100px + var(--kb,0px));scroll-padding-bottom:calc(120px + var(--kb,0px));animation:fadeUp .2s ease;min-height:calc(100vh - 60px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .screen.active{display:block;}
@@ -4018,6 +4019,15 @@ function pushMixerRecent(data){
   try { localStorage.setItem('pulsar_mix_recent', JSON.stringify(mixerRecent)); } catch(e) {}
 }
 
+function cubeWord(n){
+  n = Math.abs(parseInt(n,10));
+  if (isNaN(n) || n === 0) return 'кубов';
+  var mod10 = n % 10, mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'куб';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'куба';
+  return 'кубов';
+}
+
 function renderMixerRecent(){
   var list = document.getElementById('mix-recent-list');
   if (!list) return;
@@ -4028,13 +4038,22 @@ function renderMixerRecent(){
   var html = '';
   for (var i = 0; i < mixerRecent.length; i++) {
     var t = mixerRecent[i];
-    var route = [t.plant, t.client || t.address].filter(Boolean).join(' → ');
-    var sub = [t.grade, t.volume ? t.volume + ' м³' : '', t.payment_type].filter(Boolean).join(' · ');
+    var client = t.client || '—';
+    var volTxt = t.volume ? (t.volume + ' ' + cubeWord(t.volume)) : '';
+    var sub = [t.plant, t.grade, volTxt, t.payment_type].filter(Boolean).join(' · ');
     var total = (parseFloat(t.concrete_cost)||0) + (parseFloat(t.delivery_cost)||0);
     var dot = i === 0 ? 'dot-green' : 'dot-blue';
-    html += '<div class="list-row"><div class="row-dot ' + dot + '"></div>'
-      + '<div class="row-info"><div class="row-title">' + esc(route || '—') + '</div><div class="row-sub">' + esc(sub || '—') + '</div></div>'
-      + '<div class="row-right"><div class="row-val">' + (total ? total.toLocaleString('ru-RU') + ' ₽' : '') + '</div><div class="row-time">' + esc(t.arrive_time || '') + '</div></div>'
+    html += '<div class="list-row" style="align-items:flex-start;padding:12px 0;">'
+      + '<div class="row-dot ' + dot + '" style="margin-top:4px;"></div>'
+      + '<div class="row-info">'
+      +   '<div class="row-title" style="font-weight:600;">' + esc(client) + '</div>'
+      +   (t.address ? '<div class="row-sub" style="margin-top:2px;">📍 ' + esc(t.address) + '</div>' : '')
+      +   '<div class="row-sub" style="margin-top:4px;color:var(--t3);">' + esc(sub || '—') + '</div>'
+      + '</div>'
+      + '<div class="row-right">'
+      +   '<div class="row-val" style="color:var(--green);font-weight:700;">' + (total ? total.toLocaleString('ru-RU') + ' ₽' : '') + '</div>'
+      +   '<div class="row-time">' + esc(t.arrive_time || '') + '</div>'
+      + '</div>'
       + '</div>';
   }
   list.innerHTML = html;
@@ -5418,6 +5437,10 @@ function initKeyboardInset(){
   var tg = tgWebApp();
   if (!tg) return;
   try { tg.expand(); } catch(e) {}
+  // Заблокировать свайп вниз (Bot API 7.7+) — мини-апп не закроется случайно
+  try { if (typeof tg.disableVerticalSwipes === 'function') tg.disableVerticalSwipes(); } catch(e) {}
+  // Подтверждение закрытия — на случай если свайпы не отключились
+  try { if (typeof tg.enableClosingConfirmation === 'function') tg.enableClosingConfirmation(); } catch(e) {}
   function apply(){
     var kb = Math.max(0, (tg.viewportStableHeight || 0) - (tg.viewportHeight || 0));
     document.documentElement.style.setProperty('--kb', kb + 'px');
