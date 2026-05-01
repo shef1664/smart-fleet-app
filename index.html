@@ -5504,6 +5504,10 @@ function showPhoneBindScreen(message) {
   var loginScreen = document.getElementById('s-login');
   if (loginScreen) loginScreen.classList.add('active');
 
+  // Скрыть нижнюю навигацию пока не залогинились — иначе можно тапнуть в обход
+  if (typeof updateNav === 'function') updateNav('login');
+  currentRole = 'login';
+
   var subtitle = document.getElementById('login-subtitle');
   if (subtitle) subtitle.textContent = 'Telegram не найден в справочнике';
 
