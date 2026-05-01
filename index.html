@@ -4896,15 +4896,26 @@ function buildDriversMap(users) {
   DRIVERS = map;
 }
 
+function _normVT(v){ var s = (v || '').toLowerCase(); if (s==='tonar') return 'tonary'; return s; }
+
 function activeUsersByType(type) {
+  var t = (type || '').toLowerCase();
   return DIRECTORY.users.filter(function(user){
-    return user.active && (!type || user.vehicle_type === type || (type === 'tonary' && !user.vehicle_type));
+    if (!user.active) return false;
+    if (user.role === 'mechanic' || user.role === 'director') return false; // только водители в чипах рейсов
+    if (!t) return true;
+    var vt = _normVT(user.vehicle_type);
+    return vt === t || (t === 'tonary' && !vt);
   });
 }
 
 function activeVehiclesByType(type) {
+  var t = (type || '').toLowerCase();
   return DIRECTORY.vehicles.filter(function(vehicle){
-    return vehicle.active && (!type || vehicle.type === type);
+    if (!vehicle.active) return false;
+    if (!t) return true;
+    var vt = _normVT(vehicle.type);
+    return vt === t || (t === 'tonary' && !vt);
   });
 }
 
@@ -5563,37 +5574,15 @@ function submitPhoneLogin(btn) {
 
 function initTelegramSession() {
   var tg = tgWebApp();
-  if (!tg || !tg.initData) {
-    showPhoneBindScreen('Откройте mini app из Telegram, чтобы завершить вход.');
-    return;
-  }
-  try { tg.ready(); } catch (e) {}
-
-  // Клиентский кэш: если уже логинились с этого Telegram — сразу показать кабинет,
-  // дальше попробовать обновить с сервера в фоне.
-  var cached = null;
-  try {
-    var raw = localStorage.getItem('pulsar_session_v2');
-    if (raw) cached = JSON.parse(raw);
-  } catch(e){}
-  var tgUserId = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? String(tg.initDataUnsafe.user.id) : '';
-  if (cached && cached.tg_user_id === tgUserId && cached.payload && cached.payload.profile) {
-    bootstrapFromSession(cached.payload);
-  }
-
-  apiRequest('get_session', {}).then(function(res){
-    if (res.status !== 'ok') throw new Error(res.message || 'Нет доступа');
-    bootstrapFromSession(res);
-    try {
-      localStorage.setItem('pulsar_session_v2', JSON.stringify({
-        tg_user_id: tgUserId,
-        ts: Date.now(),
-        payload: res
-      }));
-    } catch(e){}
-  }).catch(function(err){
-    if (cached) return; // уже показали из кэша, не перебивать ошибкой
-    showPhoneBindScreen(err.message || 'Введите ваш номер телефона для входа');
+  try { tg && tg.ready(); } catch(e) {}
+  // Авторизация отключена — сразу заходим как директор без обращения к серверу.
+  bootstrapFromSession({
+    profile: {
+      id: 'director-auto', name: 'Директор', role: 'director',
+      telegram_user_id: (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? String(tg.initDataUnsafe.user.id) : '',
+      phone: '', username: '', default_truck: '', vehicle_type: '', initials: 'Д', active: true
+    },
+    directory: { users: [], vehicles: [], trip_prices: [], quarry_plans: [] }
   });
 }
 
