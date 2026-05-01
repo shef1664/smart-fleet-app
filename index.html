@@ -2790,6 +2790,7 @@ var ROLE_NAV = {
     {icon:"🧾", label:"Расходы", screen:"s-expense"}
   ],
   "mixer": [
+    {icon:"🏠", label:"Главная", screen:"s-driver-dash"},
     {icon:"🔄", label:"Миксеры", screen:"s-mixer"}
   ],
   "mechanic": [
@@ -5005,7 +5006,14 @@ function setDriverPeriod(period, btn) {
 
 function effectiveRole(profile) {
   if (!profile) return 'login';
-  return profile.role || 'login';
+  var role = (profile.role || '').toLowerCase();
+  // Если в Sheets записан driver, но машина миксер — переключаемся на mixer-навигацию
+  if (role === 'driver') {
+    var vt = (profile.vehicle_type || '').toLowerCase();
+    var truck = String(profile.default_truck || '');
+    if (vt === 'mixer' || vt === 'миксер' || truck === '729') return 'mixer';
+  }
+  return role || 'login';
 }
 
 function activateRoleForProfile(profile) {
@@ -5540,23 +5548,17 @@ function submitPhoneLogin(btn) {
 }
 
 function initTelegramSession() {
-  // Auth disabled — bootstrap as director without server check.
   var tg = tgWebApp();
-  try { tg && tg.ready(); } catch(e) {}
-  bootstrapFromSession({
-    profile: {
-      id: 'director-auto',
-      name: 'Директор',
-      role: 'director',
-      telegram_user_id: (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? String(tg.initDataUnsafe.user.id) : '',
-      phone: '',
-      username: '',
-      default_truck: '',
-      vehicle_type: '',
-      initials: 'Д',
-      active: true
-    },
-    directory: { users: [], vehicles: [], trip_prices: [], quarry_plans: [] }
+  if (!tg || !tg.initData) {
+    showPhoneBindScreen('Откройте mini app из Telegram, чтобы завершить вход.');
+    return;
+  }
+  try { tg.ready(); } catch (e) {}
+  apiRequest('get_session', {}).then(function(res){
+    if (res.status !== 'ok') throw new Error(res.message || 'Нет доступа');
+    bootstrapFromSession(res);
+  }).catch(function(err){
+    showPhoneBindScreen(err.message || 'Введите ваш номер телефона для входа');
   });
 }
 
