@@ -3860,12 +3860,14 @@ function toggleRepairType(type){
 
 // ═══════════════════ СИСТЕМА РОЛЕЙ ═══════════════════
 function logout(){
+  // Очистить локальный кэш сессии, чтобы при следующем входе спросило телефон
+  try { localStorage.removeItem('pulsar_session_v2'); } catch(e){}
   currentRole = null;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('s-login').classList.add('active');
   // Сбросить навигацию
   const nav = document.querySelector('.bottom-nav');
-  if(nav) nav.innerHTML = '';
+  if(nav) { nav.innerHTML = ''; nav.style.display = 'none'; }
 }
 
 function switchToService(){
@@ -5541,6 +5543,14 @@ function submitPhoneLogin(btn) {
     if (res.status !== 'ok') throw new Error(res.message || 'Не удалось привязать номер');
     bootstrapFromSession(res);
     showNotification('Номер привязан. Вход выполнен.');
+    // Сохранить сессию локально, чтобы со 2-го раза не спрашивало
+    try {
+      var tg = tgWebApp();
+      var tgId = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? String(tg.initDataUnsafe.user.id) : '';
+      localStorage.setItem('pulsar_session_v2', JSON.stringify({
+        tg_user_id: tgId, ts: Date.now(), payload: res
+      }));
+    } catch(e){}
   }).catch(function(err){
     showNotification(err.message || 'Не удалось привязать номер');
   }).finally(function(){
@@ -5558,10 +5568,31 @@ function initTelegramSession() {
     return;
   }
   try { tg.ready(); } catch (e) {}
+
+  // Клиентский кэш: если уже логинились с этого Telegram — сразу показать кабинет,
+  // дальше попробовать обновить с сервера в фоне.
+  var cached = null;
+  try {
+    var raw = localStorage.getItem('pulsar_session_v2');
+    if (raw) cached = JSON.parse(raw);
+  } catch(e){}
+  var tgUserId = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? String(tg.initDataUnsafe.user.id) : '';
+  if (cached && cached.tg_user_id === tgUserId && cached.payload && cached.payload.profile) {
+    bootstrapFromSession(cached.payload);
+  }
+
   apiRequest('get_session', {}).then(function(res){
     if (res.status !== 'ok') throw new Error(res.message || 'Нет доступа');
     bootstrapFromSession(res);
+    try {
+      localStorage.setItem('pulsar_session_v2', JSON.stringify({
+        tg_user_id: tgUserId,
+        ts: Date.now(),
+        payload: res
+      }));
+    } catch(e){}
   }).catch(function(err){
+    if (cached) return; // уже показали из кэша, не перебивать ошибкой
     showPhoneBindScreen(err.message || 'Введите ваш номер телефона для входа');
   });
 }
