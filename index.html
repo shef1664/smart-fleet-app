@@ -29,6 +29,7 @@ html{overscroll-behavior-y:none;}
 .screen{display:none;padding:20px 16px calc(100px + var(--kb,0px));scroll-padding-bottom:calc(120px + var(--kb,0px));animation:fadeUp .2s ease;min-height:calc(100vh - 60px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .screen.active{display:block;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(var(--kb,0px));width:100%;max-width:430px;background:rgba(8,8,16,.97);border-top:1px solid var(--sep);display:flex;z-index:100;padding:10px 0 max(10px,env(safe-area-inset-bottom));transition:transform .15s ease;}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;border:none;background:transparent;color:var(--t4);font-size:9px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.3px;text-transform:uppercase;}
 .nav-item.active{color:var(--accent2);}
@@ -2041,42 +2042,34 @@ html{overscroll-behavior-y:none;}
     <div class="page-sub" id="login-subtitle" style="text-align:center;margin-bottom:40px;">Пульсар · Кемерово</div>
 
     <div style="width:100%;max-width:320px;">
-      <div class="form-block" id="phone-bind-block">
-        <div class="form-lbl">Привязка телефона</div>
-        <input class="inp" type="tel" id="login-phone" placeholder="+79991234567" style="margin-bottom:10px;">
-        <div id="login-help" style="font-size:12px;color:var(--t3);line-height:1.5;margin-bottom:12px;">
-          Если Telegram ещё не привязан к сотруднику, введите номер телефона из справочника один раз.
-        </div>
-        <button class="submit" id="login-phone-btn" onclick="submitPhoneLogin(this)" style="margin-top:0;">Войти по номеру</button>
-      </div>
       <div class="form-block">
         <div class="form-lbl">Выберите свою роль</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <button class="role-btn" onclick="loginAs('driver')">
+          <button class="role-btn" onclick="enterRole('driver', false)">
             <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
             <div class="role-info"><div class="role-name">Водитель</div><div class="role-sub">Рейсы · топливо · кабинет</div></div>
             <span style="color:var(--t4);">›</span>
           </button>
-          <button class="role-btn" onclick="loginAs('mixer')">
+          <button class="role-btn" onclick="enterRole('mixer', false)">
             <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
             <div class="role-info"><div class="role-name">Миксеры</div><div class="role-sub">Бетон · раствор · рейс</div></div>
             <span style="color:var(--t4);">›</span>
           </button>
-          <button class="role-btn" onclick="loginAs('mechanic')">
-            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
+          <button class="role-btn" onclick="requestPinFor('mechanic')">
+            <span class="role-icon" style="font-size:20px;color:var(--t3);">🔒</span>
             <div class="role-info"><div class="role-name">Слесарь</div><div class="role-sub">Ремонты · запчасти · кабинет</div></div>
             <span style="color:var(--t4);">›</span>
           </button>
 
-          <button class="role-btn" onclick="loginAs('director')" style="border-color:rgba(48,209,88,.3);">
-            <span class="role-icon" style="font-size:20px;color:var(--green);">○</span>
-            <div class="role-info"><div class="role-name" style="color:var(--green);">Директор</div><div class="role-sub">Полный доступ</div></div>
+          <button class="role-btn" onclick="requestPinFor('director')" style="border-color:rgba(48,209,88,.3);">
+            <span class="role-icon" style="font-size:20px;color:var(--green);">🔒</span>
+            <div class="role-info"><div class="role-name" style="color:var(--green);">Директор</div><div class="role-sub">Полный доступ · PIN</div></div>
             <span style="color:var(--t4);">›</span>
           </button>
         </div>
       </div>
       <div id="login-status" style="text-align:center;margin-top:16px;font-size:12px;color:var(--t4);">
-        🔒 Вход через Telegram авторизацию
+        🔒 Замок — нужен PIN
       </div>
     </div>
   </div>
@@ -3850,8 +3843,9 @@ function toggleRepairType(type){
 
 // ═══════════════════ СИСТЕМА РОЛЕЙ ═══════════════════
 function logout(){
-  // Очистить локальный кэш сессии, чтобы при следующем входе спросило телефон
+  // Очистить локальный кэш — следующий вход потребует выбора роли (и PIN при необходимости)
   try { localStorage.removeItem('pulsar_session_v2'); } catch(e){}
+  try { localStorage.removeItem('pulsar_role_v1'); } catch(e){}
   currentRole = null;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('s-login').classList.add('active');
@@ -5565,15 +5559,133 @@ function submitPhoneLogin(btn) {
 function initTelegramSession() {
   var tg = tgWebApp();
   try { tg && tg.ready(); } catch(e) {}
-  // Авторизация отключена — сразу заходим как директор без обращения к серверу.
+  // Авторизация через PIN. По умолчанию показываем экран выбора роли (s-login).
+  // Если есть запомненная роль (после успешного PIN или просто роль без PIN) — заходим в неё.
+  var savedRole = null;
+  try {
+    var raw = localStorage.getItem('pulsar_role_v1');
+    if (raw) {
+      var p = JSON.parse(raw);
+      // PIN-роли действуют 30 дней, обычные — без срока
+      if (p && p.role && (!p.pin_required || (Date.now() - (p.ts || 0) < 30*86400*1000))) {
+        savedRole = p.role;
+      }
+    }
+  } catch(e){}
+  if (savedRole) {
+    enterRole(savedRole, false);
+  } else {
+    showLoginScreen();
+  }
+}
+
+function showLoginScreen(){
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  var login = document.getElementById('s-login');
+  if (login) login.classList.add('active');
+  if (typeof updateNav === 'function') updateNav('login');
+  currentRole = 'login';
+}
+
+// Хранение хэшей PIN'ов (SHA-256). Сами PIN'ы в коде не хранятся.
+var PIN_HASH = {
+  director: '0b689c5667de7f17ff7530151e2d1d78dfa13b8877d188d0f18c91d2ce75507c',
+  mechanic: 'b411746bdf09bde7f1fe70ddc8fa57241a0cb79d14d6e9c27e598635ca7dae4d'
+};
+
+function _sha256(text){
+  var enc = new TextEncoder().encode(text);
+  return crypto.subtle.digest('SHA-256', enc).then(function(buf){
+    var arr = Array.from(new Uint8Array(buf));
+    return arr.map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+  });
+}
+
+function requestPinFor(role){
+  // Если PIN уже введён недавно для этой роли — сразу заходим
+  try {
+    var raw = localStorage.getItem('pulsar_role_v1');
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && p.role === role && (Date.now() - (p.ts || 0) < 30*86400*1000)) {
+        enterRole(role, false);
+        return;
+      }
+    }
+  } catch(e){}
+  showPinOverlay(role);
+}
+
+function showPinOverlay(role){
+  var label = role === 'director' ? 'Директор' : 'Слесарь';
+  var overlay = document.getElementById('pin-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'pin-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML = '<div style="background:var(--bg3);border-radius:18px;padding:24px;max-width:320px;width:100%;border:1px solid var(--sep);">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
+    +   '<div style="font-size:17px;font-weight:700;">🔒 PIN — ' + label + '</div>'
+    +   '<button onclick="document.getElementById(\'pin-overlay\').style.display=\'none\'" style="background:none;border:none;color:var(--t3);font-size:22px;cursor:pointer;">×</button>'
+    + '</div>'
+    + '<input id="pin-input" type="tel" inputmode="numeric" maxlength="6" placeholder="••••" autocomplete="off" '
+    +   'style="width:100%;padding:14px;font-size:24px;text-align:center;letter-spacing:8px;border-radius:14px;background:var(--bg4);border:1.5px solid var(--sep);color:var(--t1);">'
+    + '<div id="pin-error" style="font-size:13px;color:var(--red);margin-top:10px;text-align:center;min-height:18px;"></div>'
+    + '<button onclick="submitPin(\'' + role + '\')" class="submit" style="margin-top:6px;">Войти</button>'
+    + '</div>';
+  overlay.style.display = 'flex';
+  setTimeout(function(){
+    var inp = document.getElementById('pin-input');
+    if (inp) {
+      inp.focus();
+      inp.addEventListener('keypress', function(e){ if (e.key === 'Enter') submitPin(role); });
+    }
+  }, 50);
+}
+
+function submitPin(role){
+  var inp = document.getElementById('pin-input');
+  var errEl = document.getElementById('pin-error');
+  var pin = inp ? inp.value.trim() : '';
+  if (!pin) return;
+  _sha256(pin).then(function(hash){
+    if (hash === PIN_HASH[role]) {
+      var overlay = document.getElementById('pin-overlay');
+      if (overlay) overlay.style.display = 'none';
+      enterRole(role, true);
+    } else {
+      if (errEl) errEl.textContent = 'Неверный PIN';
+      if (inp) {
+        inp.value = '';
+        inp.style.borderColor = 'var(--red)';
+        inp.style.animation = 'shake .3s';
+        setTimeout(function(){ inp.style.animation = ''; inp.style.borderColor = ''; }, 400);
+      }
+    }
+  });
+}
+
+function enterRole(role, pinRequired){
+  var tg = tgWebApp();
+  var profile = {
+    id: role + '-auto',
+    name: role === 'director' ? 'Директор' : (role === 'mechanic' ? 'Слесарь' : (role === 'mixer' ? 'Миксер' : 'Водитель')),
+    role: role === 'mixer' ? 'driver' : role,
+    vehicle_type: role === 'mixer' ? 'mixer' : '',
+    telegram_user_id: (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? String(tg.initDataUnsafe.user.id) : '',
+    phone: '', username: '', default_truck: '', initials: '—', active: true
+  };
   bootstrapFromSession({
-    profile: {
-      id: 'director-auto', name: 'Директор', role: 'director',
-      telegram_user_id: (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? String(tg.initDataUnsafe.user.id) : '',
-      phone: '', username: '', default_truck: '', vehicle_type: '', initials: 'Д', active: true
-    },
+    profile: profile,
     directory: { users: [], vehicles: [], trip_prices: [], quarry_plans: [] }
   });
+  try {
+    localStorage.setItem('pulsar_role_v1', JSON.stringify({
+      role: role, pin_required: !!pinRequired, ts: Date.now()
+    }));
+  } catch(e){}
 }
 
 function initKeyboardInset(){
