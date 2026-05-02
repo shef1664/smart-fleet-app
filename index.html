@@ -2489,15 +2489,15 @@ html{overscroll-behavior-y:none;}
 
     <div class="form-block">
       <div class="form-lbl">Количество литров</div>
-      <input class="inp" type="number" placeholder="Например: 200" inputmode="numeric">
-    </div>
-    <div class="form-block">
-      <div class="form-lbl">Стоимость (₽)</div>
-      <input class="inp" type="number" placeholder="Например: 12700" inputmode="numeric">
+      <input class="inp" type="number" placeholder="Например: 200" inputmode="decimal" id="mech-fuel-liters" oninput="recalcMechFuelCost()">
     </div>
     <div class="form-block">
       <div class="form-lbl">Цена за литр (₽)</div>
-      <input class="inp" type="number" placeholder="Например: 63.5" inputmode="decimal">
+      <input class="inp" type="number" placeholder="Например: 63.5" inputmode="decimal" id="mech-fuel-price" oninput="recalcMechFuelCost()">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Стоимость (₽) — рассчитывается автоматически</div>
+      <input class="inp" type="number" placeholder="Литры × цена" inputmode="numeric" id="mech-fuel-cost" readonly style="background:var(--bg5);color:var(--orange);font-weight:700;">
     </div>
     <div class="form-block">
       <div class="form-lbl">АЗС</div>
@@ -3774,38 +3774,73 @@ function renderMechAdvances() {
   recalcMechSalary();
 }
 
+function recalcMechFuelCost(){
+  var l = parseFloat((document.getElementById('mech-fuel-liters')||{}).value) || 0;
+  var p = parseFloat((document.getElementById('mech-fuel-price')||{}).value) || 0;
+  var costEl = document.getElementById('mech-fuel-cost');
+  if (!costEl) return;
+  var c = l * p;
+  costEl.value = c > 0 ? Math.round(c * 100) / 100 : '';
+}
+
 function submitMechFuel() {
-  const inputs = document.querySelectorAll('#mech-fuel-new .inp');
-  // 0: литры, 1: стоимость, 2: цена за литр, 3: + Другое (если выбрано)
-  const liters = inputs[0] ? parseFloat(inputs[0].value) || 0 : 0;
-  const cost = inputs[1] ? parseFloat(inputs[1].value) || 0 : 0;
-  if (cost <= 0) { alert('Введите стоимость заправки'); return; }
-  const today = new Date().toLocaleDateString('ru');
-  mechState.fuels.push({ date: today, liters: liters, cost: cost });
-  const list = document.getElementById('mech-fuel-list');
+  var litersEl = document.getElementById('mech-fuel-liters');
+  var priceEl  = document.getElementById('mech-fuel-price');
+  var costEl   = document.getElementById('mech-fuel-cost');
+  var liters = parseFloat(litersEl ? litersEl.value : '') || 0;
+  var price  = parseFloat(priceEl ? priceEl.value : '') || 0;
+  var cost   = parseFloat(costEl ? costEl.value : '') || (liters * price);
+  if (liters <= 0) { alert('Введите количество литров'); return; }
+  if (price <= 0)  { alert('Введите цену за литр'); return; }
+  if (cost <= 0)   { alert('Стоимость не рассчиталась — проверьте цифры'); return; }
+
+  var today = new Date().toLocaleDateString('ru');
+  // Защита от дубля: если в этот же день уже есть заправка с таким же литражом и стоимостью — переспросить
+  var dup = (mechState.fuels || []).find(function(f){
+    return f.date === today && Math.abs((f.liters||0) - liters) < 0.001 && Math.abs((f.cost||0) - cost) < 0.5;
+  });
+  if (dup && !confirm('Сегодня уже была заправка ' + liters + ' л на ₽' + cost.toLocaleString() + '. Точно записать ещё одну?')) {
+    return;
+  }
+
+  var stationChip = document.querySelector('#mech-fuel-new .chip.on');
+  var stationOther = document.querySelector('#mech-fuel-new .other-input input');
+  var station = stationChip && stationChip.textContent.trim() === '+ Другое'
+    ? (stationOther ? stationOther.value.trim() : '')
+    : (stationChip ? stationChip.textContent.trim() : '');
+
+  mechState.fuels.push({ date: today, liters: liters, cost: cost, station: station });
+
+  var list = document.getElementById('mech-fuel-list');
   if (list) {
-    let html = '';
-    let total = 0;
-    for (let i = 0; i < mechState.fuels.length; i++) {
-      const f = mechState.fuels[i];
+    var html = '';
+    var total = 0;
+    for (var i = 0; i < mechState.fuels.length; i++) {
+      var f = mechState.fuels[i];
       total += f.cost || 0;
-      html += '<div class="list-row"><div class="row-dot dot-orange"></div><div class="row-info"><div class="row-title">Заправка ' + (f.liters ? f.liters + ' л' : '') + '</div><div class="row-sub">' + f.date + '</div></div><div class="row-right"><div class="row-val" style="color:var(--red);">−₽' + (f.cost||0).toLocaleString() + '</div></div></div>';
+      html += '<div class="list-row"><div class="row-dot dot-orange"></div>'
+        + '<div class="row-info"><div class="row-title">Заправка ' + (f.liters ? f.liters + ' л' : '') + (f.station ? ' · ' + f.station : '') + '</div>'
+        + '<div class="row-sub">' + f.date + '</div></div>'
+        + '<div class="row-right"><div class="row-val" style="color:var(--red);">−₽' + (f.cost||0).toLocaleString() + '</div></div></div>';
     }
-    if (total > 0) html += '<div class="list-row" style="border:none"><div class="row-info"><div class="row-title" style="color:var(--t3)">Итого вычитается</div></div><div class="row-right"><div class="row-val" style="color:var(--red);font-weight:700">−₽' + total.toLocaleString() + '</div></div></div>';
+    if (total > 0) html += '<div class="list-row" style="border:none"><div class="row-info"><div class="row-title" style="color:var(--t3)">Итого вычитается</div></div>'
+      + '<div class="row-right"><div class="row-val" style="color:var(--red);font-weight:700">−₽' + total.toLocaleString() + '</div></div></div>';
     list.innerHTML = html;
   }
   recalcMechSalary();
-  var stationChip = document.querySelector('#mech-fuel-new .chip.on');
-  var station = stationChip ? stationChip.textContent.trim() : '';
+
   sendToAPI('mechanic_record', {
     type: 'fuel', date: today,
-    fuel_liters: liters, fuel_cost: cost, fuel_station: station
+    fuel_liters: liters, fuel_cost: cost, fuel_price_per_liter: price, fuel_station: station,
+    receipt_photo: getPreviewImageSrc('mech-fuel-img')
   }, function(){
-    showNotification('Заправка сохранена');
+    showNotification('Заправка сохранена · −₽' + cost.toLocaleString() + ' из ЗП');
   });
-  // очистить поля
-  inputs.forEach(function(i){ if (i) i.value = ''; });
-  alert('Заправка сохранена! −₽' + cost.toLocaleString() + ' из ЗП');
+
+  // очистить поля и закрыть саб
+  if (litersEl) litersEl.value = '';
+  if (priceEl)  priceEl.value = '';
+  if (costEl)   costEl.value = '';
   hideSub('mech-section-fuel-salary', 'mech-fuel-new');
 }
 
@@ -4581,24 +4616,7 @@ function submitPartsPurchase(btn){
   });
 }
 
-function submitMechFuel(){
-  var inputs = document.querySelectorAll('#mech-fuel-new .inp');
-  var data = {
-    date: new Date().toLocaleDateString('ru'),
-    type: 'fuel',
-    fuel_liters: inputs[0] ? inputs[0].value : '',
-    fuel_cost: inputs[1] ? inputs[1].value : '',
-    fuel_price_per_liter: inputs[2] ? inputs[2].value : '',
-    fuel_station: (document.querySelector('#mech-fuel-new .chip.on')||{}).textContent.trim() || '',
-    receipt_photo: getPreviewImageSrc('mech-fuel-img'),
-    rate: '6000'
-  };
-
-  sendToAPI('mechanic_record', data, function(res){
-    showNotification('Заправка сохранена' + (res.id ? ' ('+res.id+')' : ''));
-    hideSub('mech-section-fuel-salary','mech-fuel-new');
-  }, function(){ showNotification('Ошибка сохранения'); });
-}
+// (дубликат submitMechFuel удалён — рабочая версия определена выше)
 
 // (удалён дубликат markMechShift — рабочая версия определена выше: с pick-date и проверкой дубликата)
 
@@ -5042,10 +5060,16 @@ function activateRoleForProfile(profile) {
   var role = effectiveRole(profile);
   currentRole = role;
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  // Сбрасываем все sub-screens (закрытые формы и под-секции)
+  document.querySelectorAll('.sub-screen').forEach(function(s){ s.classList.remove('active'); s.style.display = ''; });
   var homeId = ROLE_HOME[role] || 's-login';
   var home = document.getElementById(homeId);
   if (home) home.classList.add('active');
   updateNav(role);
+  // Особый сброс для слесаря: показать главный экран (4 кнопки), а не последнюю открытую секцию
+  if (role === 'mechanic' && typeof hideMechSections === 'function') {
+    try { hideMechSections(); } catch(e){}
+  }
   if (role === 'driver') {
     updateHomeScreen(profile.id);
     // Блок наличных только для миксеристов
