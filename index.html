@@ -2068,11 +2068,6 @@ html{overscroll-behavior-y:none;}
             <span style="color:var(--t4);">›</span>
           </button>
 
-          <button class="role-btn" onclick="loginAs('economist')">
-            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
-            <div class="role-info"><div class="role-name">Экономист</div><div class="role-sub">Миксеры · наличные · ДДС</div></div>
-            <span style="color:var(--t4);">›</span>
-          </button>
           <button class="role-btn" onclick="loginAs('director')" style="border-color:rgba(48,209,88,.3);">
             <span class="role-icon" style="font-size:20px;color:var(--green);">○</span>
             <div class="role-info"><div class="role-name" style="color:var(--green);">Директор</div><div class="role-sub">Полный доступ</div></div>
@@ -2234,8 +2229,8 @@ html{overscroll-behavior-y:none;}
 <div class="screen" id="s-economist-cash">
   <div class="topbar">
     <div>
-      <div class="page-title">Движение наличных</div>
-      <div class="page-sub" id="eco-period-label">Этот месяц</div>
+      <div class="page-title">Экономист</div>
+      <div class="page-sub" id="eco-period-label">Движение наличных денежных средств</div>
     </div>
     <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
@@ -2777,7 +2772,6 @@ var ROLE_HOME = {
   "driver": "s-home", 
   "mixer": "s-mixer",
   "mechanic": "s-mechanic-dash",
-  "economist": "s-economist-cash",
   "director": "s-director"
 };
 
@@ -2798,15 +2792,11 @@ var ROLE_NAV = {
     {icon:"🔩", label:"Запчасти", screen:"s-parts"},
     {icon:"👤", label:"Кабинет", screen:"s-mechanic-dash"}
   ],
-  "economist": [
-    {icon:"🔄", label:"Миксеры", screen:"s-mixer"},
-    {icon:"💵", label:"Наличные", screen:"s-economist-cash"}
-  ],
   "director": [
     {icon:"📊", label:"Дашборд", screen:"s-director"},
     {icon:"🚛", label:"Рейсы", screen:"s-home"},
     {icon:"🔧", label:"Сервис", screen:"s-service"},
-    {icon:"💵", label:"Касса", screen:"s-economist-cash"},
+    {icon:"💵", label:"Экономист", screen:"s-economist-cash"},
     {icon:"👥", label:"Команда", screen:"s-driver-dash"}
   ]
 };
