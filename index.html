@@ -2021,10 +2021,14 @@ html{overscroll-behavior-y:none;}
 
     <div class="form-block">
       <div class="form-lbl">Фото чека / документа</div>
-      <div class="photo-zone" onclick="alert('Сфотографировать чек')">
+      <div class="photo-zone" onclick="document.getElementById('parts-receipt-photo').click()">
         <div class="pz-icon">🧾</div>
         <div class="pz-title">Сфотографировать чек</div>
         <div class="pz-sub">Можно несколько фото</div>
+        <input type="file" id="parts-receipt-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'parts-receipt')">
+      </div>
+      <div id="parts-receipt-preview" style="display:none;margin-top:8px;">
+        <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="parts-receipt-img">
       </div>
     </div>
 
@@ -2139,7 +2143,7 @@ html{overscroll-behavior-y:none;}
         <div class="doc-route">Морозовский → Сибирский Бетон · 1,5–2,0 · 40 т</div>
       </div>
       <div class="doc-links">
-        <a href="#" class="doc-link" onclick="alert('Открыть фото ТН')">📄 Фото лицевая</a>
+        <a href="#" class="doc-link" onclick="event.preventDefault();openTnPhoto(this)">📄 Фото лицевая</a>
       </div>
       <div class="doc-actions">
         <button class="doc-btn green" onclick="markUPD(this)">✓ УПД выставлен</button>
@@ -2157,8 +2161,8 @@ html{overscroll-behavior-y:none;}
         <div class="doc-route">Морозовский → Кузбассдорстрой · 2,0–2,5 · 38 т</div>
       </div>
       <div class="doc-links">
-        <a href="#" class="doc-link" onclick="alert('Открыть фото ТН')">📄 Фото лицевая</a>
-        <a href="#" class="doc-link" onclick="alert('Открыть фото ТН')">📄 Фото оборот</a>
+        <a href="#" class="doc-link" onclick="event.preventDefault();openTnPhoto(this)">📄 Фото лицевая</a>
+        <a href="#" class="doc-link" onclick="event.preventDefault();openTnPhoto(this)">📄 Фото оборот</a>
       </div>
       <div class="doc-actions">
         <button class="doc-btn green" onclick="markUPD(this)">✓ УПД выставлен</button>
@@ -3842,6 +3846,26 @@ function toggleRepairType(type){
 }
 
 // ═══════════════════ СИСТЕМА РОЛЕЙ ═══════════════════
+function openTnPhoto(el){
+  var href = el.getAttribute('data-href') || (el.dataset && el.dataset.href) || '';
+  if (!href) {
+    var card = el.closest && el.closest('.doc-card');
+    if (card) {
+      var txt = (el.textContent || '').toLowerCase();
+      var attr = txt.indexOf('оборот') >= 0 ? 'data-tn-back' : 'data-tn-front';
+      href = card.getAttribute(attr) || '';
+    }
+  }
+  if (href) {
+    var tg = (window.Telegram && Telegram.WebApp) || null;
+    if (tg && tg.openLink) tg.openLink(href);
+    else window.open(href, '_blank');
+  } else {
+    if (typeof showNotification === 'function') showNotification('Фото ещё не загружено для этого рейса');
+    else alert('Фото ещё не загружено');
+  }
+}
+
 function logout(){
   // Очистить локальный кэш — следующий вход потребует выбора роли (и PIN при необходимости)
   try { localStorage.removeItem('pulsar_session_v2'); } catch(e){}
@@ -4537,6 +4561,7 @@ function submitPartsPurchase(btn){
     price: priceInput ? priceInput.value.trim() : '',
     payment: payment,
     debt: debtInputs[0] ? debtInputs[0].value.trim() : '',
+    receipt_photo: getPreviewImageSrc('parts-receipt-img'),
     comment: [
       getFieldValue(blocks[0]) ? ('\u041c\u0430\u0448\u0438\u043d\u0430: ' + getFieldValue(blocks[0])) : '',
       getFieldValue(blocks[1]) ? ('\u041a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u044f: ' + getFieldValue(blocks[1])) : '',
