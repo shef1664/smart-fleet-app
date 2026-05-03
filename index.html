@@ -706,6 +706,11 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="btn-body"><div class="btn-title">Длинномеры</div><div class="btn-sub">Маршрут · груз · ТН</div></div>
     <span class="chevron">›</span>
   </button>
+  <button class="big-btn green" id="btn-mixer" onclick="go('s-mixer')">
+    <div class="btn-ico">🔄</div>
+    <div class="btn-body"><div class="btn-title">Миксеры</div><div class="btn-sub">Бетон · раствор · рейс</div></div>
+    <span class="chevron">›</span>
+  </button>
 
   <div class="grid2">
     <button class="grid-item" onclick="go('s-dt')">
@@ -3072,8 +3077,8 @@ function applyDriverLayout() {
     if (b) b.textContent = '\u041E\u0442\u043A\u0440\u044B\u0442\u044C';
   }
 
-  var mixerBtn = document.getElementById('btn-mixer');
-  if (mixerBtn) mixerBtn.style.display = 'none';
+  // btn-mixer теперь всегда видим у водителей (Миксеры — раздел рядом с Тонарами/Длинномерами).
+  // Раньше эта строка прятала кнопку (когда mixer был отдельной ролью). Оставлено намеренно пустым.
 
   var homeStatsTitle = document.querySelector('#s-home .sec-lbl:last-of-type');
   var homeStats = document.querySelector('#s-home .stats2');
