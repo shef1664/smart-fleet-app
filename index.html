@@ -3469,9 +3469,17 @@ function updateQuarries(el){
   const modulBlock = document.getElementById('modul-block');
   if(modulBlock) modulBlock.style.display = (mat==='Песок') ? 'block' : 'none';
 
-  // Сбросить объект при смене материала
-  const objBlock = document.getElementById('object-block');
-  if(objBlock) objBlock.style.display='none';
+  // Каскад: материал сменился → автоматически пересчитать заказчиков для
+  // нового первого карьера (без updateClientsByQuarry форма «Песок» оставляла
+  // в списке заказчиков Меркурий/СП авто без Морозовского). updateClientsByQuarry
+  // сама вызовет updateObjects для первого заказчика — объекты тоже обновятся.
+  const firstQuarryBtn = chips.querySelector('.chip.on');
+  if(firstQuarryBtn){
+    const firstQuarry = firstQuarryBtn.textContent.trim();
+    if(firstQuarry !== '+ Другое'){
+      updateClientsByQuarry(firstQuarry);
+    }
+  }
 }
 
 function checkQuarryOther(el){
