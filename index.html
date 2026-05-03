@@ -20,11 +20,12 @@
    break those styles. --purple and --gold were referenced but never defined
    in the previous CSS; defined here to fix dangling refs in the design system.
 
-   Telegram theme override: we accept --tg-theme-* with industrial fallbacks.
-   For light theme we use a body.theme-light class set by JS based on
-   Telegram.WebApp.colorScheme. Defaults are dark (driver in cab at night). */
+   Industrial dark palette — фиксированная, не наследуется от Telegram-темы.
+   Раньше использовался var(--tg-theme-*, fallback) — но если у юзера Telegram
+   в light-теме, var переопределялся в светлый цвет, а карточки оставались
+   тёмными → плохой контраст. Теперь всё хардкод: тёмная тема всегда. */
 :root{
-  --bg:        var(--tg-theme-bg-color, #0E1116);            /* asphalt black */
+  --bg:        #0E1116;                                      /* asphalt black */
   --bg-input:  #14181F;                                      /* input wells, deeper than panels */
   --bg1:       #14181F;
   --bg2:       #181C24;                                      /* base panel */
@@ -33,14 +34,14 @@
   --bg5:       #2F3641;                                      /* track / progress bg */
   --bg6:       #3A4252;                                      /* highest chrome */
 
-  --t1:        var(--tg-theme-text-color, #ECEEF1);
+  --t1:        #ECEEF1;
   --t2:        #B6BBC4;
-  --t3:        var(--tg-theme-hint-color, #7A8290);
+  --t3:        #7A8290;
   --t4:        #4A515D;
 
-  --accent:    var(--tg-theme-button-color, #FFB020);        /* hi-vis safety amber */
+  --accent:    #FFB020;                                      /* hi-vis safety amber */
   --accent2:   #FFCC55;                                      /* lighter amber, focus/active */
-  --accent-fg: var(--tg-theme-button-text-color, #14181F);   /* dark on amber, max contrast */
+  --accent-fg: #14181F;                                      /* dark on amber, max contrast */
   --accent-dim: rgba(255,176,32,.14);
   --accent-glow: rgba(255,176,32,.06);
 
@@ -63,25 +64,11 @@
   --shadow-cta: 0 0 0 1px rgba(255,255,255,.06) inset, 0 1px 0 rgba(0,0,0,.25);
 }
 
-/* Light theme override (set by JS reading Telegram.WebApp.colorScheme) */
-body.theme-light{
-  --bg:        var(--tg-theme-bg-color, #F4F5F7);
-  --bg-input:  #FFFFFF;
-  --bg1:       #FFFFFF;
-  --bg2:       #FFFFFF;
-  --bg3:       #FFFFFF;
-  --bg4:       #EEF0F4;
-  --bg5:       #DDE0E6;
-  --bg6:       #C9CFD8;
-  --t1:        var(--tg-theme-text-color, #11161D);
-  --t2:        #2C333D;
-  --t3:        var(--tg-theme-hint-color, #61697A);
-  --t4:        #97A0AF;
-  --sep:       rgba(0,0,0,.10);
-  --sep2:      rgba(0,0,0,.05);
-  --sep-strong: rgba(0,0,0,.18);
-  --accent-fg: var(--tg-theme-button-text-color, #11161D);
-}
+/* Light theme override отключён — приложение всегда в индастриал-dark.
+   Раньше body.theme-light переключал на светлую тему через
+   Telegram.WebApp.colorScheme; теперь pulsarApplyTheme не выставляет этот
+   класс. Если когда-то понадобится светлая тема — вернуть и здесь правила,
+   и вызов в pulsarApplyTheme. */
 
 /* ── Base ─────────────────────────────────────────────────────────── */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -6080,12 +6067,12 @@ function pulsarSwapIcons(root){
 }
 
 function pulsarApplyTheme(){
-  var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-  // Honor Telegram colorScheme only when actually inside a Telegram client
-  // (initData present). Outside Telegram (preview / dev), default to dark.
-  var inTelegram = !!(tg && tg.initData && tg.initData.length > 0);
-  var scheme = inTelegram ? tg.colorScheme : 'dark';
-  document.body.classList.toggle('theme-light', scheme === 'light');
+  // Theme switching отключён — приложение всегда в dark/industrial.
+  // Раньше переключали body.theme-light на основе Telegram.WebApp.colorScheme,
+  // но при light-теме Telegram CSS-вары --tg-theme-* протекали внутрь и ломали
+  // контрастность (фон страницы становился белым, а карточки оставались
+  // тёмными). Теперь палитра жёстко прибита в :root.
+  document.body.classList.remove('theme-light');
 }
 
 function pulsarObserveIcons(){
