@@ -701,11 +701,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="btn-body"><div class="btn-title">Тонары</div><div class="btn-sub">Новый рейс · история</div></div>
     <span class="chevron">›</span>
   </button>
-  <button class="big-btn green" id="btn-mixer" onclick="go('s-mixer')">
-    <div class="btn-ico">🔄</div>
-    <div class="btn-body"><div class="btn-title">Миксеры</div><div class="btn-sub">Бетон · раствор · рейс</div></div>
-    <span class="chevron">›</span>
-  </button>
   <button class="big-btn purple" id="btn-dlinn" onclick="go('s-dlinn')">
     <div class="btn-ico">🚚</div>
     <div class="btn-body"><div class="btn-title">Длинномеры</div><div class="btn-sub">Маршрут · груз · ТН</div></div>
@@ -782,10 +777,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <button class="back-btn" onclick="hideSub('ton-menu','ton-new')">‹ Тонары</button>
     <div class="page-title" style="margin-bottom:20px">Новый рейс</div>
 
-    <div class="form-block">
-      <div class="form-lbl">🎙 Голосовой ввод</div>
-      <button class="voice-row" id="btn-voice-trip" onclick="startVoiceInput('ton')">🎙 Надиктовать рейс</button>
-    </div>
 
     <div class="form-block">
       <div class="form-lbl">Автомобиль</div>
@@ -915,6 +906,15 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       </div>
     </div>
 
+    <div class="form-block">
+      <div class="form-lbl">Оплата</div>
+      <label class="pay-toggle-row">
+        <input type="checkbox" id="ton-paid">
+        <span class="pay-toggle-label">Оплачено</span>
+        <span class="pay-toggle-hint">если деньги уже получены</span>
+      </label>
+    </div>
+
     <button class="submit" onclick="submitTonarTrip(this)">Отправить рейс</button>
   </div>
 </div>
@@ -935,18 +935,9 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="btn-body"><div class="btn-title">Новый рейс</div><div class="btn-sub">Бетон · раствор · пескобетон</div></div>
       <span class="chevron">›</span>
     </button>
-    <div class="sec-lbl">Сегодня — миксер 729</div>
-    <div class="card">
-      <div class="list-row">
-        <div class="row-dot dot-green"></div>
-        <div class="row-info"><div class="row-title">Кем ДСК → Молодёжная, 12</div><div class="row-sub">М300 · 7 м³ · нал ✓</div></div>
-        <div class="row-right"><div class="row-val">28 000 ₽</div><div class="row-time">13:10</div></div>
-      </div>
-      <div class="list-row">
-        <div class="row-dot dot-blue"></div>
-        <div class="row-info"><div class="row-title">Бетон М → ДСК заявка</div><div class="row-sub">М200 · 8 м³ · безнал</div></div>
-        <div class="row-right"><div class="row-val">24 000 ₽</div><div class="row-time">10:30</div></div>
-      </div>
+    <div class="sec-lbl">Последние рейсы</div>
+    <div class="card" id="mix-recent-list">
+      <div style="text-align:center;padding:18px;color:var(--t4);font-size:13px;">Нет рейсов</div>
     </div>
   </div>
 
@@ -974,11 +965,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <button class="chip" onclick="sel(this);checkOther(this)">Шевченко С.С.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
       </div>
-    
-      <div class="other-input">
-        <input class="inp" type="text" placeholder="Введите значение">
-      </div>
-    </div>
       <div class="other-input">
         <input class="inp" type="text" placeholder="Введите ФИО водителя">
       </div>
@@ -1009,14 +995,10 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <button class="chip" onclick="sel(this);checkOther(this)">Пескобетон</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Другое</button>
       </div>
-    
       <div class="other-input">
         <input class="inp" type="text" placeholder="Введите тип смеси">
       </div>
     </div>
-      <div class="other-input">
-        <input class="inp" type="text" placeholder="Введите ФИО водителя">
-      </div>
 
     <div class="form-block">
       <div class="form-lbl">Марка</div>
@@ -1099,12 +1081,9 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     </div>
 
     <div class="form-block" id="dengi-block">
-      <div class="form-lbl">У кого деньги?</div>
-      <div class="chips">
-        <button class="chip on" onclick="sel(this)">У водителя</button>
-        <button class="chip" onclick="sel(this)">У директора</button>
-        <button class="chip" onclick="sel(this)">Не забирал</button>
-      </div>
+      <div class="form-lbl">Получено факт (₽)</div>
+      <input class="inp" type="number" placeholder="Если клиент дал больше/меньше" inputmode="numeric" id="mix-cash-received">
+      <div style="font-size:11px;color:var(--t4);margin-top:6px;">Если оставили сдачу клиенту, пишите сколько реально на руках. Пусто = ровно по сумме рейса.</div>
     </div>
 
     <div class="form-block">
@@ -1130,6 +1109,15 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div id="mix-raport-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="mix-raport-img">
       </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Оплата</div>
+      <label class="pay-toggle-row">
+        <input type="checkbox" id="mix-paid">
+        <span class="pay-toggle-label">Оплачено</span>
+        <span class="pay-toggle-hint">если деньги уже получены</span>
+      </label>
     </div>
 
     <button class="submit green" onclick="submitMixerTrip(this)">Отправить рейс</button>
@@ -1308,6 +1296,15 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="dln-tn-img">
       </div>
     </div>
+    <div class="form-block">
+      <div class="form-lbl">Оплата</div>
+      <label class="pay-toggle-row">
+        <input type="checkbox" id="dln-paid">
+        <span class="pay-toggle-label">Оплачено</span>
+        <span class="pay-toggle-hint">если деньги уже получены</span>
+      </label>
+    </div>
+
     <button class="submit" style="background:var(--purple)" onclick="submitDlinnTrip(this)">Сохранить рейс</button>
   </div>
 </div>
@@ -1579,22 +1576,28 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <button class="period-btn" onclick="setPeriod('month',this)">Месяц</button>
   </div>
 
+  <!-- Заглушка пока нет API get_director_dashboard -->
+  <div class="dir-card" style="border-color:var(--orange);background:rgba(255,149,0,.06);margin-bottom:12px;">
+    <div class="dir-card-lbl" style="color:var(--orange)">Данные подключаются</div>
+    <div style="font-size:13px;color:var(--t2);margin-top:4px;line-height:1.4">Дашборд директора собирается из отчётов водителей и слесарей. После подключения API в bot/api_server.py (action: get_director_dashboard) цифры появятся автоматически.</div>
+  </div>
+
   <!-- Главные цифры -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
     <div class="dir-card" style="grid-column:1/-1;">
       <div class="dir-card-lbl">Выручка</div>
-      <div class="dir-card-val green" id="dir-revenue">₽ 187 400</div>
-      <div class="dir-card-delta" id="dir-revenue-delta">↑ +12% к вчера</div>
+      <div class="dir-card-val green" id="dir-revenue">—</div>
+      <div class="dir-card-delta" id="dir-revenue-delta"></div>
     </div>
     <div class="dir-card">
       <div class="dir-card-lbl">Расходы</div>
-      <div class="dir-card-val red" id="dir-expenses">₽ 19 580</div>
-      <div class="dir-card-delta" id="dir-exp-delta" style="color:var(--t3)">топливо + ремонт</div>
+      <div class="dir-card-val red" id="dir-expenses">—</div>
+      <div class="dir-card-delta" id="dir-exp-delta" style="color:var(--t3)"></div>
     </div>
     <div class="dir-card">
       <div class="dir-card-lbl">Прибыль</div>
-      <div class="dir-card-val green" id="dir-profit">₽ 167 820</div>
-      <div class="dir-card-delta" style="color:var(--green)">маржа 89%</div>
+      <div class="dir-card-val green" id="dir-profit">—</div>
+      <div class="dir-card-delta" style="color:var(--green)"></div>
     </div>
   </div>
 
@@ -1602,13 +1605,13 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
     <div class="dir-card">
       <div class="dir-card-lbl">💵 Касса (нал)</div>
-      <div class="dir-card-val orange">₽ 42 000</div>
-      <div class="dir-card-delta" style="color:var(--t3)">у водителей: 18 000</div>
+      <div class="dir-card-val orange" id="dir-cash">—</div>
+      <div class="dir-card-delta" style="color:var(--t3)"></div>
     </div>
     <div class="dir-card">
       <div class="dir-card-lbl">📋 Долги клиентов</div>
-      <div class="dir-card-val red">₽ 45 000</div>
-      <div class="dir-card-delta" style="color:var(--red)">просрочка 3 дня</div>
+      <div class="dir-card-val red" id="dir-debts">—</div>
+      <div class="dir-card-delta" style="color:var(--red)"></div>
     </div>
   </div>
 
@@ -1616,66 +1619,28 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
     <div class="dir-card">
       <div class="dir-card-lbl">Рейсов</div>
-      <div class="dir-card-val blue">34</div>
+      <div class="dir-card-val blue" id="dir-trips-count">—</div>
     </div>
     <div class="dir-card">
       <div class="dir-card-lbl">В работе</div>
-      <div class="dir-card-val green">6</div>
+      <div class="dir-card-val green" id="dir-active-count">—</div>
     </div>
     <div class="dir-card">
       <div class="dir-card-lbl">В ремонте</div>
-      <div class="dir-card-val red">2</div>
+      <div class="dir-card-val red" id="dir-repair-count">—</div>
     </div>
   </div>
 
   <!-- Алерты -->
   <div class="sec-lbl">⚠️ Требует внимания</div>
-  <div class="dir-alerts-card">
-    <div class="dir-alert-row red">
-      <div class="dir-alert-dot"></div>
-      <div class="dir-alert-body">
-        <div class="dir-alert-title">Алексеев О.Е. — нет отчёта</div>
-        <div class="dir-alert-sub">803 · последний рейс в 12:00</div>
-      </div>
-      <div class="dir-alert-time">2 ч</div>
-    </div>
-    <div class="dir-alert-row orange">
-      <div class="dir-alert-dot" style="background:var(--orange)"></div>
-      <div class="dir-alert-body">
-        <div class="dir-alert-title">ООО СтройГрупп — долг ₽ 45 000</div>
-        <div class="dir-alert-sub">Просрочка 3 дня</div>
-      </div>
-      <div class="dir-alert-time">3 д</div>
-    </div>
+  <div class="dir-alerts-card" id="dir-alerts-list">
+    <div style="text-align:center;padding:20px;color:var(--t4);font-size:13px;">Нет данных</div>
   </div>
 
   <!-- Загрузка парка -->
   <div class="sec-lbl">🚛 Загрузка парка</div>
   <div class="dir-card" style="padding:14px 16px;" id="dir-fleet-list">
-    <div class="fleet-row">
-      <span class="fleet-num">803</span>
-      <span class="fleet-type">тонар</span>
-      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:85%;background:var(--green)"></div></div>
-      <span class="fleet-stat green">5 р.</span>
-    </div>
-    <div class="fleet-row">
-      <span class="fleet-num">008</span>
-      <span class="fleet-type">тонар</span>
-      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:70%;background:var(--green)"></div></div>
-      <span class="fleet-stat green">4 р.</span>
-    </div>
-    <div class="fleet-row">
-      <span class="fleet-num">709</span>
-      <span class="fleet-type">тонар</span>
-      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:50%;background:var(--orange)"></div></div>
-      <span class="fleet-stat orange">3 р.</span>
-    </div>
-    <div class="fleet-row" style="border:none">
-      <span class="fleet-num">729</span>
-      <span class="fleet-type">миксер</span>
-      <div class="fleet-bar-wrap"><div class="fleet-bar" style="width:90%;background:var(--accent2)"></div></div>
-      <span class="fleet-stat blue">6 р.</span>
-    </div>
+    <div style="text-align:center;padding:14px;color:var(--t4);font-size:13px;">Нет данных</div>
   </div>
   </div>
 
@@ -1816,7 +1781,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
           <button class="chip on" onclick="sel(this)">driver</button>
           <button class="chip" onclick="sel(this)">mechanic</button>
           <button class="chip" onclick="sel(this)">economist</button>
-          <button class="chip" onclick="sel(this)">logist</button>
           <button class="chip" onclick="sel(this)">director</button>
         </div>
       </div>
@@ -1915,27 +1879,72 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <button class="period-btn" onclick="setDriverPeriod('month',this)">Месяц</button>
   </div>
 
+  <!-- НАЛИЧНЫЕ — только для миксеристов -->
+  <div id="drv-cash-block" style="display:none;background:linear-gradient(135deg,rgba(255,159,10,.10),rgba(255,159,10,.04));border:1px solid rgba(255,159,10,.3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+      <div>
+        <div style="font-size:12px;color:var(--orange);text-transform:uppercase;letter-spacing:.4px;font-weight:700;">💵 Наличные на руках</div>
+        <div style="font-size:30px;font-weight:800;color:var(--orange);margin-top:4px;" id="drv-cash-balance">₽ 47 000</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:4px;" id="drv-cash-meta">за 2 рейса · −₽ 5 000 расход</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+      <button class="big-btn green" style="margin:0;padding:12px;" onclick="showSub('drv-cash-hand')">
+        <div class="btn-ico" style="width:32px;height:32px;font-size:16px;">💸</div>
+        <div class="btn-body" style="text-align:left;"><div class="btn-title" style="font-size:13px;">Сдать нал</div><div class="btn-sub" style="font-size:10px;">директору</div></div>
+      </button>
+      <button class="big-btn" style="margin:0;padding:12px;background:var(--accent-dim);border-color:rgba(124,92,252,.3);" onclick="showSub('drv-cash-card')">
+        <div class="btn-ico" style="width:32px;height:32px;font-size:16px;">💳</div>
+        <div class="btn-body" style="text-align:left;"><div class="btn-title" style="font-size:13px;">На карту</div><div class="btn-sub" style="font-size:10px;">директора</div></div>
+      </button>
+      <button class="big-btn orange" style="margin:0;padding:12px;" onclick="showSub('drv-cash-fuel')">
+        <div class="btn-ico" style="width:32px;height:32px;font-size:16px;">⛽</div>
+        <div class="btn-body" style="text-align:left;"><div class="btn-title" style="font-size:13px;">Топливо</div><div class="btn-sub" style="font-size:10px;">расход</div></div>
+      </button>
+      <button class="big-btn red" style="margin:0;padding:12px;" onclick="showSub('drv-cash-repair')">
+        <div class="btn-ico" style="width:32px;height:32px;font-size:16px;">🔧</div>
+        <div class="btn-body" style="text-align:left;"><div class="btn-title" style="font-size:13px;">Ремонт</div><div class="btn-sub" style="font-size:10px;">расход</div></div>
+      </button>
+    </div>
+    <div style="height:1px;background:rgba(255,159,10,.2);margin:12px 0 8px;"></div>
+    <div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:6px;">Из них по рейсам</div>
+    <div id="drv-cash-trips" style="font-size:13px;">
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--sep2);">
+        <span style="color:var(--t2);">12.04 · Кем ДСК → Молодёжная</span>
+        <span style="color:var(--orange);font-weight:600;">₽ 28 000</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--sep2);">
+        <span style="color:var(--t2);">12.04 · Бетон М → Стройсити</span>
+        <span style="color:var(--orange);font-weight:600;">₽ 24 000</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;">
+        <span style="color:var(--t3);">Топливо · Газпромнефть</span>
+        <span style="color:var(--red);font-weight:600;">−₽ 5 000</span>
+      </div>
+    </div>
+  </div>
+
   <!-- ЗП карточка -->
   <div style="background:var(--bg3);border-radius:var(--r2);padding:20px 18px;margin-bottom:10px;">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
       <div>
         <div style="font-size:13px;color:var(--t3);margin-bottom:4px;">Заработано</div>
-        <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:var(--green)" id="drv-earned">₽ 10 000</div>
+        <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:var(--green)" id="drv-earned">—</div>
       </div>
       <div style="text-align:right;">
         <div style="font-size:13px;color:var(--t3);margin-bottom:4px;">Аванс</div>
-        <div style="font-size:22px;font-weight:700;color:var(--red)" id="drv-advance">− ₽ 3 000</div>
+        <div style="font-size:22px;font-weight:700;color:var(--red)" id="drv-advance">—</div>
       </div>
     </div>
     <div style="height:1px;background:var(--sep);margin-bottom:14px;"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <div>
         <div style="font-size:13px;color:var(--t3);">К выплате</div>
-        <div style="font-size:24px;font-weight:700;color:var(--t1)" id="drv-topay">₽ 7 000</div>
+        <div style="font-size:24px;font-weight:700;color:var(--t1)" id="drv-topay">—</div>
       </div>
       <div style="text-align:right;">
         <div style="font-size:12px;color:var(--t3);">Дата выплаты</div>
-        <div style="font-size:14px;font-weight:600;color:var(--t2);" id="drv-payday">1 апреля</div>
+        <div style="font-size:14px;font-weight:600;color:var(--t2);" id="drv-payday">—</div>
       </div>
     </div>
   </div>
@@ -1944,43 +1953,12 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
   <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
     <div style="font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;" id="drv-trip-heading">Рейсы сегодня</div>
     <div id="drv-trip-rows">
-    <div class="salary-row">
-      <div class="salary-num">1</div>
-      <div class="salary-info">
-        <div class="salary-title">Рейс 1</div>
-        <div class="salary-sub">Щебень 20-40 · 32 т</div>
-      </div>
-      <div class="salary-rate">₽ 2 000</div>
-    </div>
-    <div class="salary-row">
-      <div class="salary-num">2</div>
-      <div class="salary-info">
-        <div class="salary-title">Рейс 2</div>
-        <div class="salary-sub">Щебень 20-40 · 31 т</div>
-      </div>
-      <div class="salary-rate">₽ 2 000</div>
-    </div>
-    <div class="salary-row">
-      <div class="salary-num">3</div>
-      <div class="salary-info">
-        <div class="salary-title">Рейс 3</div>
-        <div class="salary-sub">Щебень 5-20 · 30 т</div>
-      </div>
-      <div class="salary-rate">₽ 2 000</div>
-    </div>
-    <div class="salary-row bonus">
-      <div class="salary-num" style="background:var(--orange);color:#000;">4</div>
-      <div class="salary-info">
-        <div class="salary-title" style="color:var(--orange);">Рейс 4 — бонус!</div>
-        <div class="salary-sub">Щебень 20-40 · 32 т</div>
-      </div>
-      <div class="salary-rate" style="color:var(--orange);">₽ 4 000</div>
-    </div>
+      <div style="text-align:center;color:var(--t4);font-size:13px;padding:14px;">Нет рейсов</div>
     </div>
     <div style="height:1px;background:var(--sep);margin:10px 0;"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:14px;color:var(--t3);">Итого за день</span>
-      <span style="font-size:18px;font-weight:700;color:var(--green);" id="drv-day-total">₽ 10 000</span>
+      <span style="font-size:18px;font-weight:700;color:var(--green);" id="drv-day-total">—</span>
     </div>
   </div>
 
@@ -1988,55 +1966,26 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
       <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Рейсов сегодня</div>
-      <div style="font-size:28px;font-weight:700;color:var(--gold)" id="drv-trips-day">4</div>
+      <div style="font-size:28px;font-weight:700;color:var(--gold)" id="drv-trips-day">—</div>
     </div>
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
       <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Тонн сегодня</div>
-      <div style="font-size:28px;font-weight:700;color:var(--green)" id="drv-tons-day">125 т</div>
+      <div style="font-size:28px;font-weight:700;color:var(--green)" id="drv-tons-day">—</div>
     </div>
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
       <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Рейсов за месяц</div>
-      <div style="font-size:28px;font-weight:700;color:var(--gold)" id="drv-trips-month">68</div>
+      <div style="font-size:28px;font-weight:700;color:var(--gold)" id="drv-trips-month">—</div>
     </div>
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
       <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">Тонн за месяц</div>
-      <div style="font-size:28px;font-weight:700;color:var(--green)" id="drv-tons-month">2 140 т</div>
+      <div style="font-size:28px;font-weight:700;color:var(--green)" id="drv-tons-month">—</div>
     </div>
   </div>
 
   <!-- План по объектам -->
   <div class="sec-lbl">📦 План по объектам</div>
   <div style="background:var(--bg3);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;" id="drv-plan-list">
-    <div class="plan-row">
-      <div class="plan-info">
-        <div class="plan-name">Морозовский → СтройГрупп</div>
-        <div class="plan-sub">Перевезено: 1 240 т из 2 000 т</div>
-      </div>
-      <div class="plan-pct green">62%</div>
-    </div>
-    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:14px;">
-      <div style="width:62%;height:100%;background:var(--green);border-radius:3px;"></div>
-    </div>
-    <div class="plan-row">
-      <div class="plan-info">
-        <div class="plan-name">Барзасский → Администрация</div>
-        <div class="plan-sub">Перевезено: 380 т из 800 т</div>
-      </div>
-      <div class="plan-pct orange">48%</div>
-    </div>
-    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:14px;">
-      <div style="width:48%;height:100%;background:var(--orange);border-radius:3px;"></div>
-    </div>
-    <div class="plan-row" style="margin-bottom:6px;">
-      <div class="plan-info">
-        <div class="plan-name">ВНК → ЗЖБИ</div>
-        <div class="plan-sub">Перевезено: 720 т из 720 т</div>
-      </div>
-      <div class="plan-pct blue">100%</div>
-    </div>
-    <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;">
-      <div style="width:100%;height:100%;background:var(--accent2);border-radius:3px;"></div>
-    </div>
+    <div style="text-align:center;color:var(--t4);font-size:13px;padding:14px;">Нет планов</div>
   </div>
 
   <!-- ТО машины -->
@@ -2044,37 +1993,107 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
   <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <div>
-        <div style="font-size:15px;font-weight:600;" id="drv-service-truck">КамАЗ 803</div>
-        <div style="font-size:13px;color:var(--t3);margin-top:2px;" id="drv-service-label">Замена масла</div>
+        <div style="font-size:15px;font-weight:600;" id="drv-service-truck">—</div>
+        <div style="font-size:13px;color:var(--t3);margin-top:2px;" id="drv-service-label">—</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:22px;font-weight:700;color:var(--orange);" id="drv-service-remaining">1 200 км</div>
+        <div style="font-size:22px;font-weight:700;color:var(--orange);" id="drv-service-remaining">—</div>
         <div style="font-size:12px;color:var(--t3);">осталось</div>
       </div>
     </div>
     <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;">
-      <div style="width:76%;height:100%;background:var(--orange);border-radius:3px;" id="drv-service-bar"></div>
+      <div style="width:0%;height:100%;background:var(--orange);border-radius:3px;" id="drv-service-bar"></div>
     </div>
     <div style="display:flex;justify-content:space-between;margin-top:6px;">
       <span style="font-size:11px;color:var(--t4);">0</span>
-      <span style="font-size:11px;color:var(--t3);" id="drv-service-caption">Пробег до ТО: осталось 1 200 из 5 000 км</span>
-      <span style="font-size:11px;color:var(--t4);" id="drv-service-interval">5 000</span>
+      <span style="font-size:11px;color:var(--t3);" id="drv-service-caption">—</span>
+      <span style="font-size:11px;color:var(--t4);" id="drv-service-interval">—</span>
     </div>
   </div>
 
   <!-- Авансы -->
   <div class="sec-lbl">💸 Авансы</div>
   <div style="background:var(--bg3);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px;" id="drv-advances-list">
-    <div class="advance-row">
-      <div style="font-size:14px;font-weight:500;">15 марта</div>
-      <div style="font-size:13px;color:var(--t3);">аванс</div>
-      <div style="font-size:15px;font-weight:700;color:var(--red);">− ₽ 3 000</div>
+    <div style="text-align:center;color:var(--t4);font-size:13px;padding:14px;">Нет авансов</div>
+  </div>
+
+  <!-- ═══ САБ-ЭКРАНЫ КАССЫ ВОДИТЕЛЯ ═══ -->
+  <div class="sub-screen" id="drv-cash-hand">
+    <button class="back-btn" onclick="hideSub('s-driver-dash','drv-cash-hand')">‹ Кабинет</button>
+    <div class="page-title" style="margin-bottom:20px">Сдать нал директору</div>
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" placeholder="Сколько сдаёте" inputmode="numeric" id="drv-cash-hand-amount">
+      <div style="font-size:11px;color:var(--t3);margin-top:6px;" id="drv-cash-hand-hint">На руках: —</div>
     </div>
-    <div class="advance-row" style="border:none;">
-      <div style="font-size:14px;font-weight:500;">1 марта</div>
-      <div style="font-size:13px;color:var(--t3);">аванс</div>
-      <div style="font-size:15px;font-weight:700;color:var(--red);">− ₽ 5 000</div>
+    <div class="form-block">
+      <div class="form-lbl">Комментарий</div>
+      <input class="inp" type="text" placeholder="Опционально" id="drv-cash-hand-comment">
     </div>
+    <button class="submit green" onclick="submitDrvCashHand(this,'cash')">Сдать в кассу</button>
+  </div>
+
+  <div class="sub-screen" id="drv-cash-card">
+    <button class="back-btn" onclick="hideSub('s-driver-dash','drv-cash-card')">‹ Кабинет</button>
+    <div class="page-title" style="margin-bottom:20px">Перевёл на карту директора</div>
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" placeholder="Сколько перевели" inputmode="numeric" id="drv-cash-card-amount">
+      <div style="font-size:11px;color:var(--t3);margin-top:6px;" id="drv-cash-card-hint">На руках: —</div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Комментарий</div>
+      <input class="inp" type="text" placeholder="Опционально" id="drv-cash-card-comment">
+    </div>
+    <button class="submit" onclick="submitDrvCashHand(this,'card')">Подтвердить перевод</button>
+  </div>
+
+  <div class="sub-screen" id="drv-cash-fuel">
+    <button class="back-btn" onclick="hideSub('s-driver-dash','drv-cash-fuel')">‹ Кабинет</button>
+    <div class="page-title" style="margin-bottom:20px">Расход на топливо</div>
+    <div class="form-block">
+      <div class="form-lbl">АЗС</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">Газпромнефть</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Татнефть</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Лукойл</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Название АЗС">
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Литры</div>
+      <input class="inp" type="number" placeholder="Например: 50" inputmode="decimal" id="drv-cash-fuel-liters">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" placeholder="Сумма по чеку" inputmode="numeric" id="drv-cash-fuel-amount">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Комментарий</div>
+      <input class="inp" type="text" placeholder="Опционально" id="drv-cash-fuel-comment">
+    </div>
+    <button class="submit orange" onclick="submitDrvCashFuel(this)">Записать расход</button>
+  </div>
+
+  <div class="sub-screen" id="drv-cash-repair">
+    <button class="back-btn" onclick="hideSub('s-driver-dash','drv-cash-repair')">‹ Кабинет</button>
+    <div class="page-title" style="margin-bottom:20px">Расход на ремонт</div>
+    <div class="form-block">
+      <div class="form-lbl">Куда / у кого</div>
+      <input class="inp" type="text" placeholder="Например: Автозапчасти на Кузнецком" id="drv-cash-repair-service">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" placeholder="Сумма" inputmode="numeric" id="drv-cash-repair-amount">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Что сделано / куплено</div>
+      <input class="inp" type="text" placeholder="Описание" id="drv-cash-repair-comment">
+    </div>
+    <button class="submit red" onclick="submitDrvCashRepair(this)">Записать расход</button>
   </div>
 
 </div>
@@ -2099,50 +2118,18 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     </button>
     <button class="big-btn dark" onclick="showSub('svc-active')">
       <div class="btn-ico">🔧</div>
-      <div class="btn-body"><div class="btn-title">Активные ремонты</div><div class="btn-sub">2 в работе · 1 ожидает</div></div>
+      <div class="btn-body"><div class="btn-title">Активные ремонты</div><div class="btn-sub" id="svc-active-counter">—</div></div>
       <span class="chevron">›</span>
     </button>
-    <button class="big-btn purple" onclick="showSub('parts-new-svc')">
+    <button class="big-btn" style="background:var(--purple)" onclick="showSub('parts-new-svc')">
       <div class="btn-ico">🔩</div>
       <div class="btn-body"><div class="btn-title">Запчасти</div><div class="btn-sub">Новая закупка · история</div></div>
       <span class="chevron">›</span>
     </button>
 
     <div class="sec-lbl">Последние ремонты</div>
-    <div class="card">
-      <div class="svc-card-row" onclick="showSub('svc-card')">
-        <div class="svc-status-dot" style="background:var(--orange)"></div>
-        <div class="svc-card-info">
-          <div class="svc-card-title">803 · Ходовка</div>
-          <div class="svc-card-sub">Замена шаровой · свой ремонт · 2 дня</div>
-        </div>
-        <div class="svc-card-right">
-          <div class="svc-badge orange">в работе</div>
-          <div class="svc-card-km">142 500 км</div>
-        </div>
-      </div>
-      <div class="svc-card-row" onclick="showSub('svc-card')">
-        <div class="svc-status-dot" style="background:var(--red)"></div>
-        <div class="svc-card-info">
-          <div class="svc-card-title">555 · Двигатель</div>
-          <div class="svc-card-sub">СТО Агат · сторонний · ₽ 28 000</div>
-        </div>
-        <div class="svc-card-right">
-          <div class="svc-badge red">ожидает запчасти</div>
-          <div class="svc-card-km">98 300 км</div>
-        </div>
-      </div>
-      <div class="svc-card-row">
-        <div class="svc-status-dot" style="background:var(--green)"></div>
-        <div class="svc-card-info">
-          <div class="svc-card-title">137 · Тормозная система</div>
-          <div class="svc-card-sub">Замена колодок · свой · ₽ 4 800</div>
-        </div>
-        <div class="svc-card-right">
-          <div class="svc-badge green">закрыт</div>
-          <div class="svc-card-km">76 100 км</div>
-        </div>
-      </div>
+    <div class="card" id="svc-recent-list">
+      <div style="text-align:center;padding:18px;color:var(--t4);font-size:13px;">Нет данных</div>
     </div>
   </div>
 
@@ -2221,31 +2208,8 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <button class="back-btn" onclick="hideSub('svc-menu','svc-active')">‹ Сервис</button>
     <div class="page-title" style="margin-bottom:20px">Активные ремонты</div>
 
-    <div class="svc-active-card" onclick="showSub('svc-card')">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-        <div class="svc-status-dot" style="background:var(--orange);width:12px;height:12px;"></div>
-        <div style="font-size:16px;font-weight:600;">803 · Ходовка</div>
-        <div class="svc-badge orange" style="margin-left:auto">в работе</div>
-      </div>
-      <div style="font-size:13px;color:var(--t3);margin-bottom:8px;">Замена шаровой опоры · свой ремонт · открыт 28.03</div>
-      <div style="display:flex;gap:16px;">
-        <div><div style="font-size:11px;color:var(--t4);">Работ</div><div style="font-size:15px;font-weight:600;">2</div></div>
-        <div><div style="font-size:11px;color:var(--t4);">Расходов</div><div style="font-size:15px;font-weight:600;">₽ 3 200</div></div>
-        <div><div style="font-size:11px;color:var(--t4);">Дней</div><div style="font-size:15px;font-weight:600;">2</div></div>
-      </div>
-    </div>
-
-    <div class="svc-active-card" style="margin-top:10px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-        <div class="svc-status-dot" style="background:var(--red);width:12px;height:12px;"></div>
-        <div style="font-size:16px;font-weight:600;">555 · Двигатель</div>
-        <div class="svc-badge red" style="margin-left:auto">ожидает запчасти</div>
-      </div>
-      <div style="font-size:13px;color:var(--t3);margin-bottom:8px;">СТО Агат · сторонний сервис · открыт 27.03</div>
-      <div style="display:flex;gap:16px;">
-        <div><div style="font-size:11px;color:var(--t4);">Сумма</div><div style="font-size:15px;font-weight:600;">₽ 28 000</div></div>
-        <div><div style="font-size:11px;color:var(--t4);">Дней</div><div style="font-size:15px;font-weight:600;">3</div></div>
-      </div>
+    <div id="svc-active-list">
+      <div class="card" style="text-align:center;color:var(--t4);font-size:13px;padding:24px;">Нет активных ремонтов</div>
     </div>
   </div>
 
@@ -2254,19 +2218,19 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <button class="back-btn" onclick="hideSub('svc-menu','svc-card')">‹ Сервис</button>
 
     <!-- Шапка карточки -->
-    <div style="background:var(--bg3);border-radius:var(--r2);padding:18px;margin-bottom:10px;">
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:18px;margin-bottom:10px;" id="svc-card-header">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div>
-          <div style="font-size:20px;font-weight:700;">803 · Ходовка</div>
-          <div style="font-size:13px;color:var(--t3);margin-top:3px;">ID #247 · открыт 28.03.2026</div>
+          <div style="font-size:20px;font-weight:700;" id="svc-card-title">—</div>
+          <div style="font-size:13px;color:var(--t3);margin-top:3px;" id="svc-card-meta">—</div>
         </div>
-        <div class="svc-badge orange" style="font-size:13px;padding:6px 12px;">в работе</div>
+        <div class="svc-badge orange" style="font-size:13px;padding:6px 12px;" id="svc-card-status">—</div>
       </div>
       <div style="height:1px;background:var(--sep);margin-bottom:12px;"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div><div style="font-size:11px;color:var(--t4);">Пробег при открытии</div><div style="font-size:15px;font-weight:600;">142 500 км</div></div>
-        <div><div style="font-size:11px;color:var(--t4);">Тип ремонта</div><div style="font-size:15px;font-weight:600;">Свой</div></div>
-        <div style="grid-column:1/-1"><div style="font-size:11px;color:var(--t4);">Описание</div><div style="font-size:14px;margin-top:2px;">Стук при повороте, замена шаровой опоры передней левой</div></div>
+        <div><div style="font-size:11px;color:var(--t4);">Пробег при открытии</div><div style="font-size:15px;font-weight:600;" id="svc-card-km">—</div></div>
+        <div><div style="font-size:11px;color:var(--t4);">Тип ремонта</div><div style="font-size:15px;font-weight:600;" id="svc-card-type">—</div></div>
+        <div style="grid-column:1/-1"><div style="font-size:11px;color:var(--t4);">Описание</div><div style="font-size:14px;margin-top:2px;" id="svc-card-desc">—</div></div>
       </div>
     </div>
 
@@ -2283,44 +2247,20 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
 
     <!-- Работы -->
     <div class="sec-lbl">Работы</div>
-    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;">
-      <div class="svc-work-row">
-        <div class="svc-work-info">
-          <div class="svc-work-title">Снятие и установка шаровой опоры</div>
-          <div class="svc-work-sub">Механик Сидоров · 28.03</div>
-        </div>
-      </div>
-      <div class="svc-work-row" style="border:none">
-        <div class="svc-work-info">
-          <div class="svc-work-title">Развал-схождение</div>
-          <div class="svc-work-sub">Механик Сидоров · 29.03</div>
-        </div>
-      </div>
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;" id="svc-card-works">
+      <div style="text-align:center;color:var(--t4);font-size:13px;padding:14px;">Нет работ</div>
     </div>
-    <button class="big-btn dark" style="margin-bottom:10px;" onclick="alert('Добавить работу')">
+    <button class="big-btn dark" style="margin-bottom:10px;" onclick="addRepairWork()">
       <div class="btn-ico">➕</div>
       <div class="btn-body"><div class="btn-title">Добавить работу</div></div>
     </button>
 
     <!-- Расходы -->
     <div class="sec-lbl">Расходы</div>
-    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;">
-      <div class="svc-work-row">
-        <div class="svc-work-info">
-          <div class="svc-work-title">Шаровая опора БЕЛКАРД</div>
-          <div class="svc-work-sub">Автозапчасти · нал · 28.03</div>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:var(--red);">₽ 2 800</div>
-      </div>
-      <div class="svc-work-row" style="border:none">
-        <div class="svc-work-info">
-          <div class="svc-work-title">Расходники (болты, гайки)</div>
-          <div class="svc-work-sub">Автозапчасти · нал · 28.03</div>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:var(--red);">₽ 400</div>
-      </div>
+    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;" id="svc-card-expenses">
+      <div style="text-align:center;color:var(--t4);font-size:13px;padding:14px;">Нет расходов</div>
     </div>
-    <button class="big-btn dark" style="margin-bottom:10px;" onclick="alert('Добавить расход')">
+    <button class="big-btn dark" style="margin-bottom:10px;" onclick="addRepairExpense()">
       <div class="btn-ico">➕</div>
       <div class="btn-body"><div class="btn-title">Добавить расход</div></div>
     </button>
@@ -2329,7 +2269,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:14px;color:var(--t3);">Итого расходов</span>
-        <span style="font-size:20px;font-weight:700;color:var(--red);">₽ 3 200</span>
+        <span style="font-size:20px;font-weight:700;color:var(--red);" id="svc-card-total">—</span>
       </div>
     </div>
 
@@ -2359,89 +2299,11 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
   <!-- Главное меню -->
   <div id="parts-menu">
 
-    <button class="big-btn purple" onclick="showSub('parts-new')">
+    <button class="big-btn" style="background:var(--purple)" onclick="showSub('parts-new')">
       <div class="btn-ico">➕</div>
       <div class="btn-body"><div class="btn-title">Новая закупка</div><div class="btn-sub">Добавить запчасть</div></div>
       <span class="chevron">›</span>
     </button>
-
-    <!-- Итоги -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-      <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
-        <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">За месяц</div>
-        <div style="font-size:24px;font-weight:700;color:var(--red);">₽ 47 200</div>
-      </div>
-      <div style="background:var(--bg3);border-radius:var(--r2);padding:16px;">
-        <div style="font-size:12px;color:var(--t3);margin-bottom:4px;">В долг</div>
-        <div style="font-size:24px;font-weight:700;color:var(--orange);">₽ 8 400</div>
-      </div>
-    </div>
-
-    <div class="sec-lbl">Последние закупки</div>
-    <div class="card">
-      <div class="parts-row">
-        <div class="parts-cat-dot" style="background:var(--accent2)"></div>
-        <div class="parts-info">
-          <div class="parts-title">Шаровая опора БЕЛКАРД</div>
-          <div class="parts-sub">803 · Ходовка · Автозапчасти на Кузнецком</div>
-        </div>
-        <div class="parts-right">
-          <div class="parts-price">₽ 2 800</div>
-          <div class="parts-pay-badge green">нал</div>
-        </div>
-      </div>
-      <div class="parts-row">
-        <div class="parts-cat-dot" style="background:var(--orange)"></div>
-        <div class="parts-info">
-          <div class="parts-title">Фильтр масляный Mann</div>
-          <div class="parts-sub">729 · Двигатель · ЗИП-Маркет</div>
-        </div>
-        <div class="parts-right">
-          <div class="parts-price">₽ 1 200</div>
-          <div class="parts-pay-badge green">безнал</div>
-        </div>
-      </div>
-      <div class="parts-row">
-        <div class="parts-cat-dot" style="background:var(--red)"></div>
-        <div class="parts-info">
-          <div class="parts-title">Колодки тормозные</div>
-          <div class="parts-sub">137 · Тормоза · Вольво-Трак</div>
-        </div>
-        <div class="parts-right">
-          <div class="parts-price">₽ 8 400</div>
-          <div class="parts-pay-badge orange">в долг</div>
-        </div>
-      </div>
-      <div class="parts-row" style="border:none">
-        <div class="parts-cat-dot" style="background:var(--green)"></div>
-        <div class="parts-info">
-          <div class="parts-title">Масло моторное 10W-40 (20л)</div>
-          <div class="parts-sub">803 · Двигатель · АЗС Газпромнефть</div>
-        </div>
-        <div class="parts-right">
-          <div class="parts-price">₽ 4 600</div>
-          <div class="parts-pay-badge green">нал</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Долги -->
-    <div class="sec-lbl">Долги поставщикам</div>
-    <div class="card">
-      <div class="parts-row">
-        <div class="parts-info">
-          <div class="parts-title">Вольво-Трак</div>
-          <div class="parts-sub">Колодки тормозные · 137 · 28.03</div>
-        </div>
-        <div class="parts-right">
-          <div class="parts-price" style="color:var(--orange)">₽ 8 400</div>
-          <div style="font-size:11px;color:var(--t4);text-align:right;margin-top:2px;">2 дня</div>
-        </div>
-      </div>
-      <div class="parts-row" style="border:none">
-        <button class="rep-btn" style="width:100%;text-align:center;border-radius:10px;padding:10px;" onclick="alert('Отметить как оплачено')">Отметить оплаченным</button>
-      </div>
-    </div>
 
   </div>
 
@@ -2510,24 +2372,19 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="form-lbl">Форма оплаты</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <label class="pay-toggle-row">
-          <input type="checkbox" id="pay-nal" onchange="togglePartsDebt()">
+          <input type="checkbox" id="pay-nal">
           <span class="pay-toggle-label">Нал</span>
           <span class="pay-toggle-hint">оплачено наличными</span>
         </label>
         <label class="pay-toggle-row">
-          <input type="checkbox" id="pay-beznal" onchange="togglePartsDebt()">
+          <input type="checkbox" id="pay-beznal">
           <span class="pay-toggle-label">Безнал</span>
           <span class="pay-toggle-hint">оплачено картой / переводом</span>
-        </label>
-        <label class="pay-toggle-row" style="border-color:rgba(255,159,10,.3)">
-          <input type="checkbox" id="pay-dolg" onchange="togglePartsDebt()">
-          <span class="pay-toggle-label" style="color:var(--orange)">В долг</span>
-          <span class="pay-toggle-hint">частично или полностью</span>
         </label>
       </div>
     </div>
 
-    <!-- Блок для долга -->
+    <!-- Блок для долга (отключён) -->
     <div id="parts-debt-block" style="display:none">
       <div class="form-block">
         <div class="form-lbl">Сумма долга (₽)</div>
@@ -2597,16 +2454,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
             <span style="color:var(--t4);">›</span>
           </button>
 
-          <button class="role-btn" onclick="loginAs('economist')">
-            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
-            <div class="role-info"><div class="role-name">Экономист</div><div class="role-sub">Миксеры · наличные · ДДС</div></div>
-            <span style="color:var(--t4);">›</span>
-          </button>
-          <button class="role-btn" onclick="loginAs('logist')">
-            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
-            <div class="role-info"><div class="role-name">Логист</div><div class="role-sub">Длинномеры · заказы</div></div>
-            <span style="color:var(--t4);">›</span>
-          </button>
           <button class="role-btn" onclick="loginAs('director')" style="border-color:rgba(48,209,88,.3);">
             <span class="role-icon" style="font-size:20px;color:var(--green);">○</span>
             <div class="role-info"><div class="role-name" style="color:var(--green);">Директор</div><div class="role-sub">Полный доступ</div></div>
@@ -2777,6 +2624,144 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
   </div>
 </div>
 
+<!-- ═══════════════════════════════ КАБИНЕТ ЭКОНОМИСТА ═══════════════════════════════ -->
+<div class="screen" id="s-economist-cash">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Экономист</div>
+      <div class="page-sub" id="eco-period-label">Движение наличных денежных средств</div>
+    </div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
+  </div>
+
+  <!-- Период -->
+  <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+    <button class="period-btn" onclick="setEcoPeriod('today',this)">Сегодня</button>
+    <button class="period-btn" onclick="setEcoPeriod('week',this)">Неделя</button>
+    <button class="period-btn active" onclick="setEcoPeriod('month',this)">Месяц</button>
+    <button class="period-btn" onclick="pickEcoMonth(this)">Выбрать месяц</button>
+    <button class="period-btn" onclick="setEcoPeriod('all',this)">Всё</button>
+  </div>
+
+  <!-- Главные карточки -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+    <div class="dir-card" style="grid-column:1/-1;cursor:pointer" onclick="ecoFilterHistory('all')">
+      <div class="dir-card-lbl">💵 Касса (нал)</div>
+      <div class="dir-card-val orange" id="eco-cash">—</div>
+      <div class="dir-card-delta" id="eco-cash-delta" style="color:var(--t3);font-size:12px"></div>
+    </div>
+    <div class="dir-card" style="cursor:pointer" onclick="showEcoDriversBreakdown()">
+      <div class="dir-card-lbl">👥 У водителей</div>
+      <div class="dir-card-val red" id="eco-drivers">—</div>
+      <div class="dir-card-delta" id="eco-drivers-delta" style="color:var(--t3);font-size:12px"></div>
+    </div>
+    <div class="dir-card" style="cursor:pointer" onclick="showEcoDebtsBreakdown()">
+      <div class="dir-card-lbl">📋 Долги клиентов</div>
+      <div class="dir-card-val red" id="eco-debts">—</div>
+      <div class="dir-card-delta" id="eco-debts-delta" style="color:var(--t3);font-size:12px"></div>
+    </div>
+  </div>
+
+  <!-- За период -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+    <div class="dir-card" style="cursor:pointer" onclick="ecoFilterHistory('in')">
+      <div class="dir-card-lbl">📅 Поступления</div>
+      <div class="dir-card-val green" id="eco-today-in">—</div>
+    </div>
+    <div class="dir-card" style="cursor:pointer" onclick="ecoFilterHistory('out')">
+      <div class="dir-card-lbl">📤 Расходы</div>
+      <div class="dir-card-val red" id="eco-today-out">—</div>
+    </div>
+  </div>
+
+  <!-- Действия -->
+  <button class="big-btn green" onclick="showSub('eco-collect')">
+    <div class="btn-ico">💸</div>
+    <div class="btn-body"><div class="btn-title">Принять нал от водителя</div><div class="btn-sub">Сдача в кассу</div></div>
+    <span class="chevron">›</span>
+  </button>
+  <button class="big-btn red" onclick="showSub('eco-expense')">
+    <div class="btn-ico">📤</div>
+    <div class="btn-body"><div class="btn-title">Расход из кассы</div><div class="btn-sub">Аванс · покупка · прочее</div></div>
+    <span class="chevron">›</span>
+  </button>
+  <button class="big-btn dark" onclick="loadEconomistDashboard()">
+    <div class="btn-ico">🔄</div>
+    <div class="btn-body"><div class="btn-title">Обновить</div></div>
+  </button>
+
+  <!-- История -->
+  <div class="sec-lbl">Последние движения кассы</div>
+  <div class="card" id="eco-history-list">
+    <div style="text-align:center;padding:18px;color:var(--t4);font-size:13px;">Нет движений</div>
+  </div>
+
+  <!-- ═══ ПРИНЯТЬ НАЛ ═══ -->
+  <div class="sub-screen" id="eco-collect">
+    <button class="back-btn" onclick="hideSub('s-economist-cash','eco-collect')">‹ Касса</button>
+    <div class="page-title" style="margin-bottom:20px">Принять нал от водителя</div>
+
+    <div class="form-block">
+      <div class="form-lbl">Водитель</div>
+      <div class="chips" id="eco-collect-driver-chips">
+        <button class="chip on" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите ФИО водителя">
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" placeholder="Например: 18000" inputmode="numeric" id="eco-collect-amount">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Комментарий</div>
+      <input class="inp" type="text" placeholder="За какие рейсы / период" id="eco-collect-comment">
+    </div>
+
+    <button class="submit green" onclick="submitEcoCollect(this)">Принять в кассу</button>
+  </div>
+
+  <!-- ═══ РАСХОД ═══ -->
+  <div class="sub-screen" id="eco-expense">
+    <button class="back-btn" onclick="hideSub('s-economist-cash','eco-expense')">‹ Касса</button>
+    <div class="page-title" style="margin-bottom:20px">Расход из кассы</div>
+
+    <div class="form-block">
+      <div class="form-lbl">Категория</div>
+      <div class="chips">
+        <button class="chip on" onclick="sel(this)">Аванс водителю</button>
+        <button class="chip" onclick="sel(this)">Аванс слесарю</button>
+        <button class="chip" onclick="sel(this)">Запчасти</button>
+        <button class="chip" onclick="sel(this)">Топливо</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите категорию">
+      </div>
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" placeholder="Например: 5000" inputmode="numeric" id="eco-expense-amount">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Кому / на что</div>
+      <input class="inp" type="text" placeholder="ФИО или описание" id="eco-expense-recipient">
+    </div>
+
+    <div class="form-block">
+      <div class="form-lbl">Комментарий</div>
+      <input class="inp" type="text" placeholder="Опционально" id="eco-expense-comment">
+    </div>
+
+    <button class="submit red" onclick="submitEcoExpense(this)">Записать расход</button>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════ КАБИНЕТ СЛЕСАРЯ ═══════════════════════════════ -->
 <div class="screen" id="s-mechanic-dash">
   <div class="topbar">
@@ -2787,7 +2772,27 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <button onclick="loginAs('login')" style="background:none;border:none;color:var(--t3);font-size:13px;cursor:pointer;">Выйти</button>
   </div>
 
-  <!-- 4 РАЗДЕЛА НАВЕРХУ -->
+  <!-- МИНИ-ДАШБОРД ЗАРПЛАТЫ -->
+  <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+      <div>
+        <div style="font-size:12px;color:var(--t3);">Заработано</div>
+        <div style="font-size:28px;font-weight:700;color:var(--green);" id="mech-mini-total">₽ 0</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:2px;" id="mech-mini-shifts">0 смен × ₽6 000</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:12px;color:var(--t3);">Авансы + топливо</div>
+        <div style="font-size:18px;font-weight:700;color:var(--red);" id="mech-mini-advances">− ₽ 0</div>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--sep);margin:8px 0;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:13px;color:var(--t3);">К выплате</span>
+      <span style="font-size:20px;font-weight:700;color:var(--t1);" id="mech-mini-topay">₽ 0</span>
+    </div>
+  </div>
+
+  <!-- 4 РАЗДЕЛА -->
   <button class="big-btn" onclick="go('s-service')">
     <div class="btn-ico">🔧</div>
     <div class="btn-body"><div class="btn-title">Ремонты</div><div class="btn-sub">Активные · история · заявки</div></div>
@@ -2957,7 +2962,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     </div>
 
     <!-- Отметить смену -->
-    <button class="big-btn dark" onclick="alert('Отметить выход на смену')">
+    <button class="big-btn dark" onclick="markMechShift('today')">
       <div class="btn-ico">✓</div>
       <div class="btn-body"><div class="btn-title">Отметить выход сегодня</div></div>
     </button>
@@ -3003,7 +3008,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       </div>
     </div>
 
-    <button class="big-btn dark" onclick="alert('Запросить аванс — директор получит уведомление')">
+    <button class="big-btn dark" onclick="requestAdvance()">
       <div class="btn-ico">💸</div>
       <div class="btn-body"><div class="btn-title">Запросить аванс</div><div class="btn-sub">Директор получит уведомление</div></div>
     </button>
@@ -3166,8 +3171,6 @@ var ROLE_HOME = {
   "driver": "s-home", 
   "mixer": "s-mixer",
   "mechanic": "s-mechanic-dash",
-  "economist": "s-economist-cash",
-  "logist": "s-dlinn",
   "director": "s-director"
 };
 
@@ -3180,6 +3183,7 @@ var ROLE_NAV = {
     {icon:"🧾", label:"Расходы", screen:"s-expense"}
   ],
   "mixer": [
+    {icon:"🏠", label:"Главная", screen:"s-driver-dash"},
     {icon:"🔄", label:"Миксеры", screen:"s-mixer"}
   ],
   "mechanic": [
@@ -3187,18 +3191,11 @@ var ROLE_NAV = {
     {icon:"🔩", label:"Запчасти", screen:"s-parts"},
     {icon:"👤", label:"Кабинет", screen:"s-mechanic-dash"}
   ],
-  "economist": [
-    {icon:"🔄", label:"Миксеры", screen:"s-mixer"},
-    {icon:"💵", label:"Наличные", screen:"s-economist-cash"}
-  ],
-  "logist": [
-    {icon:"🚚", label:"Длинномеры", screen:"s-dlinn"}
-  ],
   "director": [
     {icon:"📊", label:"Дашборд", screen:"s-director"},
     {icon:"🚛", label:"Рейсы", screen:"s-home"},
     {icon:"🔧", label:"Сервис", screen:"s-service"},
-    {icon:"🔩", label:"Запчасти", screen:"s-parts"},
+    {icon:"💵", label:"Экономист", screen:"s-economist-cash"},
     {icon:"👥", label:"Команда", screen:"s-driver-dash"}
   ]
 };
@@ -3724,20 +3721,94 @@ function toggleDengi(show){
   if(b) b.style.display = show ? 'block' : 'none';
 }
 
-const PERIOD_DATA = {
-  day:  {revenue:'₽ 187 400', delta:'↑ +12% к вчера', exp:'₽ 19 580', expDelta:'топливо + ремонт', profit:'₽ 167 820'},
-  week: {revenue:'₽ 1 124 000', delta:'↑ +8% к прошлой', exp:'₽ 98 200', expDelta:'за 7 дней', profit:'₽ 1 025 800'},
-  month:{revenue:'₽ 4 870 000', delta:'↑ +15% к прошлому', exp:'₽ 412 000', expDelta:'за 30 дней', profit:'₽ 4 458 000'},
-};
+var dirPeriod = 'month';
 function setPeriod(p, btn){
   document.querySelectorAll('#dir-tab-dashboard .period-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const d = PERIOD_DATA[p];
-  document.getElementById('dir-revenue').textContent = d.revenue;
-  document.getElementById('dir-revenue-delta').textContent = d.delta;
-  document.getElementById('dir-expenses').textContent = d.exp;
-  document.getElementById('dir-exp-delta').textContent = d.expDelta;
-  document.getElementById('dir-profit').textContent = d.profit;
+  if (btn) btn.classList.add('active');
+  dirPeriod = p;
+  loadDirectorDashboard();
+}
+
+function loadDirectorDashboard(){
+  apiRequest('get_director_dashboard', { period: dirPeriod }).then(function(res){
+    if (res.status !== 'ok') return;
+    var d = res.dashboard || {};
+    var setT = function(id, v){ var el = document.getElementById(id); if (el) el.textContent = v; };
+    var fmt = function(n){ return '₽ ' + Math.round(n||0).toLocaleString('ru-RU'); };
+    setT('dir-revenue', fmt(d.revenue));
+    setT('dir-expenses', fmt(d.expenses));
+    setT('dir-profit', fmt(d.profit));
+    setT('dir-cash', fmt(d.cash_balance));
+    setT('dir-debts', fmt(d.client_debts));
+    setT('dir-trips-count', String(d.trips_count || 0));
+    setT('dir-active-count', String(d.in_work || 0));
+    setT('dir-repair-count', String(d.in_repair || 0));
+  }).catch(function(){});
+}
+
+function addRepairWork(){
+  var desc = prompt('Что сделано? (например: Замена шаровой опоры передней левой)');
+  if (!desc || !desc.trim()) return;
+  var truck = (document.getElementById('svc-card-title') || {}).textContent || '';
+  var data = { type: 'work', description: desc.trim(), truck: truck.split(' · ')[0] || '', status: 'open' };
+  sendToAPI('dlinn_repair', data, function(){ showNotification('Работа добавлена'); loadServiceLists(); });
+}
+function addRepairExpense(){
+  var amount = prompt('Сумма расхода (₽):');
+  if (!amount || isNaN(amount) || Number(amount) <= 0) return;
+  var desc = prompt('Что куплено / заплачено за?');
+  if (!desc || !desc.trim()) return;
+  var truck = (document.getElementById('svc-card-title') || {}).textContent || '';
+  var data = {
+    type: 'expense', description: desc.trim(), cost: Number(amount),
+    truck: truck.split(' · ')[0] || '', category: 'Ремонт', amount: Number(amount),
+  };
+  sendToAPI('dlinn_expense', data, function(){ showNotification('Расход на ₽' + Number(amount).toLocaleString() + ' записан'); loadServiceLists(); });
+}
+
+function loadServiceLists(){
+  apiRequest('get_recent_repairs', {}).then(function(res){
+    if (res.status !== 'ok') return;
+    var list = document.getElementById('svc-recent-list');
+    var items = (res.repairs || []).slice(0, 5);
+    if (!list) return;
+    if (!items.length) { list.innerHTML = '<div style="text-align:center;padding:18px;color:var(--t4);font-size:13px;">Нет данных</div>'; return; }
+    var html = '';
+    for (var i = 0; i < items.length; i++) {
+      var r = items[i];
+      var statusColor = (r.status||'').toLowerCase().indexOf('закры') >= 0 ? 'var(--green)' : 'var(--orange)';
+      html += '<div class="svc-card-row">'
+        + '<div class="svc-status-dot" style="background:' + statusColor + '"></div>'
+        + '<div class="svc-card-info">'
+        +   '<div class="svc-card-title">' + esc(r.truck) + ' · ' + esc(r.type || '—') + '</div>'
+        +   '<div class="svc-card-sub">' + esc(r.description || '—') + (r.cost ? ' · ₽ ' + Math.round(r.cost).toLocaleString('ru-RU') : '') + '</div>'
+        + '</div>'
+        + '<div class="svc-card-right"><div class="svc-card-km">' + esc(r.date) + '</div></div>'
+        + '</div>';
+    }
+    list.innerHTML = html;
+  }).catch(function(){});
+  apiRequest('get_active_repairs', {}).then(function(res){
+    if (res.status !== 'ok') return;
+    var counter = document.getElementById('svc-active-counter');
+    var n = (res.repairs || []).length;
+    if (counter) counter.textContent = n ? (n + ' открыт' + (n===1?'':'ых')) : 'нет открытых';
+    var list = document.getElementById('svc-active-list');
+    if (!list) return;
+    if (!n) { list.innerHTML = '<div class="card" style="text-align:center;color:var(--t4);font-size:13px;padding:24px;">Нет активных ремонтов</div>'; return; }
+    var html = '';
+    res.repairs.forEach(function(r){
+      html += '<div class="svc-active-card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'
+        + '<div class="svc-status-dot" style="background:var(--orange);width:12px;height:12px;"></div>'
+        + '<div style="font-size:16px;font-weight:600;">' + esc(r.truck) + ' · ' + esc(r.type || '—') + '</div>'
+        + '<div class="svc-badge orange" style="margin-left:auto">' + esc(r.status || 'в работе') + '</div>'
+        + '</div>'
+        + '<div style="font-size:13px;color:var(--t3);margin-bottom:6px;">' + esc(r.description || '—') + '</div>'
+        + '<div style="font-size:12px;color:var(--t4);">открыт ' + esc(r.date) + (r.mechanic ? ' · ' + esc(r.mechanic) : '') + (r.cost ? ' · ₽ ' + Math.round(r.cost).toLocaleString('ru-RU') : '') + '</div>'
+        + '</div>';
+    });
+    list.innerHTML = html;
+  }).catch(function(){});
 }
 
 // ═══════════════════ ДИРЕКТОР — ВКЛАДКИ ═══════════════════
@@ -3894,21 +3965,7 @@ function initDirDate(){
   const el = document.getElementById('dir-date');
   if(el) el.textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} · обновлено ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
-const DRIVER_DATA = {
-  day:  {earned:'₽ 10 000', advance:'− ₽ 3 000', topay:'₽ 7 000', trips:'4', tons:'125 т'},
-  month:{earned:'₽ 136 000', advance:'− ₽ 8 000', topay:'₽ 128 000', trips:'68', tons:'2 140 т'},
-};
-function setDriverPeriod(p, btn){
-  document.querySelectorAll('#s-driver-dash .period-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const d = DRIVER_DATA[p];
-  const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
-  set('drv-earned', d.earned);
-  set('drv-advance', d.advance);
-  set('drv-topay', d.topay);
-  set('drv-trips-day', p==='day' ? d.trips : '68');
-  set('drv-tons-day', p==='day' ? d.tons : '2 140 т');
-}
+// Старая mock-версия setDriverPeriod удалена — реальная функция определена ниже (использует API)
 
 // Система ролей
 
@@ -3983,14 +4040,89 @@ function hideMechSections() {
 }
 
 function markMechShift(mode) {
-  const today = new Date();
-  let dateStr;
-  if (mode === 'today') {
-    dateStr = today.toLocaleDateString('ru');
-  } else {
-    dateStr = today.toLocaleDateString('ru');
+  if (mode === 'pick-date') {
+    openMechShiftCalendar();
+    return;
   }
-  // Проверить дубликат
+  const today = new Date().toLocaleDateString('ru');
+  addMechShift(today);
+}
+
+var _mechCalState = { year: 0, month: 0 };
+
+function openMechShiftCalendar() {
+  var overlay = document.getElementById('mech-shift-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'mech-shift-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+    overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.style.display = 'none'; });
+    overlay.innerHTML = '<div style="background:var(--bg3);border-radius:18px;padding:18px;max-width:340px;width:100%;border:1px solid var(--sep);">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
+      +   '<div style="font-size:16px;font-weight:700;">Выберите дату смены</div>'
+      +   '<button onclick="document.getElementById(\'mech-shift-overlay\').style.display=\'none\'" style="background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;">×</button>'
+      + '</div>'
+      + '<div id="mech-shift-cal-body"></div>'
+      + '</div>';
+    document.body.appendChild(overlay);
+  }
+  overlay.style.display = 'flex';
+  var now = new Date();
+  _mechCalState.year = now.getFullYear();
+  _mechCalState.month = now.getMonth();
+  renderMechShiftCal();
+}
+
+function renderMechShiftCal() {
+  var body = document.getElementById('mech-shift-cal-body');
+  if (!body) return;
+  var year = _mechCalState.year;
+  var month = _mechCalState.month;
+  var firstDay = new Date(year, month, 1);
+  var lastDay = new Date(year, month + 1, 0);
+  var startDow = firstDay.getDay();
+  startDow = startDow === 0 ? 6 : startDow - 1;
+  var today = new Date();
+  var monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  var dayNames = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  var existing = {};
+  (mechState.shifts || []).forEach(function(s){ existing[s.date] = true; });
+  var prevY = month === 0 ? year - 1 : year;
+  var prevM = month === 0 ? 11 : month - 1;
+  var nextY = month === 11 ? year + 1 : year;
+  var nextM = month === 11 ? 0 : month + 1;
+  var html = '<div class="cal-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+    +   '<button class="cal-nav" onclick="_mechCalState={year:' + prevY + ',month:' + prevM + '};renderMechShiftCal()" style="background:none;border:none;color:var(--accent2);font-size:22px;cursor:pointer;padding:4px 10px;">‹</button>'
+    +   '<span class="cal-month">' + monthNames[month] + ' ' + year + '</span>'
+    +   '<button class="cal-nav" onclick="_mechCalState={year:' + nextY + ',month:' + nextM + '};renderMechShiftCal()" style="background:none;border:none;color:var(--accent2);font-size:22px;cursor:pointer;padding:4px 10px;">›</button>'
+    + '</div>'
+    + '<div class="cal-grid">';
+  dayNames.forEach(function(d){ html += '<div class="cal-day-name">' + d + '</div>'; });
+  for (var i = 0; i < startDow; i++) html += '<div></div>';
+  for (var d = 1; d <= lastDay.getDate(); d++) {
+    var dt = new Date(year, month, d);
+    var dateStr = dt.toLocaleDateString('ru');
+    var isToday = dt.toDateString() === today.toDateString();
+    var isFuture = dt > today;
+    var isExisting = !!existing[dateStr];
+    var bgColor = isExisting ? 'background:rgba(52,209,122,.25);color:var(--green);' : (isToday ? 'background:var(--accent-dim);color:var(--accent2);font-weight:700;' : '');
+    var disabled = isFuture ? 'opacity:.3;pointer-events:none;' : '';
+    html += '<button class="cal-day" style="' + bgColor + disabled + '" onclick="_pickMechShiftDay(\'' + dateStr + '\')">' + d + '</button>';
+  }
+  html += '</div>'
+    + '<div style="font-size:11px;color:var(--t3);margin-top:12px;text-align:center;">'
+    +   '<span style="color:var(--green)">●</span> уже отмечено · '
+    +   '<span style="color:var(--accent2)">●</span> сегодня'
+    + '</div>';
+  body.innerHTML = html;
+}
+
+function _pickMechShiftDay(dateStr) {
+  document.getElementById('mech-shift-overlay').style.display = 'none';
+  addMechShift(dateStr);
+}
+
+function addMechShift(dateStr) {
   for (let i = 0; i < mechState.shifts.length; i++) {
     if (mechState.shifts[i].date === dateStr) {
       alert('Смена за ' + dateStr + ' уже отмечена!');
@@ -4004,30 +4136,77 @@ function markMechShift(mode) {
     return db.localeCompare(da);
   });
   renderMechShifts();
-  alert('Смена отмечена! +₽6 000');
+  sendToAPI('mechanic_record', { type: 'shift', date: dateStr, rate: 6000 }, function(){
+    showNotification('Смена ' + dateStr + ' сохранена');
+  });
 }
 
 function renderMechShifts() {
   const list = document.getElementById('mech-shifts-list');
-  if (!list) return;
-  if (mechState.shifts.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t4);">Пока нет смен. Отметьте первый выход!</div>';
-  } else {
-    let html = '';
-    let total = 0;
-    for (let i = 0; i < mechState.shifts.length; i++) {
-      const s = mechState.shifts[i];
-      total += s.pay;
-      const d = s.date;
-      html += '<div class="list-row"><div class="row-dot dot-green"></div><div class="row-info"><div class="row-title">Смена</div><div class="row-sub">' + d + '</div></div><div class="row-right"><div class="row-val" style="color:var(--green);">+₽' + s.pay.toLocaleString() + '</div></div></div>';
+  if (list) {
+    if (mechState.shifts.length === 0) {
+      list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t4);">Пока нет смен. Отметьте первый выход!</div>';
+    } else {
+      let html = '';
+      for (let i = 0; i < mechState.shifts.length; i++) {
+        const s = mechState.shifts[i];
+        const d = s.date;
+        html += '<div class="list-row"><div class="row-dot dot-green"></div><div class="row-info"><div class="row-title">Смена</div><div class="row-sub">' + d + '</div></div><div class="row-right"><div class="row-val" style="color:var(--green);">+₽' + s.pay.toLocaleString() + '</div></div></div>';
+      }
+      list.innerHTML = html;
     }
-    list.innerHTML = html;
-    document.getElementById('mech-total').textContent = '₽ ' + total.toLocaleString();
-    document.getElementById('mech-shifts-info').textContent = mechState.shifts.length + ' смен × ₽6 000';
-    const advancesTotal = mechState.advances.reduce(function(s, a) { return s + a.amount; }, 0);
-    document.getElementById('mech-advances-total').textContent = '− ₽ ' + advancesTotal.toLocaleString();
-    document.getElementById('mech-to-pay').textContent = '₽ ' + (total - advancesTotal).toLocaleString();
   }
+  recalcMechSalary();
+}
+
+function loadMechanicDashboard() {
+  apiRequest('get_mechanic_dashboard', {}).then(function(res){
+    if (res.status !== 'ok') { recalcMechSalary(); return; }
+    var d = res.dashboard || {};
+    mechState.shifts = (d.shifts || []).map(function(s){ return { date: s.date, pay: s.pay || 6000 }; });
+    mechState.advances = (d.advances || []).map(function(a){ return { date: a.date, amount: a.amount || 0 }; });
+    mechState.fuels = (d.fuels || []).map(function(f){ return { date: f.date, liters: f.liters || 0, cost: f.cost || 0, station: f.station || '' }; });
+    mechState.shifts.sort(function(a, b){
+      var da = (a.date||'').split('.').reverse().join('');
+      var db = (b.date||'').split('.').reverse().join('');
+      return db.localeCompare(da);
+    });
+    if (typeof renderMechShifts === 'function') renderMechShifts();
+    if (typeof renderMechAdvances === 'function') renderMechAdvances();
+    // обновить fuel-list если открыт
+    var fuelList = document.getElementById('mech-fuel-list');
+    if (fuelList) {
+      var html = '';
+      var total = 0;
+      for (var i = 0; i < mechState.fuels.length; i++) {
+        var f = mechState.fuels[i];
+        total += f.cost || 0;
+        html += '<div class="list-row"><div class="row-dot dot-orange"></div><div class="row-info"><div class="row-title">Заправка ' + (f.liters ? f.liters + ' л' : '') + '</div><div class="row-sub">' + (f.date || '') + '</div></div><div class="row-right"><div class="row-val" style="color:var(--red);">−₽' + (f.cost||0).toLocaleString() + '</div></div></div>';
+      }
+      if (total > 0) html += '<div class="list-row" style="border:none"><div class="row-info"><div class="row-title" style="color:var(--t3)">Итого вычитается</div></div><div class="row-right"><div class="row-val" style="color:var(--red);font-weight:700">−₽' + total.toLocaleString() + '</div></div></div>';
+      fuelList.innerHTML = html || '<div style="text-align:center;padding:20px;color:var(--t4);">Пока нет заправок</div>';
+    }
+    recalcMechSalary();
+  }).catch(function(){ recalcMechSalary(); });
+}
+
+function recalcMechSalary() {
+  const shiftsTotal = mechState.shifts.reduce(function(s, sh) { return s + sh.pay; }, 0);
+  const advancesTotal = mechState.advances.reduce(function(s, a) { return s + a.amount; }, 0);
+  const fuelsTotal = mechState.fuels.reduce(function(s, f) { return s + (f.cost || 0); }, 0);
+  const totalDeducted = advancesTotal + fuelsTotal;
+  const toPay = shiftsTotal - totalDeducted;
+  const setT = function(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; };
+  // Детальный экран ЗП
+  setT('mech-total', '₽ ' + shiftsTotal.toLocaleString());
+  setT('mech-shifts-info', mechState.shifts.length + ' смен × ₽6 000');
+  setT('mech-advances-total', '− ₽ ' + totalDeducted.toLocaleString());
+  setT('mech-to-pay', '₽ ' + toPay.toLocaleString());
+  // Мини-дашборд на главной слесаря
+  setT('mech-mini-total', '₽ ' + shiftsTotal.toLocaleString());
+  setT('mech-mini-shifts', mechState.shifts.length + ' смен × ₽6 000');
+  setT('mech-mini-advances', '− ₽ ' + totalDeducted.toLocaleString());
+  setT('mech-mini-topay', '₽ ' + toPay.toLocaleString());
 }
 
 function requestAdvance() {
@@ -4037,42 +4216,60 @@ function requestAdvance() {
   const today = new Date().toLocaleDateString('ru');
   mechState.advances.push({ date: today, amount: num });
   renderMechAdvances();
-  alert('Запрос на ₽' + num.toLocaleString() + ' отправлен директору!');
+  sendToAPI('mechanic_record', { type: 'advance', date: today, advance_amount: num }, function(){
+    showNotification('Аванс ₽' + num.toLocaleString() + ' сохранён');
+  });
 }
 
 function renderMechAdvances() {
   const list = document.getElementById('mech-advances-list');
-  if (!list) return;
-  if (mechState.advances.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t4);">Пока нет авансов</div>';
-  } else {
-    let html = '';
-    for (let i = 0; i < mechState.advances.length; i++) {
-      const a = mechState.advances[i];
-      html += '<div class="list-row"><div class="row-dot dot-orange"></div><div class="row-info"><div class="row-title">Аванс</div><div class="row-sub">' + a.date + '</div></div><div class="row-right"><div class="row-val" style="color:var(--red);">−₽' + a.amount.toLocaleString() + '</div></div></div>';
+  if (list) {
+    if (mechState.advances.length === 0) {
+      list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t4);">Пока нет авансов</div>';
+    } else {
+      let html = '';
+      for (let i = 0; i < mechState.advances.length; i++) {
+        const a = mechState.advances[i];
+        html += '<div class="list-row"><div class="row-dot dot-orange"></div><div class="row-info"><div class="row-title">Аванс</div><div class="row-sub">' + a.date + '</div></div><div class="row-right"><div class="row-val" style="color:var(--red);">−₽' + a.amount.toLocaleString() + '</div></div></div>';
+      }
+      list.innerHTML = html;
     }
-    list.innerHTML = html;
   }
-  // Обновить к выплату
-  const total = mechState.shifts.reduce(function(s, sh) { return s + sh.pay; }, 0);
-  const advancesTotal = mechState.advances.reduce(function(s, a) { return s + a.amount; }, 0);
-  document.getElementById('mech-advances-total').textContent = '− ₽ ' + advancesTotal.toLocaleString();
-  document.getElementById('mech-to-pay').textContent = '₽ ' + (total - advancesTotal).toLocaleString();
+  recalcMechSalary();
 }
 
 function submitMechFuel() {
+  const inputs = document.querySelectorAll('#mech-fuel-new .inp');
+  // 0: литры, 1: стоимость, 2: цена за литр, 3: + Другое (если выбрано)
+  const liters = inputs[0] ? parseFloat(inputs[0].value) || 0 : 0;
+  const cost = inputs[1] ? parseFloat(inputs[1].value) || 0 : 0;
+  if (cost <= 0) { alert('Введите стоимость заправки'); return; }
   const today = new Date().toLocaleDateString('ru');
-  mechState.fuels.push({ date: today });
+  mechState.fuels.push({ date: today, liters: liters, cost: cost });
   const list = document.getElementById('mech-fuel-list');
   if (list) {
     let html = '';
+    let total = 0;
     for (let i = 0; i < mechState.fuels.length; i++) {
       const f = mechState.fuels[i];
-      html += '<div class="list-row"><div class="row-dot dot-orange"></div><div class="row-info"><div class="row-title">Заправка</div><div class="row-sub">' + f.date + '</div></div></div>';
+      total += f.cost || 0;
+      html += '<div class="list-row"><div class="row-dot dot-orange"></div><div class="row-info"><div class="row-title">Заправка ' + (f.liters ? f.liters + ' л' : '') + '</div><div class="row-sub">' + f.date + '</div></div><div class="row-right"><div class="row-val" style="color:var(--red);">−₽' + (f.cost||0).toLocaleString() + '</div></div></div>';
     }
+    if (total > 0) html += '<div class="list-row" style="border:none"><div class="row-info"><div class="row-title" style="color:var(--t3)">Итого вычитается</div></div><div class="row-right"><div class="row-val" style="color:var(--red);font-weight:700">−₽' + total.toLocaleString() + '</div></div></div>';
     list.innerHTML = html;
   }
-  alert('Заправка сохранена!');
+  recalcMechSalary();
+  var stationChip = document.querySelector('#mech-fuel-new .chip.on');
+  var station = stationChip ? stationChip.textContent.trim() : '';
+  sendToAPI('mechanic_record', {
+    type: 'fuel', date: today,
+    fuel_liters: liters, fuel_cost: cost, fuel_station: station
+  }, function(){
+    showNotification('Заправка сохранена');
+  });
+  // очистить поля
+  inputs.forEach(function(i){ if (i) i.value = ''; });
+  alert('Заправка сохранена! −₽' + cost.toLocaleString() + ' из ЗП');
   hideSub('mech-section-fuel-salary', 'mech-fuel-new');
 }
 
@@ -4114,12 +4311,14 @@ function toggleRepairType(type){
 
 // ═══════════════════ СИСТЕМА РОЛЕЙ ═══════════════════
 function logout(){
+  // Очистить локальный кэш сессии, чтобы при следующем входе спросило телефон
+  try { localStorage.removeItem('pulsar_session_v2'); } catch(e){}
   currentRole = null;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('s-login').classList.add('active');
   // Сбросить навигацию
   const nav = document.querySelector('.bottom-nav');
-  if(nav) nav.innerHTML = '';
+  if(nav) { nav.innerHTML = ''; nav.style.display = 'none'; }
 }
 
 function switchToService(){
@@ -4239,7 +4438,7 @@ var API_URL = 'https://worker-production-96a0.up.railway.app/api';
 // via Telegram initData (HMAC-signed by BOT_TOKEN). This key is just a filter
 // against random scanner traffic; rotate it together with the API_SECRET env
 // var on Railway. Generated 2026-04-27.
-var API_KEY = 'a39ee47e6602d0b4be6a91680fd69a4b474e1ff8e22091d091ab5159d2bcd418';
+var API_KEY = 'pulsar-api-secret-2026';
 
 function sendToAPI(action, data, onSuccess, onError) {
   if (window.Telegram && window.Telegram.WebApp && !window.location.hostname) {
@@ -4361,6 +4560,7 @@ function submitTonarTrip(btn){
     unload_tonnage: unloadTonnage,
     tn_front: getPreviewImageSrc('tn-front-img'),
     tn_back: getPreviewImageSrc('tn-back-img'),
+    paid: (document.getElementById('ton-paid') && document.getElementById('ton-paid').checked) ? 'Да' : 'Нет',
     status: 'ok'
   };
 
@@ -4387,6 +4587,69 @@ function submitTonarTrip(btn){
 }
 
 // ═══════════════════ МИКСЕР — ОТПРАВКА ═══════════════════
+var mixerRecent = [];
+try {
+  var saved = localStorage.getItem('pulsar_mix_recent');
+  if (saved) mixerRecent = JSON.parse(saved) || [];
+} catch(e) {}
+
+function pushMixerRecent(data){
+  mixerRecent.unshift({
+    plant: data.plant || '',
+    client: data.client || '',
+    address: data.address || '',
+    grade: data.grade || '',
+    volume: data.volume || '',
+    payment_type: data.payment_type || '',
+    delivery_cost: data.delivery_cost || '',
+    concrete_cost: data.concrete_cost || '',
+    arrive_time: data.arrive_time || '',
+    truck: data.truck || ''
+  });
+  mixerRecent = mixerRecent.slice(0, 2);
+  try { localStorage.setItem('pulsar_mix_recent', JSON.stringify(mixerRecent)); } catch(e) {}
+}
+
+function cubeWord(n){
+  n = Math.abs(parseInt(n,10));
+  if (isNaN(n) || n === 0) return 'кубов';
+  var mod10 = n % 10, mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'куб';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'куба';
+  return 'кубов';
+}
+
+function renderMixerRecent(){
+  var list = document.getElementById('mix-recent-list');
+  if (!list) return;
+  if (!mixerRecent.length) {
+    list.innerHTML = '<div style="text-align:center;padding:18px;color:var(--t4);font-size:13px;">Нет рейсов</div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < mixerRecent.length; i++) {
+    var t = mixerRecent[i];
+    var client = t.client || '—';
+    var volTxt = t.volume ? (t.volume + ' ' + cubeWord(t.volume)) : '';
+    var sub = [t.plant, t.grade, volTxt, t.payment_type].filter(Boolean).join(' · ');
+    var total = (parseFloat(t.concrete_cost)||0) + (parseFloat(t.delivery_cost)||0);
+    var dot = i === 0 ? 'dot-green' : 'dot-blue';
+    html += '<div class="list-row" style="align-items:flex-start;padding:12px 0;">'
+      + '<div class="row-dot ' + dot + '" style="margin-top:4px;"></div>'
+      + '<div class="row-info">'
+      +   '<div class="row-title" style="font-weight:600;">' + esc(client) + '</div>'
+      +   (t.address ? '<div class="row-sub" style="margin-top:2px;">📍 ' + esc(t.address) + '</div>' : '')
+      +   '<div class="row-sub" style="margin-top:4px;color:var(--t3);">' + esc(sub || '—') + '</div>'
+      + '</div>'
+      + '<div class="row-right">'
+      +   '<div class="row-val" style="color:var(--green);font-weight:700;">' + (total ? total.toLocaleString('ru-RU') + ' ₽' : '') + '</div>'
+      +   '<div class="row-time">' + esc(t.arrive_time || '') + '</div>'
+      + '</div>'
+      + '</div>';
+  }
+  list.innerHTML = html;
+}
+
 function submitMixerTrip(btn){
   const orig = btn.textContent;
   btn.textContent = '⏳ Отправка...';
@@ -4415,6 +4678,8 @@ function submitMixerTrip(btn){
     tn_number: inputs[8] ? inputs[8].value : '',
     tn_photo: getPreviewImageSrc('mix-tn-img'),
     report_photo: getPreviewImageSrc('mix-raport-img'),
+    paid: (document.getElementById('mix-paid') && document.getElementById('mix-paid').checked) ? 'Да' : 'Нет',
+    cash_received: (document.getElementById('mix-cash-received') && document.getElementById('mix-cash-received').value) || '',
     status: 'ok'
   };
 
@@ -4422,6 +4687,9 @@ function submitMixerTrip(btn){
     btn.textContent = '✅ Сохранено!';
     btn.style.background = 'var(--green)';
     showNotification('Рейс миксера сохранён' + (res.id ? ' ('+res.id+')' : ''));
+    pushMixerRecent(data);
+    renderMixerRecent();
+    if (typeof loadDriverCashBalance === 'function') loadDriverCashBalance();
     setTimeout(function(){
       hideSub('mix-menu','mix-new');
       btn.textContent = orig;
@@ -4571,6 +4839,7 @@ function submitDlinnTrip(btn){
     to: [toCity, toAddr].filter(Boolean).join(', '),
     cargo: [cargoInput ? cargoInput.value.trim() : '', qtyInput ? qtyInput.value.trim() : '', getFieldValue(blocks[7])].filter(Boolean).join(' '),
     tn_photo: getPreviewImageSrc('dln-tn-img'),
+    paid: (document.getElementById('dln-paid') && document.getElementById('dln-paid').checked) ? 'Да' : 'Нет',
     status: 'ok'
   };
 
@@ -4723,7 +4992,10 @@ function submitPartsPurchase(btn){
   var debtBlock = document.getElementById('parts-debt-block');
   var debtInputs = debtBlock ? debtBlock.querySelectorAll('.inp') : [];
   var debtForms = debtBlock ? debtBlock.querySelectorAll('.form-block') : [];
-  var payment = document.getElementById('pay-dolg').checked ? '\u0412 \u0434\u043e\u043b\u0433' : (document.getElementById('pay-beznal').checked ? '\u0411\u0435\u0437\u043d\u0430\u043b' : (document.getElementById('pay-nal').checked ? '\u041d\u0430\u043b' : ''));
+  var dolgEl = document.getElementById('pay-dolg');
+  var beznalEl = document.getElementById('pay-beznal');
+  var nalEl = document.getElementById('pay-nal');
+  var payment = (dolgEl && dolgEl.checked) ? '\u0412 \u0434\u043e\u043b\u0433' : (beznalEl && beznalEl.checked) ? '\u0411\u0435\u0437\u043d\u0430\u043b' : (nalEl && nalEl.checked) ? '\u041d\u0430\u043b' : '';
 
   var data = {
     date: new Date().toLocaleDateString('ru'),
@@ -4770,23 +5042,7 @@ function submitMechFuel(){
   }, function(){ showNotification('Ошибка сохранения'); });
 }
 
-function markMechShift(mode){
-  var data = {
-    date: new Date().toLocaleDateString('ru'),
-    type: 'shift',
-    rate: '6000'
-  };
-
-  sendToAPI('mechanic_record', data, function(res){
-    showNotification('Смена отмечена +₽6 000' + (res.id ? ' ('+res.id+')' : ''));
-    // Обновить UI
-    var total = mechState.shifts.length * 6000;
-    var el = document.getElementById('mech-total');
-    if(el) el.textContent = '₽ ' + (total + 6000).toLocaleString();
-    mechState.shifts.push({date: data.date, pay: 6000});
-    renderMechShifts();
-  }, function(){ showNotification('Ошибка'); });
-}
+// (удалён дубликат markMechShift — рабочая версия определена выше: с pick-date и проверкой дубликата)
 
 // ═══════════════════ ДИРЕКТОР — ОТПРАВКИ ═══════════════════
 function addTripPrice(){
@@ -5065,6 +5321,9 @@ function renderChipButtons(items, selected, allowOther) {
 function replaceChipsInScreen(screenSelector, labelText, items, selected, allowOther) {
   var screen = document.querySelector(screenSelector);
   if (!screen) return;
+  // Если данных в справочнике нет — оставляем захардкоженные чипы из HTML
+  // (важно при отключённой авторизации, иначе экран пустой)
+  if (!items || items.length === 0) return;
   var blocks = screen.querySelectorAll('.form-block');
   Array.prototype.forEach.call(blocks, function(block){
     var lbl = block.querySelector('.form-lbl');
@@ -5088,15 +5347,26 @@ function buildDriversMap(users) {
   DRIVERS = map;
 }
 
+function _normVT(v){ var s = (v || '').toLowerCase(); if (s==='tonar') return 'tonary'; return s; }
+
 function activeUsersByType(type) {
+  var t = (type || '').toLowerCase();
   return DIRECTORY.users.filter(function(user){
-    return user.active && (!type || user.vehicle_type === type || (type === 'tonary' && !user.vehicle_type));
+    if (!user.active) return false;
+    if (user.role === 'mechanic' || user.role === 'director') return false; // только водители в чипах рейсов
+    if (!t) return true;
+    var vt = _normVT(user.vehicle_type);
+    return vt === t || (t === 'tonary' && !vt);
   });
 }
 
 function activeVehiclesByType(type) {
+  var t = (type || '').toLowerCase();
   return DIRECTORY.vehicles.filter(function(vehicle){
-    return vehicle.active && (!type || vehicle.type === type);
+    if (!vehicle.active) return false;
+    if (!t) return true;
+    var vt = _normVT(vehicle.type);
+    return vt === t || (t === 'tonary' && !vt);
   });
 }
 
@@ -5200,7 +5470,14 @@ function setDriverPeriod(period, btn) {
 
 function effectiveRole(profile) {
   if (!profile) return 'login';
-  return profile.role || 'login';
+  var role = (profile.role || '').toLowerCase();
+  // Если в Sheets записан driver, но машина миксер — переключаемся на mixer-навигацию
+  if (role === 'driver') {
+    var vt = (profile.vehicle_type || '').toLowerCase();
+    var truck = String(profile.default_truck || '');
+    if (vt === 'mixer' || vt === 'миксер' || truck === '729') return 'mixer';
+  }
+  return role || 'login';
 }
 
 function activateRoleForProfile(profile) {
@@ -5213,10 +5490,360 @@ function activateRoleForProfile(profile) {
   updateNav(role);
   if (role === 'driver') {
     updateHomeScreen(profile.id);
+    // Блок наличных только для миксеристов
+    var cashBlock = document.getElementById('drv-cash-block');
+    if (cashBlock) {
+      if (typeof isMixerDriver === 'function' && isMixerDriver(profile)) {
+        cashBlock.style.display = 'block';
+        if (typeof loadDriverCashBalance === 'function') loadDriverCashBalance();
+      } else {
+        cashBlock.style.display = 'none';
+      }
+    }
   }
   if (role === 'director') {
     renderDirectoryLists();
+    if (typeof loadEconomistDashboard === 'function') loadEconomistDashboard();
+    if (typeof loadDirectorDashboard === 'function') loadDirectorDashboard();
+    if (typeof loadServiceLists === 'function') loadServiceLists();
   }
+  if (role === 'mechanic') {
+    if (typeof loadServiceLists === 'function') loadServiceLists();
+    if (typeof loadMechanicDashboard === 'function') loadMechanicDashboard();
+  }
+  if (role === 'economist') {
+    if (typeof populateEcoDriverChips === 'function') populateEcoDriverChips();
+    if (typeof loadEconomistDashboard === 'function') loadEconomistDashboard();
+  }
+}
+
+// ═══════════════════ КАССА ВОДИТЕЛЯ ═══════════════════
+var drvCashState = { balance: 0, by_trip: [], operations: [] };
+
+function isMixerDriver(profile) {
+  if (!profile) return false;
+  var vt = (profile.vehicle_type || '').toLowerCase();
+  var truck = String(profile.default_truck || '');
+  if (vt === 'mixer') return true;
+  // Фолбэк по машине: миксеры у нас 729
+  if (truck.indexOf('729') >= 0) return true;
+  return false;
+}
+
+function loadDriverCashBalance() {
+  var profile = (APP_SESSION && APP_SESSION.profile) || {};
+  var driver = profile.name || '';
+  if (!driver) { renderDriverCashBlock(); return; }
+  apiRequest('get_driver_cash_balance', { driver: driver }).then(function(res){
+    if (res.status !== 'ok') { renderDriverCashBlock(); return; }
+    drvCashState = res.balance || drvCashState;
+    renderDriverCashBlock();
+  }).catch(function(){ renderDriverCashBlock(); });
+}
+
+function renderDriverCashBlock() {
+  var block = document.getElementById('drv-cash-block');
+  if (!block) return;
+  var s = drvCashState;
+  document.getElementById('drv-cash-balance').textContent = '₽ ' + Math.round(s.balance || 0).toLocaleString('ru-RU');
+  var meta = [];
+  if (s.received_total) meta.push('+₽' + Math.round(s.received_total).toLocaleString('ru-RU') + ' принято');
+  if (s.handed_total) meta.push('−₽' + Math.round(s.handed_total).toLocaleString('ru-RU') + ' сдано');
+  if (s.spent_total) meta.push('−₽' + Math.round(s.spent_total).toLocaleString('ru-RU') + ' расход');
+  document.getElementById('drv-cash-meta').textContent = meta.join(' · ') || 'нет операций';
+
+  var listEl = document.getElementById('drv-cash-trips');
+  if (listEl) {
+    var ops = s.operations || [];
+    if (!ops.length) {
+      listEl.innerHTML = '<div style="text-align:center;padding:8px 0;color:var(--t4);font-size:12px;">Операций пока нет</div>';
+    } else {
+      var html = '';
+      for (var i = 0; i < Math.min(ops.length, 5); i++) {
+        var o = ops[i];
+        var sign = o.direction === 'in' ? '+' : '−';
+        var color = o.direction === 'in' ? 'var(--orange)' : 'var(--red)';
+        var label = o.counterparty ? (o.date + ' · ' + o.counterparty) : (o.date + ' · ' + o.category);
+        html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--sep2);">'
+          + '<span style="color:var(--t2);font-size:12px;">' + esc(label) + '</span>'
+          + '<span style="color:' + color + ';font-weight:600;font-size:13px;">' + sign + '₽ ' + Math.round(Math.abs(o.amount||0)).toLocaleString('ru-RU') + '</span>'
+          + '</div>';
+      }
+      listEl.innerHTML = html;
+    }
+  }
+
+  // Подсказки в формах
+  var hand = document.getElementById('drv-cash-hand-hint');
+  if (hand) hand.textContent = 'На руках: ₽ ' + Math.round(s.balance||0).toLocaleString('ru-RU');
+  var card = document.getElementById('drv-cash-card-hint');
+  if (card) card.textContent = 'На руках: ₽ ' + Math.round(s.balance||0).toLocaleString('ru-RU');
+}
+
+function _drvCashSubmit(action, payload, btn, msg) {
+  var orig = btn.textContent;
+  btn.textContent = '⏳ Сохранение...';
+  btn.disabled = true;
+  var profile = (APP_SESSION && APP_SESSION.profile) || {};
+  payload.driver = profile.name || '';
+  sendToAPI(action, payload, function(){
+    btn.textContent = '✅ ' + msg;
+    showNotification(msg);
+    setTimeout(function(){
+      // закрыть саб и перезагрузить
+      var subId = btn.closest('.sub-screen').id;
+      hideSub('s-driver-dash', subId);
+      btn.textContent = orig;
+      btn.disabled = false;
+      loadDriverCashBalance();
+    }, 800);
+  }, function(){
+    btn.textContent = '❌ Ошибка';
+    setTimeout(function(){ btn.textContent = orig; btn.disabled = false; }, 1500);
+  });
+}
+
+function submitDrvCashHand(btn, mode) {
+  var amountId = mode === 'cash' ? 'drv-cash-hand-amount' : 'drv-cash-card-amount';
+  var commentId = mode === 'cash' ? 'drv-cash-hand-comment' : 'drv-cash-card-comment';
+  var amount = parseFloat(document.getElementById(amountId).value) || 0;
+  if (amount <= 0) { alert('Введите сумму'); return; }
+  if (amount > (drvCashState.balance || 0)) {
+    if (!confirm('Сумма больше остатка на руках. Всё равно сохранить?')) return;
+  }
+  var comment = document.getElementById(commentId).value || '';
+  _drvCashSubmit('cash_hand_to_director', { amount: amount, mode: mode, comment: comment }, btn,
+    mode === 'cash' ? 'Сдано в кассу' : 'Перевод сохранён');
+  document.getElementById(amountId).value = '';
+  document.getElementById(commentId).value = '';
+}
+
+function submitDrvCashFuel(btn) {
+  var amount = parseFloat(document.getElementById('drv-cash-fuel-amount').value) || 0;
+  var liters = parseFloat(document.getElementById('drv-cash-fuel-liters').value) || 0;
+  var comment = document.getElementById('drv-cash-fuel-comment').value || '';
+  if (amount <= 0) { alert('Введите сумму'); return; }
+  var stationChip = document.querySelector('#drv-cash-fuel .chip.on');
+  var stationOther = document.querySelector('#drv-cash-fuel .other-input input');
+  var station = stationChip && stationChip.textContent.trim() === '+ Другое'
+    ? (stationOther ? stationOther.value.trim() : '')
+    : (stationChip ? stationChip.textContent.trim() : '');
+  _drvCashSubmit('cash_spend_fuel', { amount: amount, liters: liters, station: station, comment: comment }, btn, 'Расход записан');
+  ['drv-cash-fuel-amount','drv-cash-fuel-liters','drv-cash-fuel-comment'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+
+function submitDrvCashRepair(btn) {
+  var amount = parseFloat(document.getElementById('drv-cash-repair-amount').value) || 0;
+  var service = document.getElementById('drv-cash-repair-service').value || '';
+  var comment = document.getElementById('drv-cash-repair-comment').value || '';
+  if (amount <= 0) { alert('Введите сумму'); return; }
+  _drvCashSubmit('cash_spend_repair', { amount: amount, service: service, comment: comment }, btn, 'Расход записан');
+  ['drv-cash-repair-amount','drv-cash-repair-service','drv-cash-repair-comment'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+
+// ═══════════════════ ЭКОНОМИСТ ═══════════════════
+var ecoPeriod = 'month';
+var ecoMonth = null; // YYYY-MM, когда выбран конкретный месяц
+var ecoData = {};
+var ecoHistoryFilter = 'all';
+
+function fmtMoney(n) {
+  n = Number(n) || 0;
+  return '₽ ' + Math.round(n).toLocaleString('ru-RU');
+}
+
+function setEcoPeriod(p, btn) {
+  ecoPeriod = p;
+  ecoMonth = null;
+  document.querySelectorAll('#s-economist-cash > div .period-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  var label = document.getElementById('eco-period-label');
+  if (label) {
+    var map = { today: 'Сегодня', week: 'Эта неделя', month: 'Этот месяц', all: 'За всё время' };
+    label.textContent = map[p] || 'Кабинет экономиста';
+  }
+  loadEconomistDashboard();
+}
+
+function pickEcoMonth(btn) {
+  let picker = document.getElementById('eco-month-picker');
+  if (!picker) {
+    picker = document.createElement('input');
+    picker.type = 'month';
+    picker.id = 'eco-month-picker';
+    picker.style.position = 'fixed';
+    picker.style.left = '-9999px';
+    document.body.appendChild(picker);
+    picker.addEventListener('change', function(){
+      if (!picker.value) return;
+      ecoPeriod = 'month-pick';
+      ecoMonth = picker.value;
+      document.querySelectorAll('#s-economist-cash > div .period-btn').forEach(function(b){ b.classList.remove('active'); });
+      if (btn) btn.classList.add('active');
+      var d = new Date(picker.value + '-01');
+      var months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+      var label = document.getElementById('eco-period-label');
+      if (label) label.textContent = months[d.getMonth()] + ' ' + d.getFullYear();
+      loadEconomistDashboard();
+    });
+  }
+  picker.showPicker ? picker.showPicker() : picker.click();
+}
+
+function ecoFilterHistory(filter) {
+  ecoHistoryFilter = filter;
+  renderEconomistDashboard(ecoData);
+  var hist = document.getElementById('eco-history-list');
+  if (hist) hist.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showEcoDriversBreakdown() {
+  var d = ecoData || {};
+  var rows = d.drivers_breakdown || [];
+  if (!rows.length) { alert('Нет данных по водителям'); return; }
+  var lines = rows.map(function(r){ return r.driver + ' — ' + fmtMoney(r.amount); });
+  alert('У водителей:\n\n' + lines.join('\n'));
+}
+
+function showEcoDebtsBreakdown() {
+  var d = ecoData || {};
+  var rows = d.debts_breakdown || [];
+  if (!rows.length) { alert('Нет данных по долгам'); return; }
+  var lines = rows.map(function(r){ return r.client + ' — ' + fmtMoney(r.amount); });
+  alert('Долги клиентов:\n\n' + lines.join('\n'));
+}
+
+function populateEcoDriverChips() {
+  var container = document.getElementById('eco-collect-driver-chips');
+  if (!container) return;
+  var users = (DIRECTORY && DIRECTORY.users) ? DIRECTORY.users : [];
+  var drivers = users.filter(function(u){ return u.role === 'driver' && u.active; });
+  var html = '';
+  for (var i = 0; i < drivers.length; i++) {
+    html += '<button class="chip' + (i === 0 ? ' on' : '') + '" onclick="sel(this);checkOther(this)">' + esc(drivers[i].name) + '</button>';
+  }
+  html += '<button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>';
+  container.innerHTML = html;
+}
+
+function loadEconomistDashboard() {
+  var params = { period: ecoPeriod };
+  if (ecoMonth) params.month = ecoMonth;
+  apiRequest('get_economist_dashboard', params).then(function(res){
+    if (res.status !== 'ok') {
+      showNotification(res.message || 'Не удалось загрузить кассу');
+      return;
+    }
+    ecoData = res.dashboard || {};
+    renderEconomistDashboard(ecoData);
+  }).catch(function(err){
+    showNotification(err.message || 'Ошибка загрузки');
+  });
+}
+
+function renderEconomistDashboard(d) {
+  var setT = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
+  setT('eco-cash', fmtMoney(d.cash || 0));
+  setT('eco-cash-delta', d.cash_delta || '');
+  setT('eco-drivers', fmtMoney(d.with_drivers || 0));
+  setT('eco-drivers-delta', d.drivers_count ? (d.drivers_count + ' водителей · нажмите для разбивки') : 'нажмите для разбивки');
+  setT('eco-debts', fmtMoney(d.client_debts || 0));
+  setT('eco-debts-delta', d.debt_count ? (d.debt_count + ' клиентов · нажмите для разбивки') : 'нажмите для разбивки');
+  setT('eco-today-in', fmtMoney(d.period_in || d.today_in || 0));
+  setT('eco-today-out', fmtMoney(d.period_out || d.today_out || 0));
+  var hist = document.getElementById('eco-history-list');
+  if (hist) {
+    var movements = (d.recent || []).filter(function(m){
+      if (ecoHistoryFilter === 'all') return true;
+      return m.direction === ecoHistoryFilter;
+    });
+    if (!movements.length) {
+      var msg = ecoHistoryFilter === 'in' ? 'Нет поступлений' : ecoHistoryFilter === 'out' ? 'Нет расходов' : 'Нет движений';
+      hist.innerHTML = '<div style="text-align:center;padding:18px;color:var(--t4);font-size:13px;">' + msg + '</div>';
+    } else {
+      var html = '';
+      if (ecoHistoryFilter !== 'all') {
+        html += '<div style="padding:6px 0;font-size:11px;color:var(--t3);"><a href="#" onclick="event.preventDefault();ecoFilterHistory(\'all\')" style="color:var(--accent2);text-decoration:none">← Показать все</a></div>';
+      }
+      for (var i = 0; i < movements.length; i++) {
+        var m = movements[i];
+        var sign = m.direction === 'in' ? '+' : '−';
+        var color = m.direction === 'in' ? 'var(--green)' : 'var(--red)';
+        var dot = m.direction === 'in' ? 'dot-green' : 'dot-red';
+        html += '<div class="list-row"><div class="row-dot ' + dot + '"></div>'
+          + '<div class="row-info"><div class="row-title">' + esc(m.title || '') + '</div><div class="row-sub">' + esc(m.sub || '') + '</div></div>'
+          + '<div class="row-right"><div class="row-val" style="color:' + color + '">' + sign + fmtMoney(Math.abs(m.amount || 0)) + '</div><div class="row-time">' + esc(m.date || '') + '</div></div>'
+          + '</div>';
+      }
+      hist.innerHTML = html;
+    }
+  }
+}
+
+function submitEcoCollect(btn) {
+  var driverChip = document.querySelector('#eco-collect .chip.on');
+  var driverOther = document.querySelector('#eco-collect .other-input input');
+  var driver = driverChip && driverChip.textContent.trim() === '+ Другое'
+    ? (driverOther ? driverOther.value.trim() : '')
+    : (driverChip ? driverChip.textContent.trim() : '');
+  var amount = parseFloat(document.getElementById('eco-collect-amount').value) || 0;
+  var comment = document.getElementById('eco-collect-comment').value || '';
+  if (!driver) { alert('Укажите водителя'); return; }
+  if (amount <= 0) { alert('Введите сумму'); return; }
+  var orig = btn.textContent;
+  btn.textContent = '⏳ Сохранение...';
+  btn.disabled = true;
+  sendToAPI('cash_collect', { driver: driver, amount: amount, comment: comment }, function(res){
+    btn.textContent = '✅ Принято';
+    showNotification('Принято в кассу: ' + fmtMoney(amount));
+    document.getElementById('eco-collect-amount').value = '';
+    document.getElementById('eco-collect-comment').value = '';
+    setTimeout(function(){
+      hideSub('s-economist-cash','eco-collect');
+      btn.textContent = orig;
+      btn.disabled = false;
+      loadEconomistDashboard();
+    }, 1000);
+  }, function(){
+    btn.textContent = '❌ Ошибка';
+    setTimeout(function(){ btn.textContent = orig; btn.disabled = false; }, 1500);
+  });
+}
+
+function submitEcoExpense(btn) {
+  var catChip = document.querySelector('#eco-expense .chip.on');
+  var catOther = document.querySelector('#eco-expense .other-input input');
+  var category = catChip && catChip.textContent.trim() === '+ Другое'
+    ? (catOther ? catOther.value.trim() : '')
+    : (catChip ? catChip.textContent.trim() : '');
+  var amount = parseFloat(document.getElementById('eco-expense-amount').value) || 0;
+  var recipient = document.getElementById('eco-expense-recipient').value || '';
+  var comment = document.getElementById('eco-expense-comment').value || '';
+  if (!category) { alert('Выберите категорию'); return; }
+  if (amount <= 0) { alert('Введите сумму'); return; }
+  var orig = btn.textContent;
+  btn.textContent = '⏳ Сохранение...';
+  btn.disabled = true;
+  sendToAPI('cash_expense', { category: category, amount: amount, recipient: recipient, comment: comment }, function(res){
+    btn.textContent = '✅ Записано';
+    showNotification('Расход записан: ' + fmtMoney(amount));
+    document.getElementById('eco-expense-amount').value = '';
+    document.getElementById('eco-expense-recipient').value = '';
+    document.getElementById('eco-expense-comment').value = '';
+    setTimeout(function(){
+      hideSub('s-economist-cash','eco-expense');
+      btn.textContent = orig;
+      btn.disabled = false;
+      loadEconomistDashboard();
+    }, 1000);
+  }, function(){
+    btn.textContent = '❌ Ошибка';
+    setTimeout(function(){ btn.textContent = orig; btn.disabled = false; }, 1500);
+  });
 }
 
 function renderDirectoryLists() {
@@ -5336,28 +5963,45 @@ function bootstrapFromSession(res) {
   }
 }
 
-// Phone-auth удалён по запросу — теперь вход через выбор роли (PIN для
-// директора и слесаря). showPhoneBindScreen и submitPhoneLogin оставлены
-// как no-op для совместимости (вдруг где-то остался onclick), но HTML-блок
-// привязки телефона удалён выше.
 function showPhoneBindScreen(message) {
-  // No-op. Раньше скрывал кнопки ролей при ошибке бэка — теперь не нужно.
+  // No-op. Раньше скрывал кнопки ролей при ошибке бэка — теперь не нужно:
+  // авторизация переехала на role+PIN, телефон-бинд убран из UI.
   var loginScreen = document.getElementById('s-login');
   if (loginScreen) loginScreen.classList.add('active');
 }
 
 function submitPhoneLogin(btn) {
-  // No-op. Phone-bind UI убран.
+  // No-op. Phone-bind UI убран; функция оставлена для совместимости со
+  // старыми onclick-биндингами, если где-то остались.
 }
 
 function initTelegramSession() {
   // Раньше: дёргала бэк get_session и при ошибке показывала привязку телефона.
   // Теперь: только показываем login-экран и инициализируем Telegram WebApp.
-  // Юзер нажимает свою роль → loginAs(). Для роли с PIN_PINS — модалка PIN.
+  // Юзер нажимает свою роль → loginAs(). Для роли с ROLE_PINS — модалка PIN.
   var tg = tgWebApp();
   if (tg) { try { tg.ready(); } catch (e) {} }
   var loginScreen = document.getElementById('s-login');
   if (loginScreen) loginScreen.classList.add('active');
+}
+
+function initKeyboardInset(){
+  var tg = tgWebApp();
+  if (!tg) return;
+  try { tg.expand(); } catch(e) {}
+  // Заблокировать свайп вниз (Bot API 7.7+) — мини-апп не закроется случайно
+  try { if (typeof tg.disableVerticalSwipes === 'function') tg.disableVerticalSwipes(); } catch(e) {}
+  // Подтверждение закрытия — на случай если свайпы не отключились
+  try { if (typeof tg.enableClosingConfirmation === 'function') tg.enableClosingConfirmation(); } catch(e) {}
+  function apply(){
+    var kb = Math.max(0, (tg.viewportStableHeight || 0) - (tg.viewportHeight || 0));
+    document.documentElement.style.setProperty('--kb', kb + 'px');
+    if (kb > 0 && document.activeElement && document.activeElement.tagName === 'INPUT') {
+      try { document.activeElement.scrollIntoView({block:'center', behavior:'smooth'}); } catch(e) {}
+    }
+  }
+  try { tg.onEvent('viewportChanged', apply); } catch(e) {}
+  apply();
 }
 
 /* ── Pulsar v3 UI init ──────────────────────────────────────────────
@@ -5369,15 +6013,12 @@ var PULSAR_ICONS = (function(){
   // Industrial / mechanical feel: square joins, slightly thicker strokes.
   var S = function(p){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'; };
   return {
-    // Vehicles
-    '🚛': S('<path d="M2 16V7a1 1 0 0 1 1-1h10v10"/><path d="M13 10h4l3 3v3"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/><path d="M9 16h2M14 16h.01"/>'),  // tonar (heavy truck w/ trailer)
-    '🚚': S('<path d="M2 17V7a1 1 0 0 1 1-1h11v11"/><path d="M14 11h4l3 3v3"/><circle cx="7.5" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/>'),                            // dlinn (delivery)
-    '🔄': S('<path d="M21 12a9 9 0 0 1-15.5 6.4M3 12a9 9 0 0 1 15.5-6.4"/><path d="M16 4l3 1.4L17.5 8"/><path d="M8 20l-3-1.4L6.5 16"/>'),                                          // mixer (rotation)
-    // Actions
+    '🚛': S('<path d="M2 16V7a1 1 0 0 1 1-1h10v10"/><path d="M13 10h4l3 3v3"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/><path d="M9 16h2M14 16h.01"/>'),
+    '🚚': S('<path d="M2 17V7a1 1 0 0 1 1-1h11v11"/><path d="M14 11h4l3 3v3"/><circle cx="7.5" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/>'),
+    '🔄': S('<path d="M21 12a9 9 0 0 1-15.5 6.4M3 12a9 9 0 0 1 15.5-6.4"/><path d="M16 4l3 1.4L17.5 8"/><path d="M8 20l-3-1.4L6.5 16"/>'),
     '➕': S('<path d="M12 5v14M5 12h14"/>'),
     '🔁': S('<path d="M3 11l3-3 3 3"/><path d="M21 13l-3 3-3-3"/><path d="M6 8h9a3 3 0 0 1 3 3v0M18 16H9a3 3 0 0 1-3-3v0"/>'),
     '✓': S('<path d="M4 12.5l5 5L20 6"/>'),
-    // Cabinet / industry
     '⛽': S('<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16"/><path d="M3 21h12"/><path d="M14 9h2a2 2 0 0 1 2 2v6a1.5 1.5 0 0 0 3 0V8l-3-3"/><path d="M7 7h4"/>'),
     '🧾': S('<path d="M5 21V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v17l-3-2-3 2-3-2-3 2-1-1z"/><path d="M9 7h6M9 11h6M9 15h4"/>'),
     '📷': S('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-3h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/>'),
@@ -5407,10 +6048,7 @@ var PULSAR_ICONS = (function(){
 function pulsarSwapIcons(root){
   root = root || document;
   // Containers whose entire content is a single emoji icon — replace innerHTML.
-  // Idempotent: if container already holds our <svg>, skip — this matters
-  // because some app handlers (applyDriverLayout, loginAs) re-set textContent
-  // to an emoji *after* our initial swap; the MutationObserver below catches
-  // that and re-runs us, and we must not loop.
+  // Idempotent: re-runs are safe because we fingerprint via data-pulsar-glyph.
   var sel = '.btn-ico, .gi-icon, .rep-icon, .pz-icon, .nav-icon, .alert-ico, .app-logo';
   root.querySelectorAll(sel).forEach(function(el){
     if (el.firstElementChild && el.firstElementChild.tagName === 'svg' &&
@@ -5421,9 +6059,7 @@ function pulsarSwapIcons(root){
       el.dataset.pulsarGlyph = t;
     }
   });
-  // .role-icon contains "○" / "●" placeholder + role context — swap to specific
-  // icons. Map by the role label text in the sibling .role-name; cheaper and
-  // order-stable than touching markup. Defaults to a circle if no match.
+  // .role-icon contains "○"/"●" placeholder — swap to role-specific glyph.
   var roleMap = { 'Водитель':'🚛','Миксеры':'🔄','Слесарь':'🔧','Экономист':'💰','Логист':'🚚','Директор':'📋' };
   root.querySelectorAll('.role-btn').forEach(function(btn){
     var ic = btn.querySelector('.role-icon');
@@ -5431,7 +6067,6 @@ function pulsarSwapIcons(root){
     if (!ic || !nameEl) return;
     var key = (nameEl.textContent || '').trim();
     var glyph = roleMap[key] || '○';
-    // Idempotent: skip if same glyph already painted
     if (ic.dataset && ic.dataset.pulsarGlyph === glyph &&
         ic.firstElementChild && ic.firstElementChild.tagName === 'svg') return;
     if (PULSAR_ICONS[glyph]) {
@@ -5439,16 +6074,12 @@ function pulsarSwapIcons(root){
       ic.dataset.pulsarGlyph = glyph;
     }
   });
-  // .sec-lbl: strip leading emoji (kept as a tiny helper because strings like
-  // "💵 Касса (нал)" still occur in the markup; the ::before bar in CSS already
-  // provides the visual cue, so the leading emoji is now redundant noise).
+  // Strip leading emoji from .sec-lbl / .dir-card-lbl (CSS bar provides cue).
   root.querySelectorAll('.sec-lbl').forEach(function(el){
     var t = (el.textContent || '');
-    // Remove a leading emoji + optional VS16/space
     var stripped = t.replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]+\s*/u, '');
     if (stripped !== t) el.textContent = stripped;
   });
-  // .dir-card-lbl with leading emoji: same treatment
   root.querySelectorAll('.dir-card-lbl').forEach(function(el){
     var t = (el.textContent || '');
     var stripped = t.replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]+\s*/u, '');
@@ -5458,23 +6089,17 @@ function pulsarSwapIcons(root){
 
 function pulsarApplyTheme(){
   var tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-  // Only honor Telegram colorScheme when we're truly inside a Telegram client
-  // (initData present). Outside Telegram, default to dark — drivers are usually
-  // in cabs at night / bright sun glare, both are better served by high-contrast
-  // dark UI than by light. Without the initData guard, Telegram's stub script
-  // defaults colorScheme to system preference and would force light mode in
-  // every preview / dev browser, contradicting the design brief.
+  // Honor Telegram colorScheme only when actually inside a Telegram client
+  // (initData present). Outside Telegram (preview / dev), default to dark.
   var inTelegram = !!(tg && tg.initData && tg.initData.length > 0);
   var scheme = inTelegram ? tg.colorScheme : 'dark';
   document.body.classList.toggle('theme-light', scheme === 'light');
 }
 
 function pulsarObserveIcons(){
-  // Some app handlers re-set .rep-icon / .role-icon textContent to an emoji
-  // *after* our initial swap (e.g. applyDriverLayout's `i.textContent='👤'`,
-  // loginAs's `icon.textContent='○' / '●'`). A small MutationObserver re-runs
-  // the swap when an icon container's contents change. The swap is idempotent
-  // (data-pulsar-glyph fingerprint), so this won't loop.
+  // Some app handlers re-set .role-icon textContent to an emoji *after* our
+  // initial swap (e.g. loginAs setting "○"/"●"). MutationObserver re-runs
+  // the swap; idempotent via data-pulsar-glyph fingerprint.
   if (typeof MutationObserver === 'undefined') return;
   var sel = '.btn-ico, .gi-icon, .rep-icon, .pz-icon, .nav-icon, .alert-ico, .role-icon, .app-logo';
   var pending = false;
@@ -5484,7 +6109,6 @@ function pulsarObserveIcons(){
     for (var i=0; i<mutations.length; i++){
       var m = mutations[i];
       var t = m.target;
-      // Mutation on the container itself or its parent
       if (t && t.nodeType === 1 && t.matches && t.matches(sel)) { hit = true; break; }
       if (t && t.parentElement && t.parentElement.matches && t.parentElement.matches(sel)) { hit = true; break; }
     }
@@ -5509,6 +6133,8 @@ function initPulsarUI(){
 window.addEventListener('DOMContentLoaded', function(){
   initPulsarUI();
   initTelegramSession();
+  initKeyboardInset();
+  if (typeof renderMixerRecent === 'function') renderMixerRecent();
 });
 </script>
 </body>
