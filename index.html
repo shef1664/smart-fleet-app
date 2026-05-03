@@ -2578,14 +2578,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="page-sub" id="login-subtitle" style="text-align:center;margin-bottom:40px;">Пульсар · Кемерово</div>
 
     <div style="width:100%;max-width:320px;">
-      <div class="form-block" id="phone-bind-block">
-        <div class="form-lbl">Привязка телефона</div>
-        <input class="inp" type="tel" id="login-phone" placeholder="+79991234567" style="margin-bottom:10px;">
-        <div id="login-help" style="font-size:12px;color:var(--t3);line-height:1.5;margin-bottom:12px;">
-          Если Telegram ещё не привязан к сотруднику, введите номер телефона из справочника один раз.
-        </div>
-        <button class="submit" id="login-phone-btn" onclick="submitPhoneLogin(this)" style="margin-top:0;">Войти по номеру</button>
-      </div>
       <div class="form-block">
         <div class="form-lbl">Выберите свою роль</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
@@ -2623,7 +2615,20 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         </div>
       </div>
       <div id="login-status" style="text-align:center;margin-top:16px;font-size:12px;color:var(--t4);">
-        🔒 Вход через Telegram авторизацию
+        Выберите роль для входа
+      </div>
+
+      <!-- PIN modal — для ролей с защитой -->
+      <div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--r2);padding:24px;width:100%;max-width:320px;">
+          <div class="form-lbl" id="pin-modal-title" style="margin-bottom:12px;">Введите PIN-код</div>
+          <input id="pin-modal-input" class="inp" type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="8" placeholder="••••" style="text-align:center;font-size:24px;letter-spacing:8px;margin-bottom:8px;">
+          <div id="pin-modal-error" style="display:none;font-size:13px;color:var(--red);margin-bottom:8px;text-align:center;">Неверный PIN</div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="submit" type="button" onclick="cancelPinModal()" style="background:var(--bg5);">Отмена</button>
+            <button class="submit" type="button" onclick="confirmPinModal()">Войти</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -3198,21 +3203,83 @@ var ROLE_NAV = {
   ]
 };
 
-function loginAs(role) {
+// PIN-коды для защищённых ролей. Хранятся локально в JS — это косметическая
+// защита для внутреннего инструмента (10 пользователей в Telegram-боте).
+// Любой, кто откроет DevTools, увидит эти значения. Для усиления — заменить
+// на серверную проверку через apiRequest.
+var ROLE_PINS = {
+  director: '3084',
+  mechanic: '4040'
+};
+
+// Контекст pending-входа после нажатия защищённой роли
+var _pendingPinLogin = null;
+
+function openPinModal(role, srcBtn) {
+  var titles = { director: 'PIN директора', mechanic: 'PIN слесаря' };
+  _pendingPinLogin = { role: role, btn: srcBtn };
+  var modal = document.getElementById('pin-modal');
+  var input = document.getElementById('pin-modal-input');
+  var err = document.getElementById('pin-modal-error');
+  var title = document.getElementById('pin-modal-title');
+  if (title) title.textContent = titles[role] || 'PIN-код';
+  if (input) { input.value = ''; }
+  if (err) err.style.display = 'none';
+  if (modal) {
+    modal.style.display = 'flex';
+    setTimeout(function(){ if (input) input.focus(); }, 50);
+  }
+}
+
+function cancelPinModal() {
+  _pendingPinLogin = null;
+  var modal = document.getElementById('pin-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function confirmPinModal() {
+  if (!_pendingPinLogin) { cancelPinModal(); return; }
+  var input = document.getElementById('pin-modal-input');
+  var err = document.getElementById('pin-modal-error');
+  var entered = input ? String(input.value || '').trim() : '';
+  var role = _pendingPinLogin.role;
+  if (entered === ROLE_PINS[role]) {
+    var btn = _pendingPinLogin.btn;
+    _pendingPinLogin = null;
+    var modal = document.getElementById('pin-modal');
+    if (modal) modal.style.display = 'none';
+    loginAs(role, btn, true);
+  } else {
+    if (err) err.style.display = 'block';
+    if (input) { input.value = ''; input.focus(); }
+  }
+}
+
+function loginAs(role, srcBtn, pinVerified) {
+  // PIN-гейт для защищённых ролей. Если пришёл клик из login-экрана —
+  // открываем модалку и выходим; реальный вход произойдёт в confirmPinModal.
+  if (ROLE_PINS[role] && !pinVerified) {
+    var btn = srcBtn || (typeof event !== 'undefined' && event ? event.currentTarget : null);
+    openPinModal(role, btn);
+    return;
+  }
+
   currentRole = role;
-  
+
   var roleButtons = document.querySelectorAll('.role-btn');
   roleButtons.forEach(function(btn) {
     btn.classList.remove('selected');
     var icon = btn.querySelector('.role-icon');
     if (icon) icon.textContent = '○';
   });
-  
-  var selectedBtn = event.currentTarget;
-  selectedBtn.classList.add('selected');
-  var selectedIcon = selectedBtn.querySelector('.role-icon');
-  if (selectedIcon) selectedIcon.textContent = '●';
-  
+
+  var selectedBtn = srcBtn || (typeof event !== 'undefined' && event ? event.currentTarget : null);
+  if (selectedBtn && selectedBtn.classList) {
+    selectedBtn.classList.add('selected');
+    var selectedIcon = selectedBtn.querySelector('.role-icon');
+    if (selectedIcon) selectedIcon.textContent = '●';
+  }
+
   var all = document.querySelectorAll(".screen");
   for (var i = 0; i < all.length; i++) all[i].classList.remove("active");
   var homeId = ROLE_HOME[role] || "s-login";
@@ -3220,7 +3287,7 @@ function loginAs(role) {
   if (el) el.classList.add("active");
   window.scrollTo(0, 0);
   updateNav(role);
-  
+
   // Если водитель — определяем и обновляем главный экран
   if (role === 'driver') {
     var firstDriverKey = Object.keys(DRIVERS || {})[0];
@@ -5269,82 +5336,28 @@ function bootstrapFromSession(res) {
   }
 }
 
+// Phone-auth удалён по запросу — теперь вход через выбор роли (PIN для
+// директора и слесаря). showPhoneBindScreen и submitPhoneLogin оставлены
+// как no-op для совместимости (вдруг где-то остался onclick), но HTML-блок
+// привязки телефона удалён выше.
 function showPhoneBindScreen(message) {
-  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  // No-op. Раньше скрывал кнопки ролей при ошибке бэка — теперь не нужно.
   var loginScreen = document.getElementById('s-login');
   if (loginScreen) loginScreen.classList.add('active');
-
-  var subtitle = document.getElementById('login-subtitle');
-  if (subtitle) subtitle.textContent = 'Telegram не найден в справочнике';
-
-  var help = document.getElementById('login-help');
-  if (help) help.textContent = message || 'Введите номер телефона из справочника, чтобы привязать этот Telegram.';
-
-  var status = document.getElementById('login-status');
-  if (status) status.textContent = 'После привязки следующие входы будут автоматическими.';
-
-  document.querySelectorAll('#s-login .role-btn').forEach(function(btn){
-    btn.style.display = 'none';
-  });
-  var oldRoleBlock = document.querySelectorAll('#s-login .form-block')[1];
-  if (oldRoleBlock) oldRoleBlock.style.display = 'none';
 }
 
 function submitPhoneLogin(btn) {
-  var input = document.getElementById('login-phone');
-  var phone = input ? String(input.value || '').trim() : '';
-  if (!phone) {
-    showNotification('Введите номер телефона');
-    return;
-  }
-
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = 'Проверяем...';
-  }
-
-  apiRequest('bind_phone_session', { phone: phone }).then(function(res){
-    if (res.status !== 'ok') throw new Error(res.message || 'Не удалось привязать номер');
-    bootstrapFromSession(res);
-    showNotification('Номер привязан. Вход выполнен.');
-  }).catch(function(err){
-    showNotification(err.message || 'Не удалось привязать номер');
-  }).finally(function(){
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'Войти по номеру';
-    }
-  });
+  // No-op. Phone-bind UI убран.
 }
 
 function initTelegramSession() {
+  // Раньше: дёргала бэк get_session и при ошибке показывала привязку телефона.
+  // Теперь: только показываем login-экран и инициализируем Telegram WebApp.
+  // Юзер нажимает свою роль → loginAs(). Для роли с PIN_PINS — модалка PIN.
   var tg = tgWebApp();
-  if (!tg || !tg.initData) {
-    showPhoneBindScreen('Откройте mini app из Telegram, чтобы завершить вход.');
-    return;
-  }
-  try { tg.ready(); } catch (e) {}
-  apiRequest('get_session', {}).then(function(res){
-    if (res.status !== 'ok') throw new Error(res.message || 'Нет доступа');
-    bootstrapFromSession(res);
-  }).catch(function(err){
-    showNotification(err.message || 'Не удалось авторизовать Telegram-сессию');
-  });
-}
-
-function initTelegramSession() {
-  var tg = tgWebApp();
-  if (!tg || !tg.initData) {
-    showPhoneBindScreen('Откройте mini app из Telegram, чтобы завершить вход.');
-    return;
-  }
-  try { tg.ready(); } catch (e) {}
-  apiRequest('get_session', {}).then(function(res){
-    if (res.status !== 'ok') throw new Error(res.message || 'Нет доступа');
-    bootstrapFromSession(res);
-  }).catch(function(err){
-    showPhoneBindScreen(err.message || 'Не удалось авторизовать Telegram-сессию');
-  });
+  if (tg) { try { tg.ready(); } catch (e) {} }
+  var loginScreen = document.getElementById('s-login');
+  if (loginScreen) loginScreen.classList.add('active');
 }
 
 /* ── Pulsar v3 UI init ──────────────────────────────────────────────
