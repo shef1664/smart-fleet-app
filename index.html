@@ -906,15 +906,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       </div>
     </div>
 
-    <div class="form-block">
-      <div class="form-lbl">Оплата</div>
-      <label class="pay-toggle-row">
-        <input type="checkbox" id="ton-paid">
-        <span class="pay-toggle-label">Оплачено</span>
-        <span class="pay-toggle-hint">если деньги уже получены</span>
-      </label>
-    </div>
-
     <button class="submit" onclick="submitTonarTrip(this)">Отправить рейс</button>
   </div>
 </div>
@@ -1296,15 +1287,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="dln-tn-img">
       </div>
     </div>
-    <div class="form-block">
-      <div class="form-lbl">Оплата</div>
-      <label class="pay-toggle-row">
-        <input type="checkbox" id="dln-paid">
-        <span class="pay-toggle-label">Оплачено</span>
-        <span class="pay-toggle-hint">если деньги уже получены</span>
-      </label>
-    </div>
-
     <button class="submit" style="background:var(--purple)" onclick="submitDlinnTrip(this)">Сохранить рейс</button>
   </div>
 </div>
@@ -2443,11 +2425,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
             <div class="role-info"><div class="role-name">Водитель</div><div class="role-sub">Рейсы · топливо · кабинет</div></div>
             <span style="color:var(--t4);">›</span>
           </button>
-          <button class="role-btn" onclick="loginAs('mixer')">
-            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
-            <div class="role-info"><div class="role-name">Миксеры</div><div class="role-sub">Бетон · раствор · рейс</div></div>
-            <span style="color:var(--t4);">›</span>
-          </button>
           <button class="role-btn" onclick="loginAs('mechanic')">
             <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
             <div class="role-info"><div class="role-name">Слесарь</div><div class="role-sub">Ремонты · запчасти · кабинет</div></div>
@@ -3179,6 +3156,7 @@ var ROLE_NAV = {
     {icon:"🏠", label:"Главная", screen:"s-home"},
     {icon:"🚛", label:"Тонары", screen:"s-tonary"},
     {icon:"🚚", label:"Длинномеры", screen:"s-dlinn"},
+    {icon:"🔄", label:"Миксеры", screen:"s-mixer"},
     {icon:"⛽", label:"ДТ", screen:"s-dt"},
     {icon:"🧾", label:"Расходы", screen:"s-expense"}
   ],
@@ -3303,6 +3281,7 @@ function updateNav(role) {
       {icon:"🏠", label:"Главная", screen:"s-home"},
       {icon:"🚛", label:"Тонары", screen:"s-tonary"},
       {icon:"🚚", label:"Длинномеры", screen:"s-dlinn"},
+      {icon:"🔄", label:"Миксеры", screen:"s-mixer"},
       {icon:"⛽", label:"ДТ", screen:"s-dt"},
       {icon:"🧾", label:"Расходы", screen:"s-expense"}
     ];
@@ -3339,7 +3318,7 @@ function go(id){
     var el = document.getElementById(id);
     if(el) el.classList.add('active');
     window.scrollTo(0,0);
-    var map={'s-home':0,'s-tonary':1,'s-dlinn':2,'s-dt':3,'s-expense':4,'s-driver-dash':-1,'s-director':0,'s-service':0};
+    var map={'s-home':0,'s-tonary':1,'s-dlinn':2,'s-mixer':3,'s-dt':4,'s-expense':5,'s-driver-dash':-1,'s-director':0,'s-service':0};
     document.querySelectorAll('.nav-item').forEach(function(n,i){n.classList.toggle('active',i===map[id]);});
   } catch(e) { console.error('go error:',e); }
 }
