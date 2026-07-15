@@ -744,24 +744,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <button class="rep-btn">Повторить</button>
     </div>
 
-    <div class="sec-lbl">История рейсов</div>
-    <div class="card">
-      <div class="list-row">
-        <div class="row-dot dot-green"></div>
-        <div class="row-info"><div class="row-title">Карьер Северный → СтройГрупп</div><div class="row-sub">Щебень 20-40 · 32 т · ТН ✓</div></div>
-        <div class="row-right"><div class="row-val">32 т</div><div class="row-time">14:20</div></div>
-      </div>
-      <div class="list-row">
-        <div class="row-dot dot-green"></div>
-        <div class="row-info"><div class="row-title">ВНК Березовка → Бетон М</div><div class="row-sub">Гравий 5-20 · 28 т · ТН ✓</div></div>
-        <div class="row-right"><div class="row-val">28 т</div><div class="row-time">12:10</div></div>
-      </div>
-      <div class="list-row">
-        <div class="row-dot dot-orange"></div>
-        <div class="row-info"><div class="row-title">Морозовский → Администрация</div><div class="row-sub">Песок 2.0-2.5 · 26 т · ТН ✗</div></div>
-        <div class="row-right"><div class="row-val">26 т</div><div class="row-time">09:45</div></div>
-      </div>
-    </div>
   </div>
 
   <!-- НОВЫЙ РЕЙС ТОНАР -->
@@ -769,12 +751,25 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <button class="back-btn" onclick="hideSub('ton-menu','ton-new')">‹ Тонары</button>
     <div class="page-title" style="margin-bottom:20px">Новый рейс</div>
 
+    <div class="form-block">
+      <div class="form-lbl">Дата рейса</div>
+      <div class="chips">
+        <button class="chip on" onclick="setDate('ton-date','today',this)">Сегодня</button>
+        <button class="chip" onclick="setDate('ton-date','yesterday',this)">Вчера</button>
+        <button class="chip" onclick="setDate('ton-date','pick',this)">Выбрать</button>
+      </div>
+      <div class="date-display" id="ton-date-display">
+        <span class="date-lbl">Дата</span>
+        <span class="date-val" id="ton-date-val">—</span>
+      </div>
+      <div class="calendar-wrap" id="ton-date-cal"></div>
+    </div>
 
     <div class="form-block">
       <div class="form-lbl">Автомобиль</div>
       <div class="chips" id="ton-truck-chips">
         <button class="chip" onclick="sel(this)">803</button>
-        <button class="chip" onclick="sel(this)">008</button>
+        <button class="chip" onclick="sel(this)">143</button>
         <button class="chip" onclick="sel(this)">709</button>
       </div>
     </div>
@@ -782,9 +777,8 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="form-block">
       <div class="form-lbl">Водитель</div>
       <div class="chips">
-        <button class="chip" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Колмаков Е.В.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
       </div>
       <div class="other-input">
@@ -881,8 +875,8 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="photo-zone" onclick="document.getElementById('tn-photo-front').click()">
         <div class="pz-icon">📷</div>
         <div class="pz-title">Фото ТН (лицевая)</div>
-        <div class="pz-sub">Нажмите для открытия камеры</div>
-        <input type="file" id="tn-photo-front" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'tn-front')">
+        <div class="pz-sub">Камера или галерея</div>
+        <input type="file" id="tn-photo-front" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this, 'tn-front')">
       </div>
       <div id="tn-front-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="tn-front-img">
@@ -891,7 +885,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="pz-icon">📄</div>
         <div class="pz-title">Фото ТН (оборотная)</div>
         <div class="pz-sub">Необязательно</div>
-        <input type="file" id="tn-photo-back" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'tn-back')">
+        <input type="file" id="tn-photo-back" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this, 'tn-back')">
       </div>
       <div id="tn-back-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="tn-back-img">
@@ -928,6 +922,20 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
   <div class="sub-screen" id="mix-new">
     <button class="back-btn" onclick="hideSub('mix-menu','mix-new')">‹ Миксеры</button>
     <div class="page-title" style="margin-bottom:20px">Новый рейс</div>
+
+    <div class="form-block">
+      <div class="form-lbl">Дата рейса</div>
+      <div class="chips">
+        <button class="chip on" onclick="setDate('mix-date','today',this)">Сегодня</button>
+        <button class="chip" onclick="setDate('mix-date','yesterday',this)">Вчера</button>
+        <button class="chip" onclick="setDate('mix-date','pick',this)">Выбрать</button>
+      </div>
+      <div class="date-display" id="mix-date-display">
+        <span class="date-lbl">Дата</span>
+        <span class="date-val" id="mix-date-val">—</span>
+      </div>
+      <div class="calendar-wrap" id="mix-date-cal"></div>
+    </div>
 
     <div class="form-block">
       <div class="form-lbl">Автомобиль</div>
@@ -1006,7 +1014,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="form-block" id="pmd-temp-block" style="display:none">
       <div class="form-lbl">Температура ПМД</div>
       <div class="chips">
-        <button class="chip on" onclick="sel(this)">-5°</button>
+        <button class="chip" onclick="sel(this)">-5°</button>
         <button class="chip" onclick="sel(this)">-10°</button>
         <button class="chip" onclick="sel(this)">-15°</button>
         <button class="chip" onclick="sel(this)">-20°</button>
@@ -1079,7 +1087,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="photo-zone" onclick="document.getElementById('mix-tn-photo').click()">
         <div class="pz-icon">📷</div>
         <div class="pz-title">Фото ТН</div>
-        <input type="file" id="mix-tn-photo" accept="image/*" style="display:none" onchange="handlePhotoUpload(this, 'mix-tn')">
+        <input type="file" id="mix-tn-photo" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this, 'mix-tn')">
       </div>
       <div id="mix-tn-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="mix-tn-img">
@@ -1087,7 +1095,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="photo-zone" onclick="document.getElementById('mix-raport-photo').click()">
         <div class="pz-icon">📄</div>
         <div class="pz-title">Фото рапорт-наряда</div>
-        <input type="file" id="mix-raport-photo" accept="image/*" style="display:none" onchange="handlePhotoUpload(this, 'mix-raport')">
+        <input type="file" id="mix-raport-photo" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this, 'mix-raport')">
       </div>
       <div id="mix-raport-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="mix-raport-img">
@@ -1127,7 +1135,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="card">
       <div class="list-row">
         <div class="row-dot dot-purple" style="background:var(--purple)"></div>
-        <div class="row-info"><div class="row-title">Кемерово → Новосибирск</div><div class="row-sub">Металлоконструкции · 143 · Гааль Р.А.</div></div>
+        <div class="row-info"><div class="row-title">Кемерово → Новосибирск</div><div class="row-sub">Металлоконструкции · 143 · Колмаков Е.В.</div></div>
         <div class="row-right"><div class="row-val">В пути</div><div class="row-time">с 08:00</div></div>
       </div>
     </div>
@@ -1166,18 +1174,16 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="form-block">
       <div class="form-lbl">Автомобиль</div>
       <div class="chips">
-        <button class="chip on" onclick="sel(this);checkOther(this)">143</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">555</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">008</button>
+        <button class="chip on" onclick="sel(this);checkOther(this)">803</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">143</button>
         <button class="chip" onclick="sel(this);checkOther(this)">709</button>
       </div>
     </div>
     <div class="form-block">
       <div class="form-lbl">Водитель</div>
       <div class="chips">
-        <button class="chip" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Колмаков Е.В.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
       </div>
     
@@ -1273,7 +1279,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="pz-icon">📎</div>
         <div class="pz-title">Добавить ТН</div>
         <div class="pz-sub">Можно до 5 накладных, 2 фото каждая</div>
-        <input type="file" id="dln-tn-photo" accept="image/*" style="display:none" onchange="handlePhotoUpload(this, 'dln-tn')">
+        <input type="file" id="dln-tn-photo" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this, 'dln-tn')">
       </div>
       <div id="dln-tn-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="dln-tn-img">
@@ -1308,7 +1314,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       </div>
       <div class="list-row">
         <div class="row-dot dot-orange"></div>
-        <div class="row-info"><div class="row-title">137 · Татнефть</div><div class="row-sub">Шабанов Ф.А. · 80 л · 62.0 ₽/л</div></div>
+        <div class="row-info"><div class="row-title">709 · Татнефть</div><div class="row-sub">Колмаков Е.В. · 80 л · 62.0 ₽/л</div></div>
         <div class="row-right"><div class="row-val">4 960 ₽</div><div class="row-time">07:40</div></div>
       </div>
     </div>
@@ -1321,23 +1327,19 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="form-block">
       <div class="form-lbl">Автомобиль</div>
       <div class="chips">
-        <button class="chip on" onclick="sel(this)">143</button>
-        <button class="chip" onclick="sel(this)">555</button>
-        <button class="chip" onclick="sel(this)">008</button>
-        <button class="chip" onclick="sel(this)">137</button>
+        <button class="chip on" onclick="sel(this)">803</button>
+        <button class="chip" onclick="sel(this)">143</button>
         <button class="chip" onclick="sel(this)">709</button>
-        <button class="chip" onclick="sel(this)">803</button>
         <button class="chip" onclick="sel(this)">729</button>
       </div>
     </div>
     <div class="form-block">
       <div class="form-lbl">Водитель</div>
       <div class="chips">
-        <button class="chip" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Цупиков Н.Н.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Колмаков Е.В.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Шевченко С.С.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Цупиков Н.Н.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
       </div>
       <div class="other-input">
@@ -1386,7 +1388,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="pz-icon">🧾</div>
         <div class="pz-title">Сфотографировать чек</div>
         <div class="pz-sub">Можно несколько фото</div>
-        <input type="file" id="fuel-check-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'fuel-check')">
+        <input type="file" id="fuel-check-photo" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this, 'fuel-check')">
       </div>
       <div id="fuel-check-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="fuel-check-img">
@@ -1434,23 +1436,19 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="form-block">
       <div class="form-lbl">Автомобиль</div>
       <div class="chips">
-        <button class="chip on" onclick="sel(this)">143</button>
-        <button class="chip" onclick="sel(this)">555</button>
-        <button class="chip" onclick="sel(this)">008</button>
-        <button class="chip" onclick="sel(this)">137</button>
+        <button class="chip on" onclick="sel(this)">803</button>
+        <button class="chip" onclick="sel(this)">143</button>
         <button class="chip" onclick="sel(this)">709</button>
-        <button class="chip" onclick="sel(this)">803</button>
         <button class="chip" onclick="sel(this)">729</button>
       </div>
     </div>
     <div class="form-block">
       <div class="form-lbl">Водитель</div>
       <div class="chips">
-        <button class="chip" onclick="sel(this);checkOther(this)">Шабанов Ф.А.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Алексеев О.Е.</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Гааль Р.А.</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Цупиков Н.Н.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Колмаков Е.В.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">Шевченко С.С.</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">Цупиков Н.Н.</button>
         <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
       </div>
       <div class="other-input">
@@ -1512,7 +1510,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="pz-icon">🧾</div>
         <div class="pz-title">Сфотографировать чек</div>
         <div class="pz-sub">Можно несколько фото</div>
-        <input type="file" id="expense-check-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'expense-check')">
+        <input type="file" id="expense-check-photo" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this, 'expense-check')">
       </div>
       <div id="expense-check-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="expense-check-img">
@@ -1627,9 +1625,8 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="form-block">
         <div class="form-lbl">Водитель</div>
         <div class="chips" id="dir-driver-chips">
-          <button class="chip on" onclick="sel(this);dirDriverChanged()">Шабанов Ф.А.</button>
-          <button class="chip" onclick="sel(this);dirDriverChanged()">Алексеев О.Е.</button>
-          <button class="chip" onclick="sel(this);dirDriverChanged()">Гааль Р.А.</button>
+          <button class="chip on" onclick="sel(this);dirDriverChanged()">Алексеев О.Е.</button>
+          <button class="chip" onclick="sel(this);dirDriverChanged()">Колмаков Е.В.</button>
           <button class="chip" onclick="sel(this);dirDriverChanged()">Цупиков Н.Н.</button>
           <button class="chip" onclick="sel(this);dirDriverChanged()">Шевченко С.С.</button>
         </div>
@@ -2090,12 +2087,12 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="btn-body"><div class="btn-title">Открыть ремонт</div><div class="btn-sub">Новый заказ-наряд</div></div>
       <span class="chevron">›</span>
     </button>
-    <button class="big-btn dark" onclick="showSub('svc-active')">
+    <button class="big-btn dark" onclick="openSvcActive()">
       <div class="btn-ico">🔧</div>
       <div class="btn-body"><div class="btn-title">Активные ремонты</div><div class="btn-sub" id="svc-active-counter">—</div></div>
       <span class="chevron">›</span>
     </button>
-    <button class="big-btn" style="background:var(--purple)" onclick="showSub('parts-new-svc')">
+    <button class="big-btn" style="background:var(--purple)" onclick="go('s-parts')">
       <div class="btn-ico">🔩</div>
       <div class="btn-body"><div class="btn-title">Запчасти</div><div class="btn-sub">Новая закупка · история</div></div>
       <span class="chevron">›</span>
@@ -2116,11 +2113,8 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="form-lbl">Автомобиль</div>
       <div class="chips">
         <button class="chip on" onclick="sel(this);checkOther(this)">803</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">008</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">709</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">137</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">555</button>
         <button class="chip" onclick="sel(this);checkOther(this)">143</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">709</button>
         <button class="chip" onclick="sel(this);checkOther(this)">729</button>
       </div>
     </div>
@@ -2256,6 +2250,69 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <button class="submit green" onclick="closeServiceRepair(this)">Закрыть ремонт</button>
   </div>
 
+  <!-- ДОБАВИТЬ РАБОТУ -->
+  <div class="sub-screen" id="svc-add-work">
+    <button class="back-btn" onclick="hideSub('svc-card','svc-add-work')">‹ Карточка ремонта</button>
+    <div class="page-title" style="margin-bottom:20px">Добавить работу</div>
+
+    <div class="form-block">
+      <div class="form-lbl">Что сделано</div>
+      <input class="inp" type="text" id="svc-work-desc" placeholder="Например: Замена шаровой опоры передней левой">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Стоимость работы (₽, необязательно)</div>
+      <input class="inp" type="number" id="svc-work-cost" inputmode="numeric" placeholder="Если работа платная">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Комментарий</div>
+      <input class="inp" type="text" id="svc-work-comment" placeholder="Дополнительно">
+    </div>
+
+    <button class="submit" onclick="submitRepairWork(this)">Сохранить работу</button>
+  </div>
+
+  <!-- ДОБАВИТЬ РАСХОД -->
+  <div class="sub-screen" id="svc-add-expense">
+    <button class="back-btn" onclick="hideSub('svc-card','svc-add-expense')">‹ Карточка ремонта</button>
+    <div class="page-title" style="margin-bottom:20px">Добавить расход</div>
+
+    <div class="form-block">
+      <div class="form-lbl">Категория</div>
+      <div class="chips" id="svc-expense-cat-chips">
+        <button class="chip on" onclick="sel(this)">Запчасти</button>
+        <button class="chip" onclick="sel(this)">Расходники</button>
+        <button class="chip" onclick="sel(this)">Услуги (СТО)</button>
+        <button class="chip" onclick="sel(this)">Топливо</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+      </div>
+      <div class="other-input">
+        <input class="inp" type="text" placeholder="Введите категорию">
+      </div>
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Сумма (₽)</div>
+      <input class="inp" type="number" id="svc-expense-amount" inputmode="numeric" placeholder="Введите сумму">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Что куплено / за что заплачено</div>
+      <input class="inp" type="text" id="svc-expense-desc" placeholder="Например: масляный фильтр">
+    </div>
+    <div class="form-block">
+      <div class="form-lbl">Фото чека (необязательно)</div>
+      <div class="photo-zone" onclick="document.getElementById('svc-expense-photo').click()">
+        <div class="pz-icon">🧾</div>
+        <div class="pz-title">Прикрепить чек</div>
+        <div class="pz-sub">Камера или галерея</div>
+        <input type="file" id="svc-expense-photo" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this, 'svc-expense')">
+      </div>
+      <div id="svc-expense-preview" style="display:none;margin-bottom:8px;">
+        <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="svc-expense-img">
+      </div>
+    </div>
+
+    <button class="submit red" onclick="submitRepairExpense(this)">Сохранить расход</button>
+  </div>
+
 </div>
 
 
@@ -2290,11 +2347,8 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="form-lbl">Автомобиль</div>
       <div class="chips">
         <button class="chip on" onclick="sel(this);checkOther(this)">803</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">008</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">709</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">137</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">555</button>
         <button class="chip" onclick="sel(this);checkOther(this)">143</button>
+        <button class="chip" onclick="sel(this);checkOther(this)">709</button>
         <button class="chip" onclick="sel(this);checkOther(this)">729</button>
       </div>
     </div>
@@ -2346,29 +2400,34 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="form-lbl">Форма оплаты</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <label class="pay-toggle-row">
-          <input type="checkbox" id="pay-nal">
+          <input type="radio" name="parts-payment" id="pay-nal" onchange="togglePartsDebt(event)">
           <span class="pay-toggle-label">Нал</span>
           <span class="pay-toggle-hint">оплачено наличными</span>
         </label>
         <label class="pay-toggle-row">
-          <input type="checkbox" id="pay-beznal">
+          <input type="radio" name="parts-payment" id="pay-beznal" onchange="togglePartsDebt(event)">
           <span class="pay-toggle-label">Безнал</span>
           <span class="pay-toggle-hint">оплачено картой / переводом</span>
+        </label>
+        <label class="pay-toggle-row">
+          <input type="radio" name="parts-payment" id="pay-dolg" onchange="togglePartsDebt(event)">
+          <span class="pay-toggle-label">В долг</span>
+          <span class="pay-toggle-hint">оплата позже</span>
         </label>
       </div>
     </div>
 
-    <!-- Блок для долга (отключён) -->
+    <!-- Блок для долга — показывается при выборе «В долг» -->
     <div id="parts-debt-block" style="display:none">
       <div class="form-block">
         <div class="form-lbl">Сумма долга (₽)</div>
-        <input class="inp" type="number" placeholder="Сколько в долг" inputmode="numeric">
+        <input class="inp" type="number" id="parts-debt-amount" placeholder="Сколько в долг" inputmode="numeric">
       </div>
       <div class="form-block">
         <div class="form-lbl">Срок оплаты</div>
         <div class="chips">
-          <button class="chip on" onclick="sel(this)">До конца недели</button>
-          <button class="chip" onclick="sel(this)">До конца месяца</button>
+          <button class="chip on" onclick="sel(this);checkOther(this)">До конца недели</button>
+          <button class="chip" onclick="sel(this);checkOther(this)">До конца месяца</button>
           <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
         </div>
         <div class="other-input">
@@ -2378,20 +2437,15 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     </div>
 
     <div class="form-block">
-      <div class="form-lbl">Привязать к ремонту?</div>
-      <div class="chips">
-        <button class="chip on" onclick="sel(this)">Нет</button>
-        <button class="chip" onclick="sel(this)">#247 · 803 · Ходовка</button>
-        <button class="chip" onclick="sel(this)">#246 · 555 · Двигатель</button>
-      </div>
-    </div>
-
-    <div class="form-block">
       <div class="form-lbl">Фото чека / документа</div>
-      <div class="photo-zone" onclick="alert('Сфотографировать чек')">
+      <div class="photo-zone" onclick="document.getElementById('parts-check-photo').click()">
         <div class="pz-icon">🧾</div>
         <div class="pz-title">Сфотографировать чек</div>
-        <div class="pz-sub">Можно несколько фото</div>
+        <div class="pz-sub">Камера или галерея</div>
+        <input type="file" id="parts-check-photo" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this, 'parts-check')">
+      </div>
+      <div id="parts-check-preview" style="display:none;margin-bottom:8px;">
+        <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="parts-check-img">
       </div>
     </div>
 
@@ -2528,7 +2582,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="doc-date">30.03.2026</div>
       </div>
       <div class="doc-main">
-        <div class="doc-truck">008 · Шабанов Ф.А.</div>
+        <div class="doc-truck">803 · Алексеев О.Е.</div>
         <div class="doc-route">Морозовский → Кузбассдорстрой · 2,0–2,5 · 38 т</div>
       </div>
       <div class="doc-links">
@@ -2580,7 +2634,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="doc-date">16.03.2026</div>
       </div>
       <div class="doc-main">
-        <div class="doc-truck">008 · Шабанов Ф.А.</div>
+        <div class="doc-truck">803 · Алексеев О.Е.</div>
         <div class="doc-route">Морозовский → Сибирский Бетон · 1,5–2,0 · 37,2 т</div>
       </div>
       <div class="doc-links">
@@ -2887,7 +2941,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="pz-icon">🧾</div>
         <div class="pz-title">Сфотографировать чек</div>
         <div class="pz-sub">Обязательно для подтверждения</div>
-        <input type="file" id="mech-fuel-check" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'mech-fuel')">
+        <input type="file" id="mech-fuel-check" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this, 'mech-fuel')">
       </div>
       <div id="mech-fuel-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="mech-fuel-img">
@@ -2898,90 +2952,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
 </div>
   </div>
 
-  <!-- СМЕНЫ -->
-  <div id="mech-tab-shifts" style="display:none;">
-    <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;">
-        <div>
-          <div style="font-size:28px;font-weight:700;color:var(--accent2);">18</div>
-          <div style="font-size:11px;color:var(--t3);">смен за март</div>
-        </div>
-        <div>
-          <div style="font-size:28px;font-weight:700;color:var(--green);">6</div>
-          <div style="font-size:11px;color:var(--t3);">эта неделя</div>
-        </div>
-        <div>
-          <div style="font-size:28px;font-weight:700;color:var(--orange);">3</div>
-          <div style="font-size:11px;color:var(--t3);">прошлая неделя</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="sec-lbl">История смен</div>
-    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;">
-      <div class="shift-row"><span class="shift-date">31.03.2026</span><span class="shift-day">Понедельник</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
-      <div class="shift-row"><span class="shift-date">30.03.2026</span><span class="shift-day">Воскресенье</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
-      <div class="shift-row"><span class="shift-date">29.03.2026</span><span class="shift-day">Суббота</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
-      <div class="shift-row"><span class="shift-date">28.03.2026</span><span class="shift-day">Пятница</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
-      <div class="shift-row"><span class="shift-date">27.03.2026</span><span class="shift-day">Четверг</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
-      <div class="shift-row"><span class="shift-date">26.03.2026</span><span class="shift-day">Среда</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
-      <div class="shift-row"><span class="shift-date">25.03.2026</span><span class="shift-day">Вторник</span><span class="shift-badge red">Выходной</span><span class="shift-pay" style="color:var(--t4);">—</span></div>
-      <div class="shift-row"><span class="shift-date">24.03.2026</span><span class="shift-day">Понедельник</span><span class="shift-badge red">Выходной</span><span class="shift-pay" style="color:var(--t4);">—</span></div>
-      <div class="shift-row" style="border:none;"><span class="shift-date">23.03.2026</span><span class="shift-day">Воскресенье</span><span class="shift-badge green">Вышел</span><span class="shift-pay">₽ 6 000</span></div>
-    </div>
-
-    <!-- Отметить смену -->
-    <button class="big-btn dark" onclick="markMechShift('today')">
-      <div class="btn-ico">✓</div>
-      <div class="btn-body"><div class="btn-title">Отметить выход сегодня</div></div>
-    </button>
-  </div>
-
-  <!-- АВАНСЫ -->
-  <div id="mech-tab-advances" style="display:none;">
-    <div style="background:var(--bg3);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <div style="font-size:13px;color:var(--t3);">Всего авансов за март</div>
-          <div style="font-size:28px;font-weight:700;color:var(--red);">₽ 35 000</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:13px;color:var(--t3);">Из зарплаты</div>
-          <div style="font-size:16px;font-weight:600;color:var(--orange);">32% ЗП</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="sec-lbl">История авансов</div>
-    <div style="background:var(--bg3);border-radius:var(--r2);padding:4px 16px;margin-bottom:10px;">
-      <div class="advance-row">
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:500;">28 марта</div>
-          <div style="font-size:12px;color:var(--t3);">Аванс · директор подтвердил</div>
-        </div>
-        <div style="font-size:16px;font-weight:700;color:var(--red);">− ₽ 10 000</div>
-      </div>
-      <div class="advance-row">
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:500;">20 марта</div>
-          <div style="font-size:12px;color:var(--t3);">Аванс · директор подтвердил</div>
-        </div>
-        <div style="font-size:16px;font-weight:700;color:var(--red);">− ₽ 15 000</div>
-      </div>
-      <div class="advance-row" style="border:none;">
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:500;">10 марта</div>
-          <div style="font-size:12px;color:var(--t3);">Аванс · директор подтвердил</div>
-        </div>
-        <div style="font-size:16px;font-weight:700;color:var(--red);">− ₽ 10 000</div>
-      </div>
-    </div>
-
-    <button class="big-btn dark" onclick="requestAdvance()">
-      <div class="btn-ico">💸</div>
-      <div class="btn-body"><div class="btn-title">Запросить аванс</div><div class="btn-sub">Директор получит уведомление</div></div>
-    </button>
-  </div>
 </div>
 
 
@@ -3023,9 +2993,8 @@ var currentRole = "login";
 
 // ═══════════════════ СПРАВОЧНИК ВОДИТЕЛЕЙ ═══════════════════
 var DRIVERS = {
-  'shabanov':   { name: 'Шабанов Ф.А.', truck: '008', type: 'tonary', initials: 'ШФ' },
   'alekseev':   { name: 'Алексеев О.Е.', truck: '803', type: 'tonary', initials: 'АО' },
-  'gaal':       { name: 'Гааль Р.А.',    truck: '709', type: 'tonary', initials: 'ГР' },
+  'kolmakov':   { name: 'Колмаков Е.В.', truck: '709', type: 'tonary', initials: 'КЕ' },
   'tsupikov':   { name: 'Цупиков Н.Н.',  truck: '729', type: 'mixer', initials: 'ЦН' },
   'shevchenko': { name: 'Шевченко С.С.', truck: '729', type: 'mixer', initials: 'ШС' }
 };
@@ -3329,12 +3298,42 @@ function showSub(subId){
     window.scrollTo(0,0);
   } catch(e) { console.error('showSub error:',e); }
 }
+// When leaving a sub-screen (back or post-submit), drop the photos accumulated
+// in __photoStore so the next time the form opens it is clean.
+var __SUB_PHOTO_KEYS = {
+  'ton-new': ['tn-front', 'tn-back'],
+  'mix-new': ['mix-tn', 'mix-raport'],
+  'dln-new': ['dln-tn'],
+  'parts-new': ['parts-check'],
+  'dt-new': ['fuel-check'],
+  'exp-new': ['expense-check'],
+  'mech-fuel-new': ['mech-fuel'],
+  'svc-add-expense': ['svc-expense']
+};
 function hideSub(menuId,subId){
   try {
     var m=document.getElementById(menuId);
-    if(m) m.style.display='block';
+    if(m) {
+      // Если menu — это другой sub-screen (как svc-card в случае svc-add-work),
+      // вернуть его через .active, а не через inline display:block — иначе
+      // последующий hideSub('svc-menu','svc-card') оставит inline display и
+      // svc-card не скроется.
+      if (m.classList && m.classList.contains('sub-screen')) {
+        m.classList.add('active');
+        m.style.display = '';
+      } else {
+        m.style.display = 'block';
+      }
+    }
     var s=document.getElementById(subId);
-    if(s) s.classList.remove('active');
+    if(s) {
+      s.classList.remove('active');
+      s.style.display = '';
+    }
+    var keys = __SUB_PHOTO_KEYS[subId];
+    if (keys && typeof clearPhotos === 'function') {
+      keys.forEach(function(k){ clearPhotos(k); });
+    }
     window.scrollTo(0,0);
   } catch(e) { console.error('hideSub error:',e); }
 }
@@ -3725,24 +3724,97 @@ function loadDirectorDashboard(){
   }).catch(function(){});
 }
 
-function addRepairWork(){
-  var desc = prompt('Что сделано? (например: Замена шаровой опоры передней левой)');
-  if (!desc || !desc.trim()) return;
-  var truck = (document.getElementById('svc-card-title') || {}).textContent || '';
-  var data = { type: 'work', description: desc.trim(), truck: truck.split(' · ')[0] || '', status: 'open' };
-  sendToAPI('dlinn_repair', data, function(){ showNotification('Работа добавлена'); loadServiceLists(); });
+function _currentRepairTruck(){
+  var t = (document.getElementById('svc-card-title') || {}).textContent || '';
+  return (t.split(' · ')[0] || '').trim();
 }
-function addRepairExpense(){
-  var amount = prompt('Сумма расхода (₽):');
-  if (!amount || isNaN(amount) || Number(amount) <= 0) return;
-  var desc = prompt('Что куплено / заплачено за?');
-  if (!desc || !desc.trim()) return;
-  var truck = (document.getElementById('svc-card-title') || {}).textContent || '';
+
+function _openRepairSub(subId){
+  // svc-card сам — sub-screen, переключим .active.
+  var card = document.getElementById('svc-card');
+  if (card) card.classList.remove('active');
+  var sub = document.getElementById(subId);
+  if (sub) sub.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function addRepairWork(){
+  var d = document.getElementById('svc-work-desc'); if (d) d.value = '';
+  var c = document.getElementById('svc-work-cost'); if (c) c.value = '';
+  var k = document.getElementById('svc-work-comment'); if (k) k.value = '';
+  _openRepairSub('svc-add-work');
+}
+function submitRepairWork(btn){
+  var finish = startSubmit(btn, '⏳ Отправка...');
+  var desc = (document.getElementById('svc-work-desc')||{}).value || '';
+  var cost = (document.getElementById('svc-work-cost')||{}).value || '';
+  var comment = (document.getElementById('svc-work-comment')||{}).value || '';
+  desc = desc.trim();
+  if (!desc) { showNotification('Опишите работу'); finish('⚠️ Заполните', '', 1500); return; }
   var data = {
-    type: 'expense', description: desc.trim(), cost: Number(amount),
-    truck: truck.split(' · ')[0] || '', category: 'Ремонт', amount: Number(amount),
+    type: 'work',
+    date: new Date().toLocaleDateString('ru'),
+    description: desc,
+    cost: cost ? Number(cost) : '',
+    truck: _currentRepairTruck(),
+    status: 'open',
+    comment: comment.trim()
   };
-  sendToAPI('dlinn_expense', data, function(){ showNotification('Расход на ₽' + Number(amount).toLocaleString() + ' записан'); loadServiceLists(); });
+  sendToAPI('dlinn_repair', data, function(res){
+    showNotification('Работа добавлена' + (res && res.id ? ' (' + res.id + ')' : ''));
+    finish('✅ Сохранено!', 'var(--green)', 1000);
+    setTimeout(function(){ hideSub('svc-card','svc-add-work'); loadServiceLists(); }, 1000);
+  }, function(){
+    showNotification('Ошибка сохранения работы');
+    finish('❌ Ошибка', '', 1800);
+  });
+}
+
+function addRepairExpense(){
+  var a = document.getElementById('svc-expense-amount'); if (a) a.value = '';
+  var d = document.getElementById('svc-expense-desc'); if (d) d.value = '';
+  if (window.__photoStore) window.__photoStore['svc-expense'] = [];
+  var prev = document.getElementById('svc-expense-preview'); if (prev) prev.style.display = 'none';
+  _openRepairSub('svc-add-expense');
+}
+function submitRepairExpense(btn){
+  var finish = startSubmit(btn, '⏳ Отправка...');
+  var catEl = document.querySelector('#svc-expense-cat-chips .chip.on');
+  var category = catEl ? catEl.textContent.trim() : 'Ремонт';
+  // если выбрано «+ Другое» — взять из other-input
+  if (category.indexOf('Другое') >= 0) {
+    var other = document.querySelector('#svc-add-expense .other-input .inp');
+    if (other && other.value.trim()) category = other.value.trim();
+  }
+  var amount = (document.getElementById('svc-expense-amount')||{}).value || '';
+  var desc = (document.getElementById('svc-expense-desc')||{}).value || '';
+  desc = desc.trim();
+  if (!amount || isNaN(amount) || Number(amount) <= 0) { showNotification('Укажите сумму'); finish('⚠️ Заполните', '', 1500); return; }
+  if (!desc) { showNotification('Опишите расход'); finish('⚠️ Заполните', '', 1500); return; }
+  var data = {
+    date: new Date().toLocaleDateString('ru'),
+    category: category,
+    amount: Number(amount),
+    description: desc,
+    truck: _currentRepairTruck(),
+    photo: getPhotoArray('svc-expense')
+  };
+  sendToAPI('dlinn_expense', data, function(res){
+    showNotification('Расход на ₽' + Number(amount).toLocaleString() + ' записан' + (res && res.id ? ' (' + res.id + ')' : ''));
+    finish('✅ Сохранено!', 'var(--green)', 1000);
+    setTimeout(function(){ hideSub('svc-card','svc-add-expense'); loadServiceLists(); }, 1000);
+  }, function(){
+    showNotification('Ошибка сохранения расхода');
+    finish('❌ Ошибка', '', 1800);
+  });
+}
+
+function openSvcActive(){
+  // Показать суб-экран сразу, но обновить список из сервера, а не из кэша.
+  var list = document.getElementById('svc-active-list');
+  if (list) list.innerHTML = '<div class="card" style="text-align:center;color:var(--t4);font-size:13px;padding:24px;">Загрузка…</div>';
+  showSub('svc-active');
+  if (typeof loadServiceLists === 'function') loadServiceLists();
 }
 
 function loadServiceLists(){
@@ -3982,16 +4054,6 @@ function addTN(btn){
   alert('Откроется камера для фото ТН. После съёмки ТН будет прикреплена к рейсу.');
 }
 
-// Слесарь — вкладки
-function setMechTab(tab, btn){
-  document.querySelectorAll('#s-mechanic-dash .period-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  ['salary','shifts','advances'].forEach(t=>{
-    const el = document.getElementById('mech-tab-'+t);
-    if(el) el.style.display = t===tab ? 'block' : 'none';
-  });
-}
-
 // ═══════════════════ СЛЕСАРЬ — СЕКЦИИ ═══════════════════
 var mechState = { shifts: [], advances: [], fuels: [] };
 
@@ -4108,7 +4170,8 @@ function addMechShift(dateStr) {
       return;
     }
   }
-  mechState.shifts.push({ date: dateStr, pay: 6000 });
+  var entry = { date: dateStr, pay: 6000 };
+  mechState.shifts.push(entry);
   mechState.shifts.sort(function(a, b) {
     const da = a.date.split('.').reverse().join('');
     const db = b.date.split('.').reverse().join('');
@@ -4117,6 +4180,13 @@ function addMechShift(dateStr) {
   renderMechShifts();
   sendToAPI('mechanic_record', { type: 'shift', date: dateStr, rate: 6000 }, function(){
     showNotification('Смена ' + dateStr + ' сохранена');
+    if (typeof loadMechanicDashboard === 'function') loadMechanicDashboard();
+  }, function(){
+    // Откат оптимистичного апдейта если бэкенд не принял
+    var idx = mechState.shifts.indexOf(entry);
+    if (idx >= 0) mechState.shifts.splice(idx, 1);
+    renderMechShifts();
+    showNotification('Не удалось сохранить смену — попробуйте ещё раз');
   });
 }
 
@@ -4193,10 +4263,17 @@ function requestAdvance() {
   if (!amount || isNaN(amount) || Number(amount) <= 0) return;
   const num = Number(amount);
   const today = new Date().toLocaleDateString('ru');
-  mechState.advances.push({ date: today, amount: num });
+  var entry = { date: today, amount: num };
+  mechState.advances.push(entry);
   renderMechAdvances();
   sendToAPI('mechanic_record', { type: 'advance', date: today, advance_amount: num }, function(){
     showNotification('Аванс ₽' + num.toLocaleString() + ' сохранён');
+    if (typeof loadMechanicDashboard === 'function') loadMechanicDashboard();
+  }, function(){
+    var idx = mechState.advances.indexOf(entry);
+    if (idx >= 0) mechState.advances.splice(idx, 1);
+    renderMechAdvances();
+    showNotification('Не удалось сохранить аванс — попробуйте ещё раз');
   });
 }
 
@@ -4217,63 +4294,13 @@ function renderMechAdvances() {
   recalcMechSalary();
 }
 
-function submitMechFuel() {
-  const inputs = document.querySelectorAll('#mech-fuel-new .inp');
-  // 0: литры, 1: стоимость, 2: цена за литр, 3: + Другое (если выбрано)
-  const liters = inputs[0] ? parseFloat(inputs[0].value) || 0 : 0;
-  const cost = inputs[1] ? parseFloat(inputs[1].value) || 0 : 0;
-  if (cost <= 0) { alert('Введите стоимость заправки'); return; }
-  const today = new Date().toLocaleDateString('ru');
-  mechState.fuels.push({ date: today, liters: liters, cost: cost });
-  const list = document.getElementById('mech-fuel-list');
-  if (list) {
-    let html = '';
-    let total = 0;
-    for (let i = 0; i < mechState.fuels.length; i++) {
-      const f = mechState.fuels[i];
-      total += f.cost || 0;
-      html += '<div class="list-row"><div class="row-dot dot-orange"></div><div class="row-info"><div class="row-title">Заправка ' + (f.liters ? f.liters + ' л' : '') + '</div><div class="row-sub">' + f.date + '</div></div><div class="row-right"><div class="row-val" style="color:var(--red);">−₽' + (f.cost||0).toLocaleString() + '</div></div></div>';
-    }
-    if (total > 0) html += '<div class="list-row" style="border:none"><div class="row-info"><div class="row-title" style="color:var(--t3)">Итого вычитается</div></div><div class="row-right"><div class="row-val" style="color:var(--red);font-weight:700">−₽' + total.toLocaleString() + '</div></div></div>';
-    list.innerHTML = html;
-  }
-  recalcMechSalary();
-  var stationChip = document.querySelector('#mech-fuel-new .chip.on');
-  var station = stationChip ? stationChip.textContent.trim() : '';
-  sendToAPI('mechanic_record', {
-    type: 'fuel', date: today,
-    fuel_liters: liters, fuel_cost: cost, fuel_station: station
-  }, function(){
-    showNotification('Заправка сохранена');
-  });
-  // очистить поля
-  inputs.forEach(function(i){ if (i) i.value = ''; });
-  alert('Заправка сохранена! −₽' + cost.toLocaleString() + ' из ЗП');
-  hideSub('mech-section-fuel-salary', 'mech-fuel-new');
-}
-
 function togglePartsDebt(){
-  const dolg = document.getElementById('pay-dolg');
-  const b = document.getElementById('parts-debt-block');
-  if(b && dolg) b.style.display = dolg.checked ? 'block' : 'none';
+  // Радио parts-payment гарантирует эксклюзивность; нам нужно только
+  // показать/скрыть блок «Сумма долга / Срок оплаты».
+  var dolg = document.getElementById('pay-dolg');
+  var b = document.getElementById('parts-debt-block');
+  if (b) b.style.display = (dolg && dolg.checked) ? 'block' : 'none';
 }
-function togglePartsDebt2(){
-  const dolg = document.getElementById('pay-dolg2');
-  const b = document.getElementById('parts-debt-block2');
-  if(b && dolg) b.style.display = dolg.checked ? 'block' : 'none';
-}
-function togglePartsPayment(type){
-  const b = document.getElementById('parts-debt-block');
-  if(!b) return;
-  b.style.display = type === 'debt' ? 'block' : 'none';
-}
-function setPTab(tab, btn){
-  document.querySelectorAll('#parts-new-svc .period-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('parts-tab-new').style.display = tab==='new' ? 'block' : 'none';
-  document.getElementById('parts-tab-hist').style.display = tab==='hist' ? 'block' : 'none';
-}
-
 function confirmEconomistCash(btn){
   const card = btn.closest('[style]');
   btn.style.background = 'rgba(48,209,88,.2)';
@@ -4441,7 +4468,12 @@ function sendToAPI(action, data, onSuccess, onError) {
   }
 
   function fallbackToTelegram(errorLike) {
-    if (window.Telegram && window.Telegram.WebApp) {
+    // Telegram.WebApp.sendData имеет жёсткий лимит ~4КБ. Большие пейлоады
+    // (отчёт с base64-фото) обрезаются → сервер парсит мусор и теряет ссылки.
+    // Если payload тяжёлый — не делаем fallback, отдаём ошибку клиенту.
+    var heavy = false;
+    try { heavy = JSON.stringify(data || {}).length > 3000; } catch(e) {}
+    if (!heavy && window.Telegram && window.Telegram.WebApp) {
       Telegram.WebApp.sendData(JSON.stringify({action: action, data: data}));
       finishSuccess({fallback: true, offline: true});
       return true;
@@ -4450,11 +4482,23 @@ function sendToAPI(action, data, onSuccess, onError) {
     return false;
   }
 
+  // Размер payload: если есть фото — выключаем Telegram-fallback (у него лимит
+  // ~4КБ, base64-фотки в него не пролезут — данные обрежутся и рейс сохранится
+  // без ссылок). Таймаут также увеличен с 8 до 60с: загрузка нескольких фоток
+  // на Яндекс.Диск через сервер легко занимает 15-40 сек.
+  var payloadSize = 0;
+  try { payloadSize = JSON.stringify(data || {}).length; } catch(e) {}
+  var hasHeavyPayload = payloadSize > 3000;
+
   var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
   var timeoutId = setTimeout(function(){
-    fallbackToTelegram({status:'error', message:'API timeout'});
+    if (hasHeavyPayload) {
+      finishError({status:'error', message:'Превышено время отправки. Проверьте интернет и попробуйте ещё раз.'});
+    } else {
+      fallbackToTelegram({status:'error', message:'API timeout'});
+    }
     if (controller) controller.abort();
-  }, 8000);
+  }, 60000);
 
   // Server now requires verified Telegram WebApp identity on every call. Inject
   // initData (HMAC-signed by Telegram) and telegram_user_id for the server to
@@ -4516,7 +4560,10 @@ function submitTonarTrip(btn){
   btn.textContent = '⏳ Отправка...';
   btn.disabled = true;
 
-  // Собрать данные из формы
+  // Собрать данные из формы.
+  // Порядок .form-block в DOM: 0:Дата, 1:Автомобиль, 2:Водитель, 3:Материал, 4:Карьер,
+  // 5:Фракция, 6:Модуль крупности (скрытый, но querySelectorAll его считает),
+  // 7:Заказчик, 8:Объект, 9:Тоннаж загрузки, 10:Тоннаж выгрузки, 11:Фото ТН.
   var form = btn.closest('.sub-screen');
   var blocks = form.querySelectorAll('.form-block');
   var loadInput = blocks[9] ? blocks[9].querySelector('.inp') : null;
@@ -4524,23 +4571,33 @@ function submitTonarTrip(btn){
   var loadTonnage = loadInput ? loadInput.value : '';
   var unloadTonnage = unloadInput ? unloadInput.value : '';
 
+  // Игнорировать значение в скрытом блоке — иначе залипший .chip.on отдаёт мусор
+  // (для песка читалась бы фракция «5-20», для щебня — модуль «1,5–2,0»).
+  function valIfVisible(b){
+    return (b && b.offsetParent !== null) ? getFieldValue(b) : '';
+  }
+  var material = getFieldValue(blocks[3]);
+  var fractionRaw = valIfVisible(blocks[5]);
+  var modulRaw    = valIfVisible(blocks[6]);
+
   var now = new Date();
   var data = {
-    date: now.toLocaleDateString('ru'),
+    date: dateState['ton-date'] || now.toLocaleDateString('ru'),
     time: now.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}),
-    driver: getFieldValue(blocks[2]),
-    truck: getFieldValue(blocks[1]),
-    quarry: getFieldValue(blocks[4]),
-    material: getFieldValue(blocks[3]),
-    fraction: getFieldValue(blocks[5]),
-    client: getFieldValue(blocks[7]),
-    object: getFieldValue(blocks[8]),
+    truck:    getFieldValue(blocks[1]),
+    driver:   getFieldValue(blocks[2]),
+    material: material,
+    quarry:   getFieldValue(blocks[4]),
+    fraction: fractionRaw,
+    client:   getFieldValue(blocks[7]),
+    object:   getFieldValue(blocks[8]),
     load_tonnage: loadTonnage,
     unload_tonnage: unloadTonnage,
-    tn_front: getPreviewImageSrc('tn-front-img'),
-    tn_back: getPreviewImageSrc('tn-back-img'),
+    tn_front: getPhotoArray('tn-front'),
+    tn_back: getPhotoArray('tn-back'),
     paid: (document.getElementById('ton-paid') && document.getElementById('ton-paid').checked) ? 'Да' : 'Нет',
-    status: 'ok'
+    status: 'ok',
+    comment: modulRaw ? ('Модуль крупности: ' + modulRaw) : ''
   };
 
   sendToAPI('tonar_trip', data, function(res){
@@ -4634,29 +4691,43 @@ function submitMixerTrip(btn){
   btn.textContent = '⏳ Отправка...';
   btn.disabled = true;
 
+  // Порядок .form-block в DOM:
+  // 0:Дата 1:Автомобиль 2:Водитель 3:Завод 4:Тип_смеси 5:Марка 6:ПМД 7:pmd-temp(скрытый)
+  // 8:Объём 9:Заказчик 10:Адрес 11:Время_прибытия 12:Время_убытия
+  // 13:Стоимость_бетона 14:Стоимость_доставки 15:Тип_расчёта 16:dengi(cash_received)
+  // 17:№ТН 18:Фото 19:Оплата
   var form = btn.closest('.sub-screen');
-  var inputs = form.querySelectorAll('.inp');
   var blocks = form.querySelectorAll('.form-block');
+  function inp(i){
+    var b = blocks[i];
+    if(!b) return '';
+    var el = b.querySelector('input.inp, .inp');
+    return el ? el.value : '';
+  }
 
   var data = {
-    date: new Date().toLocaleDateString('ru'),
-    arrive_time: inputs[2] ? inputs[2].value : '',
-    depart_time: inputs[3] ? inputs[3].value : '',
-    driver: getFieldValue(blocks[1]),
-    truck: getFieldValue(blocks[0]),
-    plant: getFieldValue(blocks[2]),
-    mix_type: getFieldValue(blocks[3]),
-    grade: getFieldValue(blocks[4]),
-    volume: inputs[4] ? inputs[4].value : '',
-    client: getFieldValue(blocks[7]),
-    address: inputs[5] ? inputs[5].value : '',
-    concrete_cost: inputs[6] ? inputs[6].value : '',
-    delivery_cost: inputs[7] ? inputs[7].value : '',
-    payment_type: getFieldValue(blocks[10]),
-    money_with: getFieldValue(blocks[11]),
-    tn_number: inputs[8] ? inputs[8].value : '',
-    tn_photo: getPreviewImageSrc('mix-tn-img'),
-    report_photo: getPreviewImageSrc('mix-raport-img'),
+    date: dateState['mix-date'] || new Date().toLocaleDateString('ru'),
+    truck:        getFieldValue(blocks[1]),
+    driver:       getFieldValue(blocks[2]),
+    plant:        getFieldValue(blocks[3]),
+    mix_type:     getFieldValue(blocks[4]),
+    grade:        getFieldValue(blocks[5]),
+    pmd:          getFieldValue(blocks[6]),
+    // Температуру берём только если блок ПМД видим (ПМД=Да). Иначе залипший
+    // дефолтный чип отдавал -5° даже когда противоморозной добавки нет.
+    pmd_temp:     (blocks[7] && blocks[7].offsetParent !== null) ? getFieldValue(blocks[7]) : '',
+    volume:       inp(8),
+    client:       getFieldValue(blocks[9]),
+    address:      inp(10),
+    arrive_time:  inp(11),
+    depart_time:  inp(12),
+    concrete_cost: inp(13),
+    delivery_cost: inp(14),
+    payment_type: getFieldValue(blocks[15]),
+    money_with:   '',
+    tn_number:    inp(17),
+    tn_photo:     getPhotoArray('mix-tn'),
+    report_photo: getPhotoArray('mix-raport'),
     paid: (document.getElementById('mix-paid') && document.getElementById('mix-paid').checked) ? 'Да' : 'Нет',
     cash_received: (document.getElementById('mix-cash-received') && document.getElementById('mix-cash-received').value) || '',
     status: 'ok'
@@ -4733,10 +4804,14 @@ function compressImageFile(file, done) {
   img.onload = function() {
     var originalWidth = img.width || 1600;
     var originalHeight = img.height || 1600;
-    var maxLen = 48000;
-    var sizes = [1280, 1024, 900, 768, 640];
-    var qualities = [0.72, 0.6, 0.5, 0.42, 0.35];
+    // ~400 КБ JPEG base64 — нормальное читаемое фото ТТН с текстом.
+    // (Раньше было 48 КБ — фото ТТН не влезали и обнулялись в '' → ссылка
+    // в Sheets не появлялась, фото на Яндекс.Диск не уходило.)
+    var maxLen = 400000;
+    var sizes = [1600, 1280, 1024, 900, 768];
+    var qualities = [0.82, 0.72, 0.6, 0.5, 0.42];
     var result = '';
+    var lastCandidate = '';
 
     for (var s = 0; s < sizes.length && !result; s++) {
       for (var q = 0; q < qualities.length && !result; q++) {
@@ -4758,14 +4833,17 @@ function compressImageFile(file, done) {
         ctx.drawImage(img, 0, 0, width, height);
 
         var candidate = canvas.toDataURL('image/jpeg', qualities[q]);
+        lastCandidate = candidate; // самый сжатый вариант на случай fallback
         if (candidate.length <= maxLen) {
           result = candidate;
         }
       }
     }
 
+    // Если ни одна комбинация не влезла — отдаём самый сжатый вариант,
+    // лучше большое фото, чем пустота: пустая строка = потеря фото.
     if (!result) {
-      result = '';
+      result = lastCandidate || '';
     }
 
     URL.revokeObjectURL(objectUrl);
@@ -4803,22 +4881,31 @@ function submitDlinnTrip(btn){
   var finish = startSubmit(btn, '\u23f3 \u041e\u0442\u043f\u0440\u0430\u0432\u043a\u0430...');
   var form = document.getElementById('dln-new');
   var blocks = form.querySelectorAll('.form-block');
-  var cargoInput = blocks[6] ? blocks[6].querySelector('.inp') : null;
-  var qtyInput = blocks[8] ? blocks[8].querySelector('.inp') : null;
-  var fromCity = getFieldValue(blocks[2]);
-  var fromAddr = getFieldValue(blocks[3]);
-  var toCity = getFieldValue(blocks[4]);
-  var toAddr = getFieldValue(blocks[5]);
+  // Порядок .form-block в #dln-new:
+  // 0:Дата загрузки 1:Дата выгрузки 2:Автомобиль 3:Водитель 4:Заказчик
+  // 5:Город загрузки 6:Адрес загрузки 7:Город выгрузки 8:Адрес выгрузки
+  // 9:Наименование груза 10:Единица 11:Количество 12:ТН-фото
+  var cargoNameInput = blocks[9] ? blocks[9].querySelector('.inp') : null;
+  var qtyInput = blocks[11] ? blocks[11].querySelector('.inp') : null;
+  var loadCity = getFieldValue(blocks[5]);
+  var loadAddr = getFieldValue(blocks[6]);
+  var unloadCity = getFieldValue(blocks[7]);
+  var unloadAddr = getFieldValue(blocks[8]);
+  var client = getFieldValue(blocks[4]);
+  var unit = getFieldValue(blocks[10]);
+  var cargoName = cargoNameInput ? cargoNameInput.value.trim() : '';
+  var qty = qtyInput ? qtyInput.value.trim() : '';
 
   var data = {
-    date: new Date().toLocaleDateString('ru'),
-    truck: getFieldValue(blocks[0]),
-    driver: getFieldValue(blocks[1]),
-    from: [fromCity, fromAddr].filter(Boolean).join(', '),
-    to: [toCity, toAddr].filter(Boolean).join(', '),
-    cargo: [cargoInput ? cargoInput.value.trim() : '', qtyInput ? qtyInput.value.trim() : '', getFieldValue(blocks[7])].filter(Boolean).join(' '),
-    tn_photo: getPreviewImageSrc('dln-tn-img'),
+    date: (typeof dateState !== 'undefined' && dateState['dln-date-load']) ? dateState['dln-date-load'] : new Date().toLocaleDateString('ru'),
+    truck: getFieldValue(blocks[2]),
+    driver: getFieldValue(blocks[3]),
+    from: [loadCity, loadAddr].filter(Boolean).join(', '),
+    to: [unloadCity, unloadAddr].filter(Boolean).join(', '),
+    cargo: [cargoName, qty, unit].filter(Boolean).join(' '),
+    tn_photo: getPhotoArray('dln-tn'),
     paid: (document.getElementById('dln-paid') && document.getElementById('dln-paid').checked) ? 'Да' : 'Нет',
+    comment: client ? ('Заказчик: ' + client) : '',
     status: 'ok'
   };
 
@@ -4848,7 +4935,7 @@ function submitDlinnFuel(btn){
     cost: liters && pricePerLiter ? Math.round(liters * pricePerLiter * 100) / 100 : '',
     price_per_liter: pricePerLiter || '',
     station: getFieldValue(blocks[5]),
-    receipt_photo: getPreviewImageSrc('fuel-check-img'),
+    receipt_photo: getPhotoArray('fuel-check'),
     comment: getFieldValue(blocks[1]) ? ('\u0412\u043e\u0434\u0438\u0442\u0435\u043b\u044c: ' + getFieldValue(blocks[1])) : ''
   };
 
@@ -4874,7 +4961,7 @@ function submitDlinnExpense(btn){
     category: getFieldValue(blocks[3]),
     amount: amountInput ? amountInput.value.trim() : '',
     description: descInput ? descInput.value.trim() : '',
-    photo: getPreviewImageSrc('expense-check-img'),
+    photo: getPhotoArray('expense-check'),
     comment: [
       getFieldValue(blocks[0]) ? ('\u041c\u0430\u0448\u0438\u043d\u0430: ' + getFieldValue(blocks[0])) : '',
       getFieldValue(blocks[1]) ? ('\u0412\u043e\u0434\u0438\u0442\u0435\u043b\u044c: ' + getFieldValue(blocks[1])) : '',
@@ -4924,7 +5011,10 @@ function submitServiceRepair(btn){
   sendToAPI('dlinn_repair', data, function(res){
     showNotification('\u0420\u0435\u043c\u043e\u043d\u0442 \u043e\u0442\u043a\u0440\u044b\u0442' + (res.id ? ' (' + res.id + ')' : ''));
     finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
-    setTimeout(function(){ hideSub('svc-menu','svc-open'); }, 1200);
+    setTimeout(function(){
+      hideSub('svc-menu','svc-open');
+      if (typeof loadServiceLists === 'function') loadServiceLists();
+    }, 1200);
   }, function(){
     showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0440\u0435\u043c\u043e\u043d\u0442\u0430');
     finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
@@ -4964,36 +5054,59 @@ function closeServiceRepair(btn){
 
 function submitPartsPurchase(btn){
   var finish = startSubmit(btn, '\u23f3 \u041e\u0442\u043f\u0440\u0430\u0432\u043a\u0430...');
+  // \u0421\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u043d\u044b\u0439 read \u0441 form-block-\u0438\u043d\u0434\u0435\u043a\u0441\u0430\u043c\u0438 \u0432 #parts-new
+  // (\u043f\u043e\u0441\u043b\u0435 \u043f\u0440\u0430\u0432\u043a\u0438 2026-05-07: \u0443\u0431\u0440\u0430\u043d \u043c\u043e\u043a-\u0431\u043b\u043e\u043a \u00ab\u041f\u0440\u0438\u0432\u044f\u0437\u0430\u0442\u044c \u043a \u0440\u0435\u043c\u043e\u043d\u0442\u0443\u00bb, \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d \u00ab\u0412 \u0434\u043e\u043b\u0433\u00bb)
+  // 0:\u0410\u0432\u0442\u043e  1:\u041a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u044f  2:\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435  3:\u041f\u043e\u0441\u0442\u0430\u0432\u0449\u0438\u043a  4:\u0421\u0443\u043c\u043c\u0430  5:\u0424\u043e\u0440\u043c\u0430 \u043e\u043f\u043b\u0430\u0442\u044b
+  // (debt-\u0431\u043b\u043e\u043a \u0432\u043d\u0443\u0442\u0440\u0438 \u043f\u0430\u0440\u0442-\u0444\u043e\u0440\u043c\u044b \u0434\u043e\u0431\u0430\u0432\u043b\u044f\u0435\u0442 6:\u0421\u0443\u043c\u043c\u0430 \u0434\u043e\u043b\u0433\u0430  7:\u0421\u0440\u043e\u043a \u043e\u043f\u043b\u0430\u0442\u044b \u2014 \u0432 DOM \u0432\u0441\u0435\u0433\u0434\u0430)
+  // 8:\u0424\u043e\u0442\u043e \u0447\u0435\u043a\u0430
   var form = document.getElementById('parts-new');
   var blocks = form.querySelectorAll('.form-block');
+  var truck = getFieldValue(blocks[0]) || '';
+  var category = getFieldValue(blocks[1]) || '';
   var nameInput = blocks[2] ? blocks[2].querySelector('.inp') : null;
+  var supplier = getFieldValue(blocks[3]) || '';
   var priceInput = blocks[4] ? blocks[4].querySelector('.inp') : null;
-  var debtBlock = document.getElementById('parts-debt-block');
-  var debtInputs = debtBlock ? debtBlock.querySelectorAll('.inp') : [];
-  var debtForms = debtBlock ? debtBlock.querySelectorAll('.form-block') : [];
+
   var dolgEl = document.getElementById('pay-dolg');
   var beznalEl = document.getElementById('pay-beznal');
   var nalEl = document.getElementById('pay-nal');
-  var payment = (dolgEl && dolgEl.checked) ? '\u0412 \u0434\u043e\u043b\u0433' : (beznalEl && beznalEl.checked) ? '\u0411\u0435\u0437\u043d\u0430\u043b' : (nalEl && nalEl.checked) ? '\u041d\u0430\u043b' : '';
+  var payment = (dolgEl && dolgEl.checked) ? '\u0412 \u0434\u043e\u043b\u0433'
+              : (beznalEl && beznalEl.checked) ? '\u0411\u0435\u0437\u043d\u0430\u043b'
+              : (nalEl && nalEl.checked) ? '\u041d\u0430\u043b'
+              : '';
+
+  var debtAmount = '';
+  var debtDue = '';
+  if (dolgEl && dolgEl.checked) {
+    var debtAmountEl = document.getElementById('parts-debt-amount');
+    debtAmount = debtAmountEl ? (debtAmountEl.value || '').trim() : '';
+    if (blocks[7]) debtDue = getFieldValue(blocks[7]) || '';
+  }
+
+  var name = nameInput ? nameInput.value.trim() : '';
+  var price = priceInput ? priceInput.value.trim() : '';
+
+  if (!name) { showNotification('\u0423\u043a\u0430\u0436\u0438\u0442\u0435 \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u0437\u0430\u043f\u0447\u0430\u0441\u0442\u0438'); finish('\u26a0\ufe0f \u0417\u0430\u043f\u043e\u043b\u043d\u0438\u0442\u0435', '', 1500); return; }
+  if (!price) { showNotification('\u0423\u043a\u0430\u0436\u0438\u0442\u0435 \u0441\u0443\u043c\u043c\u0443'); finish('\u26a0\ufe0f \u0417\u0430\u043f\u043e\u043b\u043d\u0438\u0442\u0435', '', 1500); return; }
+  if (!payment) { showNotification('\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0444\u043e\u0440\u043c\u0443 \u043e\u043f\u043b\u0430\u0442\u044b'); finish('\u26a0\ufe0f \u0417\u0430\u043f\u043e\u043b\u043d\u0438\u0442\u0435', '', 1500); return; }
 
   var data = {
     date: new Date().toLocaleDateString('ru'),
-    name: nameInput ? nameInput.value.trim() : '',
+    name: name,
     quantity: '1',
-    price: priceInput ? priceInput.value.trim() : '',
+    price: price,
     payment: payment,
-    debt: debtInputs[0] ? debtInputs[0].value.trim() : '',
-    comment: [
-      getFieldValue(blocks[0]) ? ('\u041c\u0430\u0448\u0438\u043d\u0430: ' + getFieldValue(blocks[0])) : '',
-      getFieldValue(blocks[1]) ? ('\u041a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u044f: ' + getFieldValue(blocks[1])) : '',
-      getFieldValue(blocks[3]) ? ('\u041f\u043e\u0441\u0442\u0430\u0432\u0449\u0438\u043a: ' + getFieldValue(blocks[3])) : '',
-      debtForms[1] ? ('\u0421\u0440\u043e\u043a \u043e\u043f\u043b\u0430\u0442\u044b: ' + getFieldValue(debtForms[1])) : '',
-      getFieldValue(blocks[6]) ? ('\u0420\u0435\u043c\u043e\u043d\u0442: ' + getFieldValue(blocks[6])) : ''
-    ].filter(Boolean).join(' | ')
+    debt: debtAmount,
+    debt_due: debtDue,
+    truck: truck,
+    category: category,
+    supplier: supplier,
+    comment: '',
+    receipt_photo: getPhotoArray('parts-check')
   };
 
   sendToAPI('dlinn_parts', data, function(res){
-    showNotification('\u0417\u0430\u043a\u0443\u043f\u043a\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0430' + (res.id ? ' (' + res.id + ')' : ''));
+    showNotification('\u0417\u0430\u043a\u0443\u043f\u043a\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0430' + (res && res.id ? ' (' + res.id + ')' : ''));
     finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
     setTimeout(function(){ hideSub('parts-menu','parts-new'); }, 1200);
   }, function(){
@@ -5004,21 +5117,37 @@ function submitPartsPurchase(btn){
 
 function submitMechFuel(){
   var inputs = document.querySelectorAll('#mech-fuel-new .inp');
+  var liters = inputs[0] ? parseFloat(inputs[0].value) || 0 : 0;
+  var cost = inputs[1] ? parseFloat(inputs[1].value) || 0 : 0;
+  if (cost <= 0) { showNotification('Введите стоимость заправки'); return; }
+  var today = new Date().toLocaleDateString('ru');
+  var stationChip = document.querySelector('#mech-fuel-new .chip.on');
+  var station = stationChip ? stationChip.textContent.trim() : '';
+  // оптимистично обновим локальный список
+  var entry = { date: today, liters: liters, cost: cost, station: station };
+  mechState.fuels.push(entry);
+  recalcMechSalary();
   var data = {
-    date: new Date().toLocaleDateString('ru'),
+    date: today,
     type: 'fuel',
-    fuel_liters: inputs[0] ? inputs[0].value : '',
-    fuel_cost: inputs[1] ? inputs[1].value : '',
+    fuel_liters: liters,
+    fuel_cost: cost,
     fuel_price_per_liter: inputs[2] ? inputs[2].value : '',
-    fuel_station: (document.querySelector('#mech-fuel-new .chip.on')||{}).textContent.trim() || '',
-    receipt_photo: getPreviewImageSrc('mech-fuel-img'),
+    fuel_station: station,
+    receipt_photo: getPhotoArray('mech-fuel'),
     rate: '6000'
   };
-
   sendToAPI('mechanic_record', data, function(res){
-    showNotification('Заправка сохранена' + (res.id ? ' ('+res.id+')' : ''));
+    showNotification('Заправка сохранена' + (res && res.id ? ' (' + res.id + ')' : ''));
+    inputs.forEach(function(i){ if (i) i.value = ''; });
+    if (typeof loadMechanicDashboard === 'function') loadMechanicDashboard();
     hideSub('mech-section-fuel-salary','mech-fuel-new');
-  }, function(){ showNotification('Ошибка сохранения'); });
+  }, function(){
+    var idx = mechState.fuels.indexOf(entry);
+    if (idx >= 0) mechState.fuels.splice(idx, 1);
+    recalcMechSalary();
+    showNotification('Не удалось сохранить заправку — попробуйте ещё раз');
+  });
 }
 
 // (удалён дубликат markMechShift — рабочая версия определена выше: с pick-date и проверкой дубликата)
@@ -5092,37 +5221,63 @@ function autofillTonForm() {
 }
 
 // ═══════════════════ ЗАГРУЗКА ФОТО ═══════════════════
+// Multi-photo store: each form's photo zone keeps an array of compressed
+// data URLs keyed by `type` (e.g. 'mix-tn'). Submit handlers read via
+// getPhotoArray(type) and the backend accepts list[str] for those fields.
+var __photoStore = {};
+
 function handlePhotoUpload(input, type) {
-  var file = input.files[0];
-  if (!file) return;
-  compressImageFile(file, function(imageData) {
-    var previewId, imgId;
-    if (type === 'tn-front') {
-      previewId = 'tn-front-preview'; imgId = 'tn-front-img';
-    } else if (type === 'tn-back') {
-      previewId = 'tn-back-preview'; imgId = 'tn-back-img';
-    } else if (type === 'mix-tn') {
-      previewId = 'mix-tn-preview'; imgId = 'mix-tn-img';
-    } else if (type === 'mix-raport') {
-      previewId = 'mix-raport-preview'; imgId = 'mix-raport-img';
-    } else if (type === 'dln-tn') {
-      previewId = 'dln-tn-preview'; imgId = 'dln-tn-img';
-    } else if (type === 'fuel-check') {
-      previewId = 'fuel-check-preview'; imgId = 'fuel-check-img';
-    } else if (type === 'expense-check') {
-      previewId = 'expense-check-preview'; imgId = 'expense-check-img';
-    } else if (type === 'parts-check') {
-      previewId = 'parts-check-preview'; imgId = 'parts-check-img';
-    } else if (type === 'service-check') {
-      previewId = 'service-check-preview'; imgId = 'service-check-img';
-    } else if (type === 'mech-fuel') {
-      previewId = 'mech-fuel-preview'; imgId = 'mech-fuel-img';
-    }
-    if (previewId && imgId) {
-      document.getElementById(imgId).src = imageData;
-      document.getElementById(previewId).style.display = 'block';
-    }
+  var files = input.files ? Array.prototype.slice.call(input.files) : [];
+  if (!files.length) return;
+  if (!__photoStore[type]) __photoStore[type] = [];
+  var pending = files.length;
+  files.forEach(function(file) {
+    compressImageFile(file, function(imageData) {
+      if (imageData) __photoStore[type].push(imageData);
+      pending--;
+      if (pending === 0) renderPhotoPreview(type);
+    });
   });
+  // Allow re-selecting the same file later (esp. on iOS camera capture).
+  input.value = '';
+}
+
+function renderPhotoPreview(type) {
+  var preview = document.getElementById(type + '-preview');
+  if (!preview) return;
+  var photos = __photoStore[type] || [];
+  if (!photos.length) {
+    preview.style.display = 'none';
+    preview.innerHTML = '';
+    return;
+  }
+  var html = '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+  photos.forEach(function(src, i) {
+    html += '<div style="position:relative;width:88px;height:88px;flex-shrink:0;">'
+      + '<img src="' + src + '" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r);border:1px solid var(--sep);">'
+      + '<button type="button" onclick="removePhoto(\'' + type + '\',' + i + ')" '
+      + 'style="position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:1px solid var(--sep-strong);background:rgba(0,0,0,.85);color:#fff;font-size:14px;line-height:22px;cursor:pointer;padding:0;">×</button>'
+      + '</div>';
+  });
+  html += '</div><div style="font-size:11px;color:var(--t4);margin-top:6px;">'
+    + photos.length + ' фото · нажмите зону выше, чтобы добавить ещё</div>';
+  preview.innerHTML = html;
+  preview.style.display = 'block';
+}
+
+function removePhoto(type, index) {
+  if (!__photoStore[type]) return;
+  __photoStore[type].splice(index, 1);
+  renderPhotoPreview(type);
+}
+
+function clearPhotos(type) {
+  __photoStore[type] = [];
+  renderPhotoPreview(type);
+}
+
+function getPhotoArray(type) {
+  return (__photoStore[type] || []).slice();
 }
 
 function normalizeVoiceText(text) {
