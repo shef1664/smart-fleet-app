@@ -842,6 +842,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="chips" id="client-chips">
         <button class="chip on" onclick="sel(this);updateObjects(this)">Меркурий</button>
         <button class="chip" onclick="sel(this);updateObjects(this)">СП авто</button>
+        <button class="chip" onclick="sel(this);updateObjects(this)">Технобетон</button>
         <button class="chip" onclick="sel(this);updateObjects(this)">+ Другое</button>
       </div>
       <div class="other-input" id="client-other">
@@ -3362,16 +3363,48 @@ const OBJECTS = {
   'Штенцель (Топки)':{type:'chips', items:['Топки','+ Другое']},
   'СП авто':         {type:'other', items:['+ Другое']},
   'ВНК':             {type:'chips', items:['ЗЖБИ','Кем ДСК','+ Другое']},
+  // Технобетон — и заказчик, и место разгрузки: при выборе этого заказчика
+  // объект/адрес по умолчанию «Технобетон, ул. Макаренко, 8» (chips, а не fixed,
+  // чтобы значение реально попало в сабмит через getFieldValue). Переопределяется
+  // через «+ Другое».
+  'Технобетон':      {type:'chips', items:['Технобетон, ул. Макаренко, 8','+ Другое']},
 };
 
-// Заказчики по карьерам (если карьер диктует заказчика)
+// Заказчики по карьерам (если карьер диктует заказчика).
+// «Технобетон» — заказчик для перевозок песка/щебня, поэтому доступен во всех
+// карьерах этих материалов (и в общем списке ниже).
 const QUARRY_CLIENTS = {
-  'СДЕ Мозжуха':  ['Меркурий','СП авто','+ Другое'],
-  'СДЕ ККК':      ['Меркурий','СП авто','+ Другое'],
-  'Барзасский':   ['Меркурий','СП авто','+ Другое'],
-  'ГДК':          ['Меркурий','СП авто','+ Другое'],
-  'ВНК (Березовка)': ['ВНК','+ Другое'],
+  'СДЕ Мозжуха':  ['Меркурий','СП авто','Технобетон','+ Другое'],
+  'СДЕ ККК':      ['Меркурий','СП авто','Технобетон','+ Другое'],
+  'Барзасский':   ['Меркурий','СП авто','Технобетон','+ Другое'],
+  'ГДК':          ['Меркурий','СП авто','Технобетон','+ Другое'],
+  'ВНК (Березовка)': ['ВНК','Технобетон','+ Другое'],
 };
+
+// Технобетон — универсальное место разгрузки: доступен как объект для ЛЮБОГО
+// заказчика (возим «от кого-нибудь» на Технобетон), а не только когда сам
+// Технобетон — заказчик. Адрес фиксирован.
+const TEHNOBETON_OBJECT = 'Технобетон, ул. Макаренко, 8';
+
+function withTehnobeton(items){
+  if(items.indexOf(TEHNOBETON_OBJECT) !== -1) return items;
+  const out = items.slice();
+  const at = out.indexOf('+ Другое');
+  if(at >= 0) out.splice(at, 0, TEHNOBETON_OBJECT); else out.push(TEHNOBETON_OBJECT);
+  return out;
+}
+
+function renderObjectChips(items){
+  const objChips = document.getElementById('object-chips');
+  const objOther = document.getElementById('object-other');
+  if(!objChips) return;
+  objChips.innerHTML = items.map((o,i)=>
+    `<button class="chip${i===0?' on':''}" onclick="sel(this);checkObjectOther(this)">${o}</button>`
+  ).join('\n');
+  if(objOther) objOther.classList.remove('show');
+  // Если первый — Другое, сразу показать поле ручного ввода
+  if(items[0]==='+ Другое' && objOther) objOther.classList.add('show');
+}
 
 function updateObjects(el){
   const client = el.textContent.trim();
@@ -3380,11 +3413,13 @@ function updateObjects(el){
   const objOther = document.getElementById('object-other');
   const clientOther = document.getElementById('client-other');
 
-  // Показать/скрыть поле ввода заказчика
+  // Заказчик «+ Другое» (ручной ввод): объект всё равно доступен — можно возить
+  // на Технобетон от кого угодно.
   if(client === '+ Другое'){
     clientOther.classList.add('show');
     clientOther.querySelector('input').focus();
-    if(objBlock) objBlock.style.display='none';
+    if(objBlock) objBlock.style.display='block';
+    renderObjectChips([TEHNOBETON_OBJECT, '+ Другое']);
     return;
   } else {
     clientOther.classList.remove('show');
@@ -3394,25 +3429,18 @@ function updateObjects(el){
   if(!objBlock || !objChips) return;
   const cfg = OBJECTS[client];
 
-  if(!cfg){
-    objBlock.style.display='none';
-    return;
-  }
-
-  if(cfg.type === 'fixed'){
-    // Автоподстановка адреса
+  // Заказчик с фиксированным адресом (напр. Бетон М) — оставляем авто-адрес как было.
+  if(cfg && cfg.type === 'fixed'){
     objBlock.style.display='block';
     objChips.innerHTML = `<div class="auto-row" style="margin:0"><span class="auto-lbl">Адрес</span><span class="auto-val">${cfg.value}<span class="auto-tag">AUTO</span></span></div>`;
     if(objOther) objOther.classList.remove('show');
-  } else {
-    objBlock.style.display='block';
-    objChips.innerHTML = cfg.items.map((o,i)=>
-      `<button class="chip${i===0?' on':''}" onclick="sel(this);checkObjectOther(this)">${o}</button>`
-    ).join('\n');
-    if(objOther) objOther.classList.remove('show');
-    // Если первый — Другое, сразу показать поле
-    if(cfg.items[0]==='+ Другое' && objOther) objOther.classList.add('show');
+    return;
   }
+
+  // Для всех прочих заказчиков — их объекты + Технобетон как доступная точка разгрузки.
+  objBlock.style.display='block';
+  const base = cfg ? cfg.items : ['+ Другое'];
+  renderObjectChips(withTehnobeton(base));
 }
 
 function checkObjectOther(el){
@@ -3502,7 +3530,7 @@ function updateClientsByQuarry(quarry){
     if(firstBtn) updateObjects(firstBtn);
   } else {
     // Вернуть стандартный список заказчиков
-    const defaultClients = ['Морозовский','Бетон М','Меркурий','Штенцель (Топки)','СП авто','+ Другое'];
+    const defaultClients = ['Морозовский','Бетон М','Меркурий','Штенцель (Топки)','СП авто','Технобетон','+ Другое'];
     clientChips.innerHTML = defaultClients.map((c,i)=>
       `<button class="chip${i===0?' on':''}" onclick="sel(this);updateObjects(this)">${c}</button>`
     ).join('\n');
@@ -4543,6 +4571,15 @@ function sendToAPI(action, data, onSuccess, onError) {
     fallbackToTelegram(e);
   });
 }
+
+// Достаёт человекочитаемый текст ошибки из ответа сервера. Раньше формы
+// показывали общее «Ошибка отправки X» и прятали реальную причину (таймаут,
+// переполнен Яндекс.Диск, протухший токен) — по такому тосту диагностировать
+// сбой было невозможно.
+function errMsg(err, fallback){
+  var m = err && err.message ? String(err.message) : '';
+  return m ? m : (fallback || 'Ошибка отправки');
+}
 function submitOk(btn,subId,menuId){
   const orig=btn.textContent;
   btn.textContent='✓ Сохранено!';
@@ -4746,8 +4783,9 @@ function submitMixerTrip(btn){
       btn.style.background = '';
       btn.disabled = false;
     }, 1200);
-  }, function(){
+  }, function(err){
     btn.textContent = '❌ Ошибка';
+    showNotification(errMsg(err, 'Ошибка отправки рейса миксера'));
     setTimeout(function(){
       btn.textContent = orig;
       btn.style.background = '';
@@ -4913,8 +4951,8 @@ function submitDlinnTrip(btn){
     showNotification('\u0420\u0435\u0439\u0441 \u0434\u043b\u0438\u043d\u043d\u043e\u043c\u0435\u0440\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0451\u043d' + (res.id ? ' (' + res.id + ')' : ''));
     finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
     setTimeout(function(){ hideSub('dln-menu','dln-new'); }, 1200);
-  }, function(){
-    showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0440\u0435\u0439\u0441\u0430');
+  }, function(err){
+    showNotification(errMsg(err, '\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0440\u0435\u0439\u0441\u0430'));
     finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
   });
 }
@@ -4943,8 +4981,8 @@ function submitDlinnFuel(btn){
     showNotification('\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0430' + (res.id ? ' (' + res.id + ')' : ''));
     finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
     setTimeout(function(){ hideSub('dt-menu','dt-new'); }, 1200);
-  }, function(){
-    showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0437\u0430\u043f\u0440\u0430\u0432\u043a\u0438');
+  }, function(err){
+    showNotification(errMsg(err, '\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0437\u0430\u043f\u0440\u0430\u0432\u043a\u0438'));
     finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
   });
 }
@@ -4973,8 +5011,8 @@ function submitDlinnExpense(btn){
     showNotification('\u0420\u0430\u0441\u0445\u043e\u0434 \u0441\u043e\u0445\u0440\u0430\u043d\u0451\u043d' + (res.id ? ' (' + res.id + ')' : ''));
     finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
     setTimeout(function(){ hideSub('exp-menu','exp-new'); }, 1200);
-  }, function(){
-    showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0440\u0430\u0441\u0445\u043e\u0434\u0430');
+  }, function(err){
+    showNotification(errMsg(err, '\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0440\u0430\u0441\u0445\u043e\u0434\u0430'));
     finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
   });
 }
@@ -5015,8 +5053,8 @@ function submitServiceRepair(btn){
       hideSub('svc-menu','svc-open');
       if (typeof loadServiceLists === 'function') loadServiceLists();
     }, 1200);
-  }, function(){
-    showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0440\u0435\u043c\u043e\u043d\u0442\u0430');
+  }, function(err){
+    showNotification(errMsg(err, '\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0440\u0435\u043c\u043e\u043d\u0442\u0430'));
     finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
   });
 }
@@ -5046,8 +5084,8 @@ function closeServiceRepair(btn){
     showNotification('\u0420\u0435\u043c\u043e\u043d\u0442 \u043e\u0431\u043d\u043e\u0432\u043b\u0451\u043d' + (res.id ? ' (' + res.id + ')' : ''));
     finish('\u2705 \u0417\u0430\u043a\u0440\u044b\u0442\u043e!', 'var(--green)', 1200);
     setTimeout(function(){ hideSub('svc-menu','svc-card'); }, 1200);
-  }, function(){
-    showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u043a\u0440\u044b\u0442\u0438\u044f \u0440\u0435\u043c\u043e\u043d\u0442\u0430');
+  }, function(err){
+    showNotification(errMsg(err, '\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u043a\u0440\u044b\u0442\u0438\u044f \u0440\u0435\u043c\u043e\u043d\u0442\u0430'));
     finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
   });
 }
@@ -5109,8 +5147,8 @@ function submitPartsPurchase(btn){
     showNotification('\u0417\u0430\u043a\u0443\u043f\u043a\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0430' + (res && res.id ? ' (' + res.id + ')' : ''));
     finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
     setTimeout(function(){ hideSub('parts-menu','parts-new'); }, 1200);
-  }, function(){
-    showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0437\u0430\u043a\u0443\u043f\u043a\u0438');
+  }, function(err){
+    showNotification(errMsg(err, '\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0437\u0430\u043a\u0443\u043f\u043a\u0438'));
     finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
   });
 }
