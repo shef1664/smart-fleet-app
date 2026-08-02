@@ -1025,7 +1025,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
 
     <div class="form-block">
       <div class="form-lbl">Объём (м³)</div>
-      <input class="inp" type="number" placeholder="Например: 7" inputmode="decimal">
+      <input class="inp" type="number" placeholder="Например: 7" inputmode="decimal" id="mix-volume" oninput="updateMixTotals()">
     </div>
 
     <div class="form-block">
@@ -1056,12 +1056,13 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     </div>
 
     <div class="form-block">
-      <div class="form-lbl">Стоимость бетона (₽)</div>
-      <input class="inp" type="number" placeholder="Например: 24500" inputmode="numeric">
+      <div class="form-lbl">Цена бетона за 1 м³ (₽)</div>
+      <input class="inp" type="number" placeholder="Например: 3500" inputmode="numeric" id="mix-concrete-price" oninput="updateMixTotals()">
+      <div id="mix-concrete-total-hint" style="font-size:11px;color:var(--t4);margin-top:6px;"></div>
     </div>
     <div class="form-block">
-      <div class="form-lbl">Стоимость доставки (₽)</div>
-      <input class="inp" type="number" placeholder="Например: 3500" inputmode="numeric">
+      <div class="form-lbl">Стоимость доставки за рейс (₽)</div>
+      <input class="inp" type="number" placeholder="Например: 3500" inputmode="numeric" id="mix-delivery-cost" oninput="updateMixTotals()">
     </div>
 
     <div class="form-block">
@@ -4723,6 +4724,24 @@ function renderMixerRecent(){
   list.innerHTML = html;
 }
 
+// Живой подсчёт итога миксера: цена бетона за м³ × объём + фикс. доставка.
+function updateMixTotals(){
+  var vol = parseFloat((document.getElementById('mix-volume')||{}).value) || 0;
+  var price = parseFloat((document.getElementById('mix-concrete-price')||{}).value) || 0;
+  var delivery = parseFloat((document.getElementById('mix-delivery-cost')||{}).value) || 0;
+  var hint = document.getElementById('mix-concrete-total-hint');
+  if(!hint) return;
+  if(price > 0 && vol > 0){
+    var concrete = Math.round(price * vol);
+    var total = concrete + delivery;
+    var fmt = function(n){ return n.toLocaleString('ru-RU'); };
+    hint.textContent = 'Бетон: ' + fmt(price) + ' × ' + vol + ' = ' + fmt(concrete) + ' ₽'
+      + (delivery > 0 ? ' + доставка ' + fmt(delivery) + ' ₽ = ' + fmt(total) + ' ₽' : '');
+  } else {
+    hint.textContent = '';
+  }
+}
+
 function submitMixerTrip(btn){
   const orig = btn.textContent;
   btn.textContent = '⏳ Отправка...';
@@ -4742,6 +4761,16 @@ function submitMixerTrip(btn){
     return el ? el.value : '';
   }
 
+  // «Стоимость бетона» — это ЦЕНА ЗА 1 м³. Итоговая сумма бетона = цена × объём.
+  // Доставка — фиксированная за рейс (не умножается). Считаем итог на клиенте,
+  // чтобы касса/долги/дашборд (concrete_cost + delivery_cost) получили верную
+  // сумму: раньше отправлялась цена за куб как есть → «один куб + доставка».
+  var mixVolume = parseFloat(inp(8)) || 0;
+  var mixConcretePrice = parseFloat(inp(13)) || 0;
+  var mixConcreteTotal = (mixConcretePrice > 0 && mixVolume > 0)
+    ? Math.round(mixConcretePrice * mixVolume)
+    : inp(13);
+
   var data = {
     date: dateState['mix-date'] || new Date().toLocaleDateString('ru'),
     truck:        getFieldValue(blocks[1]),
@@ -4758,7 +4787,7 @@ function submitMixerTrip(btn){
     address:      inp(10),
     arrive_time:  inp(11),
     depart_time:  inp(12),
-    concrete_cost: inp(13),
+    concrete_cost: mixConcreteTotal,
     delivery_cost: inp(14),
     payment_type: getFieldValue(blocks[15]),
     money_with:   '',
