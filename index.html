@@ -993,15 +993,32 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     </div>
 
     <div class="form-block">
-      <div class="form-lbl">Марка</div>
+      <div class="form-lbl">Марка, которую получил клиент</div>
       <div class="chips">
         <button class="chip" onclick="sel(this)">М100</button>
         <button class="chip" onclick="sel(this)">М150</button>
         <button class="chip" onclick="sel(this)">М200</button>
         <button class="chip" onclick="sel(this)">М250</button>
-        <button class="chip on" onclick="sel(this)">М300</button>
+        <button class="chip" onclick="sel(this)">М300</button>
         <button class="chip" onclick="sel(this)">М350</button>
         <button class="chip" onclick="sel(this)">М400</button>
+      </div>
+    </div>
+
+    <div id="mix-factory-facts">
+      <div style="font-weight:700;margin:16px 0 6px">Что загрузили на заводе</div>
+      <div style="font-size:12px;color:var(--t4);margin-bottom:10px">Укажите фактические марку и объём по заводу. Они могут отличаться от того, что получил клиент.</div>
+      <div style="margin-bottom:12px">
+        <label class="form-lbl" for="mix-plant-grade">Марка на заводе</label>
+        <input class="inp" id="mix-plant-grade" type="text" placeholder="Например: М250" autocomplete="off" inputmode="text">
+      </div>
+      <div style="margin-bottom:12px">
+        <label class="form-lbl" for="mix-plant-volume">Объём на заводе, м³</label>
+        <input class="inp" id="mix-plant-volume" type="number" min="0.001" step="0.001" placeholder="Например: 5,5" inputmode="decimal">
+      </div>
+      <div style="margin-bottom:12px">
+        <label class="form-lbl" for="mix-topup">Догружали со своего склада?</label>
+        <select class="inp" id="mix-topup"><option value="">Выберите</option><option value="Да">Да</option><option value="Нет">Нет</option></select>
       </div>
     </div>
 
@@ -1024,7 +1041,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     </div>
 
     <div class="form-block">
-      <div class="form-lbl">Объём (м³)</div>
+      <div class="form-lbl">Объём, который получил клиент (м³)</div>
       <input class="inp" type="number" placeholder="Например: 7" inputmode="decimal" id="mix-volume" oninput="updateMixTotals()">
     </div>
 
@@ -4766,6 +4783,17 @@ function submitMixerTrip(btn){
   // чтобы касса/долги/дашборд (concrete_cost + delivery_cost) получили верную
   // сумму: раньше отправлялась цена за куб как есть → «один куб + доставка».
   var mixVolume = parseFloat(inp(8)) || 0;
+  var factoryGrade = (document.getElementById('mix-plant-grade').value || '').trim().toUpperCase();
+  var factoryVolume = (document.getElementById('mix-plant-volume').value || '').trim();
+  var topupDeclared = document.getElementById('mix-topup').value;
+  var clientGrade = getFieldValue(blocks[5]);
+  if(!/^М\d{2,4}$/i.test(factoryGrade) || !(parseFloat(factoryVolume.replace(',', '.')) > 0)
+      || !clientGrade || !(mixVolume > 0) || !topupDeclared){
+    btn.textContent = orig;
+    btn.disabled = false;
+    showNotification('Укажите марку и объём на заводе и у клиента, затем выберите догрузку');
+    return;
+  }
   var mixConcretePrice = parseFloat(inp(13)) || 0;
   var mixConcreteTotal = (mixConcretePrice > 0 && mixVolume > 0)
     ? Math.round(mixConcretePrice * mixVolume)
@@ -4777,7 +4805,12 @@ function submitMixerTrip(btn){
     driver:       getFieldValue(blocks[2]),
     plant:        getFieldValue(blocks[3]),
     mix_type:     getFieldValue(blocks[4]),
-    grade:        getFieldValue(blocks[5]),
+    grade:        clientGrade,
+    plant_loaded_grade: factoryGrade,
+    plant_loaded_volume_m3: factoryVolume,
+    client_delivered_grade: clientGrade,
+    client_delivered_volume_m3: inp(8),
+    topup_declared: topupDeclared,
     pmd:          getFieldValue(blocks[6]),
     // Температуру берём только если блок ПМД видим (ПМД=Да). Иначе залипший
     // дефолтный чип отдавал -5° даже когда противоморозной добавки нет.
