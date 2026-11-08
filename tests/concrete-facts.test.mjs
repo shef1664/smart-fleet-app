@@ -9,21 +9,39 @@ const end = html.indexOf('// ═════════════════
 assert.ok(start > 0 && end > start);
 const source = html.slice(start, end);
 
-function submit({ factoryVolume = '5.5', topup = 'Да', clientGrade = 'М300' } = {}) {
-  const fields = { 'mix-plant-grade': 'М250', 'mix-plant-volume': factoryVolume, 'mix-topup': topup };
-  const values = Array(20).fill('');
-  values[8] = '6';
-  values[13] = '6500';
-  values[14] = '1000';
+function submit({
+  factoryGrade = 'М250', factoryVolume = '5.5', difference = false,
+  clientGrade = 'М300', clientVolume = '6', client = 'Ч/Л (частник)',
+  concretePrice = '6500', delivery = '1000', distanceKm = '12.5',
+} = {}) {
+  const fields = {
+    'mix-plant-grade': { value: factoryGrade },
+    'mix-plant-volume': { value: factoryVolume },
+    'mix-difference': { checked: difference },
+    'mix-volume': { value: clientVolume },
+    'mix-concrete-price': { value: concretePrice },
+    'mix-delivery-cost': { value: delivery },
+    'mix-route-km': { value: distanceKm },
+    'mix-paid': { checked: false },
+    'mix-cash-received': { value: '' },
+  };
+  const values = Array(21).fill('');
+  values[4] = client;
+  values[5] = 'Бетон';
+  values[6] = clientGrade;
+  values[7] = clientVolume;
+  values[8] = 'Нет';
+  values[14] = concretePrice;
+  values[15] = delivery;
   const blocks = values.map((value, index) => ({
-    value: index === 5 ? clientGrade : value,
-    offsetParent: index === 7 ? null : {},
+    value,
+    offsetParent: index === 9 ? null : {},
     querySelector: () => ({ value }),
   }));
   let sent = null;
   let notice = null;
   const context = {
-    document: { getElementById: (id) => ({ value: fields[id] ?? '', checked: false }) },
+    document: { getElementById: (id) => fields[id] || { value: '', checked: false } },
     getFieldValue: (block) => block.value,
     dateState: { 'mix-date': '08.11.2026' },
     getPhotoArray: () => [],
@@ -37,34 +55,76 @@ function submit({ factoryVolume = '5.5', topup = 'Да', clientGrade = 'М300' }
   return { sent, notice, button };
 }
 
-test('mixer form keeps legacy block positions and has no preselected customer grade', () => {
-  const form = html.slice(
-    html.indexOf('<div class="sub-screen" id="mix-new">'),
-    html.indexOf('<!-- ═══════════════════════════════ ДЛИННОМЕРЫ'),
-  );
-  const factory = form.match(/<div id="mix-factory-facts">([\s\S]*?)<div class="form-block">/);
-  assert.ok(factory);
-  assert.ok(!factory[1].includes('class="form-block"'));
-  assert.ok(!form.match(/class="chip on" onclick="sel\(this\)">М300<\/button>/));
+test('customer is selected immediately after plant; extra concrete fields start hidden', () => {
+  const form = html.slice(html.indexOf('<div class="sub-screen" id="mix-new">'), html.indexOf('<!-- ═══════════════════════════════ ДЛИННОМЕРЫ'));
+  assert.ok(form.indexOf('Завод загрузки') < form.indexOf('Заказчик'));
+  assert.ok(form.indexOf('Заказчик') < form.indexOf('Марка на заводе'));
+  assert.match(form, /id="mix-difference"[^>]*type="checkbox"/);
+  assert.match(form, /id="mix-client-facts"[^>]*display:none/);
+  assert.match(form, /id="mix-route-km"/);
+  assert.match(form, /id="mix-distance-block"/);
 });
 
-test('sends separate factory/customer facts while billing only customer volume', () => {
+test('delivery quote uses 35 rub/km plus 650 rub per cubic metre, minimum six', () => {
+  const begin = html.indexOf('function calculateMixerDelivery(km, volume){');
+  const finish = html.indexOf('var mixDeliveryManualOverride = false;', begin);
+  assert.ok(begin > 0 && finish > begin);
+  const calculate = vm.runInNewContext(`${html.slice(begin, finish)}\ncalculateMixerDelivery`);
+  assert.equal(calculate(10, 1).amount, 6000);
+  assert.equal(calculate(10, 6).amount, 6000);
+  assert.equal(calculate(10, 7).amount, 7000);
+  assert.equal(calculate(10, '').amount, 6000);
+  assert.equal(calculate('', 6), null);
+});
+
+test('ordinary trip without difference copies plant facts to client and bills client volume', () => {
   const { sent } = submit();
   assert.equal(sent.action, 'mixer_trip');
+  assert.equal(sent.data.grade, 'М250');
+  assert.equal(sent.data.volume, '5.5');
   assert.equal(sent.data.plant_loaded_grade, 'М250');
-  assert.equal(sent.data.plant_loaded_volume_m3, '5.5');
-  assert.equal(sent.data.client_delivered_grade, 'М300');
-  assert.equal(sent.data.client_delivered_volume_m3, '6');
-  assert.equal(sent.data.topup_declared, 'Да');
-  assert.equal(sent.data.volume, '6');
-  assert.equal(sent.data.concrete_cost, 39000);
+  assert.equal(sent.data.client_delivered_grade, 'М250');
+  assert.equal(sent.data.client_delivered_volume_m3, '5.5');
+  assert.equal(sent.data.topup_declared, 'Нет');
+  assert.equal(sent.data.transport_only, 'Нет');
+  assert.equal(sent.data.distance_km, '12.5');
+  assert.equal(sent.data.concrete_cost, 35750);
 });
 
-test('missing factory or top-up facts cannot be submitted', () => {
-  for (const input of [{ factoryVolume: '' }, { topup: '' }, { clientGrade: '' }]) {
-    const { sent, notice, button } = submit(input);
+test('checked difference requires customer facts and bills delivered volume once', () => {
+  const { sent } = submit({ difference: true });
+  assert.equal(sent.data.grade, 'М300');
+  assert.equal(sent.data.volume, '6');
+  assert.equal(sent.data.topup_declared, 'Да');
+  assert.equal(sent.data.concrete_cost, 39000);
+  for (const input of [{ clientGrade: '' }, { clientVolume: '' }, { clientGrade: 'М250', clientVolume: '5.5' }]) {
+    const bad = submit({ difference: true, ...input });
+    assert.equal(bad.sent, null);
+    assert.equal(bad.button.disabled, false);
+  }
+});
+
+test('factory request needs only delivery price and plant-to-site kilometres', () => {
+  const { sent } = submit({ client: 'Заводская заявка', factoryGrade: '', factoryVolume: '', clientGrade: '', clientVolume: '', concretePrice: '' });
+  assert.equal(sent.data.client, 'Заводская заявка');
+  assert.equal(sent.data.grade, '');
+  assert.equal(sent.data.volume, '');
+  assert.equal(sent.data.concrete_cost, 0);
+  assert.equal(sent.data.delivery_cost, '1000');
+  assert.equal(sent.data.distance_km, '12.5');
+  assert.equal(sent.data.transport_only, 'Да');
+  assert.equal(sent.data.plant_loaded_grade, undefined);
+  for (const input of [{ delivery: '' }, { distanceKm: '' }]) {
+    const bad = submit({ client: 'Заводская заявка', ...input });
+    assert.equal(bad.sent, null);
+    assert.equal(bad.button.disabled, false);
+  }
+});
+
+test('ordinary trip still requires plant grade and volume', () => {
+  for (const input of [{ factoryGrade: '' }, { factoryVolume: '' }, { distanceKm: '' }]) {
+    const { sent, button } = submit(input);
     assert.equal(sent, null);
-    assert.match(notice, /Укажите марку и объём/);
     assert.equal(button.disabled, false);
   }
 });

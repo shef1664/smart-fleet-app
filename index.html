@@ -979,88 +979,97 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       </div>
     </div>
 
-    <div class="form-block">
-      <div class="form-lbl">Тип смеси</div>
-      <div class="chips">
-        <button class="chip on" onclick="sel(this);checkOther(this)">Бетон</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Раствор</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Пескобетон</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Другое</button>
-      </div>
-      <div class="other-input">
-        <input class="inp" type="text" placeholder="Введите тип смеси">
-      </div>
-    </div>
-
-    <div class="form-block">
-      <div class="form-lbl">Марка, которую получил клиент</div>
-      <div class="chips">
-        <button class="chip" onclick="sel(this)">М100</button>
-        <button class="chip" onclick="sel(this)">М150</button>
-        <button class="chip" onclick="sel(this)">М200</button>
-        <button class="chip" onclick="sel(this)">М250</button>
-        <button class="chip" onclick="sel(this)">М300</button>
-        <button class="chip" onclick="sel(this)">М350</button>
-        <button class="chip" onclick="sel(this)">М400</button>
-      </div>
-    </div>
-
-    <div id="mix-factory-facts">
-      <div style="font-weight:700;margin:16px 0 6px">Что загрузили на заводе</div>
-      <div style="font-size:12px;color:var(--t4);margin-bottom:10px">Укажите фактические марку и объём по заводу. Они могут отличаться от того, что получил клиент.</div>
-      <div style="margin-bottom:12px">
-        <label class="form-lbl" for="mix-plant-grade">Марка на заводе</label>
-        <input class="inp" id="mix-plant-grade" type="text" placeholder="Например: М250" autocomplete="off" inputmode="text">
-      </div>
-      <div style="margin-bottom:12px">
-        <label class="form-lbl" for="mix-plant-volume">Объём на заводе, м³</label>
-        <input class="inp" id="mix-plant-volume" type="number" min="0.001" step="0.001" placeholder="Например: 5,5" inputmode="decimal">
-      </div>
-      <div style="margin-bottom:12px">
-        <label class="form-lbl" for="mix-topup">Догружали со своего склада?</label>
-        <select class="inp" id="mix-topup"><option value="">Выберите</option><option value="Да">Да</option><option value="Нет">Нет</option></select>
-      </div>
-    </div>
-
-    <div class="form-block">
-      <div class="form-lbl">ПМД (противоморозная добавка)</div>
-      <div class="chips">
-        <button class="chip on" onclick="sel(this);togglePmd(false)">Нет</button>
-        <button class="chip" onclick="sel(this);togglePmd(true)">Да</button>
-      </div>
-    </div>
-    <div class="form-block" id="pmd-temp-block" style="display:none">
-      <div class="form-lbl">Температура ПМД</div>
-      <div class="chips">
-        <button class="chip" onclick="sel(this)">-5°</button>
-        <button class="chip" onclick="sel(this)">-10°</button>
-        <button class="chip" onclick="sel(this)">-15°</button>
-        <button class="chip" onclick="sel(this)">-20°</button>
-        <button class="chip" onclick="sel(this)">-25°</button>
-      </div>
-    </div>
-
-    <div class="form-block">
-      <div class="form-lbl">Объём, который получил клиент (м³)</div>
-      <input class="inp" type="number" placeholder="Например: 7" inputmode="decimal" id="mix-volume" oninput="updateMixTotals()">
-    </div>
-
-    <div class="form-block">
+    <div class="form-block" id="mix-client-block">
       <div class="form-lbl">Заказчик</div>
       <div class="chips">
-        <button class="chip on" onclick="sel(this);checkOther(this)">Ч/Л (частник)</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">Заводская заявка</button>
-        <button class="chip" onclick="sel(this);checkOther(this)">+ Другое</button>
+        <button class="chip on" onclick="sel(this);checkOther(this);syncMixerRequestMode()">Ч/Л (частник)</button>
+        <button class="chip" onclick="sel(this);checkOther(this);syncMixerRequestMode()">Заводская заявка</button>
+        <button class="chip" onclick="sel(this);checkOther(this);syncMixerRequestMode()">+ Другое</button>
       </div>
-    
       <div class="other-input">
-        <input class="inp" type="text" placeholder="Введите значение">
+        <input class="inp" type="text" placeholder="Введите заказчика">
+      </div>
+      <div id="mix-factory-request-hint" style="display:none;font-size:12px;color:var(--t4);margin-top:8px">Заказчик — выбранный завод. Бетон в нашу выручку не входит: укажите только доставку и километры.</div>
+    </div>
+
+    <div id="mix-concrete-fields">
+      <div class="form-block">
+        <div class="form-lbl">Тип смеси</div>
+        <div class="chips">
+          <button class="chip on" onclick="sel(this);checkOther(this)">Бетон</button>
+          <button class="chip" onclick="sel(this);checkOther(this)">Раствор</button>
+          <button class="chip" onclick="sel(this);checkOther(this)">Пескобетон</button>
+          <button class="chip" onclick="sel(this);checkOther(this)">Другое</button>
+        </div>
+        <div class="other-input">
+          <input class="inp" type="text" placeholder="Введите тип смеси">
+        </div>
+      </div>
+
+      <div id="mix-factory-facts">
+        <div style="font-weight:700;margin:16px 0 6px">Что загрузили на заводе</div>
+        <div style="font-size:12px;color:var(--t4);margin-bottom:10px">В обычном рейсе этого достаточно. Клиентские параметры заполняются только при отличии.</div>
+        <div style="margin-bottom:12px">
+          <label class="form-lbl" for="mix-plant-grade">Марка на заводе</label>
+          <input class="inp" id="mix-plant-grade" type="text" placeholder="Например: М250" autocomplete="off" inputmode="text">
+        </div>
+        <div style="margin-bottom:12px">
+          <label class="form-lbl" for="mix-plant-volume">Объём на заводе, м³</label>
+          <input class="inp" id="mix-plant-volume" type="number" min="0.001" step="0.001" placeholder="Например: 5,5" inputmode="decimal" oninput="updateMixTotals()">
+        </div>
+        <label class="pay-toggle-row" style="margin-bottom:12px">
+          <input id="mix-difference" type="checkbox" onchange="syncMixerDifference()">
+          <span class="pay-toggle-label">Есть разница у клиента</span>
+          <span class="pay-toggle-hint">марка или объём</span>
+        </label>
+      </div>
+
+      <div id="mix-client-facts" style="display:none">
+        <div class="form-block">
+          <div class="form-lbl">Марка, которую получил клиент</div>
+          <div class="chips">
+            <button class="chip" onclick="sel(this)">М100</button>
+            <button class="chip" onclick="sel(this)">М150</button>
+            <button class="chip" onclick="sel(this)">М200</button>
+            <button class="chip" onclick="sel(this)">М250</button>
+            <button class="chip" onclick="sel(this)">М300</button>
+            <button class="chip" onclick="sel(this)">М350</button>
+            <button class="chip" onclick="sel(this)">М400</button>
+          </div>
+        </div>
+        <div class="form-block">
+          <div class="form-lbl">Объём, который получил клиент (м³)</div>
+          <input class="inp" type="number" min="0.001" step="0.001" placeholder="Например: 6" inputmode="decimal" id="mix-volume" oninput="updateMixTotals()">
+        </div>
+      </div>
+
+      <div class="form-block">
+        <div class="form-lbl">ПМД (противоморозная добавка)</div>
+        <div class="chips">
+          <button class="chip on" onclick="sel(this);togglePmd(false)">Нет</button>
+          <button class="chip" onclick="sel(this);togglePmd(true)">Да</button>
+        </div>
+      </div>
+      <div class="form-block" id="pmd-temp-block" style="display:none">
+        <div class="form-lbl">Температура ПМД</div>
+        <div class="chips">
+          <button class="chip" onclick="sel(this)">-5°</button>
+          <button class="chip" onclick="sel(this)">-10°</button>
+          <button class="chip" onclick="sel(this)">-15°</button>
+          <button class="chip" onclick="sel(this)">-20°</button>
+          <button class="chip" onclick="sel(this)">-25°</button>
+        </div>
       </div>
     </div>
 
     <div class="form-block">
       <div class="form-lbl">Адрес доставки</div>
       <input class="inp" type="text" placeholder="Например: ул. Молодёжная, 12">
+    </div>
+
+    <div class="form-block" id="mix-distance-block">
+      <label class="form-lbl" for="mix-route-km">От завода до объекта, км</label>
+      <input class="inp" type="number" min="0.1" step="0.1" placeholder="Например: 10" inputmode="decimal" id="mix-route-km" oninput="updateMixTotals()">
     </div>
 
     <div class="form-block">
@@ -1072,14 +1081,16 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <input class="inp" type="time" value="13:10">
     </div>
 
-    <div class="form-block">
+    <div class="form-block" id="mix-concrete-price-block">
       <div class="form-lbl">Цена бетона за 1 м³ (₽)</div>
       <input class="inp" type="number" placeholder="Например: 3500" inputmode="numeric" id="mix-concrete-price" oninput="updateMixTotals()">
       <div id="mix-concrete-total-hint" style="font-size:11px;color:var(--t4);margin-top:6px;"></div>
     </div>
     <div class="form-block">
       <div class="form-lbl">Стоимость доставки за рейс (₽)</div>
-      <input class="inp" type="number" placeholder="Например: 3500" inputmode="numeric" id="mix-delivery-cost" oninput="updateMixTotals()">
+      <input class="inp" type="number" placeholder="Укажите километры или введите цену" inputmode="numeric" id="mix-delivery-cost" oninput="mixDeliveryManualOverride=true;updateMixTotals()">
+      <div id="mix-delivery-quote-hint" style="font-size:11px;color:var(--t4);margin-top:6px;"></div>
+      <button type="button" id="mix-delivery-use-quote" style="display:none;margin-top:6px" onclick="mixDeliveryManualOverride=false;updateMixTotals()">Вернуть расчётную сумму</button>
     </div>
 
     <div class="form-block">
@@ -3314,6 +3325,7 @@ function showSub(subId){
     var menu=sub.previousElementSibling;
     if(menu) menu.style.display='none';
     sub.classList.add('active');
+    if(subId === 'mix-new') syncMixerRequestMode();
     window.scrollTo(0,0);
   } catch(e) { console.error('showSub error:',e); }
 }
@@ -4741,14 +4753,64 @@ function renderMixerRecent(){
   list.innerHTML = html;
 }
 
-// Живой подсчёт итога миксера: цена бетона за м³ × объём + фикс. доставка.
+function isMixerFactoryRequest(){
+  return getActiveChipText(document.getElementById('mix-client-block')) === 'Заводская заявка';
+}
+
+function syncMixerRequestMode(){
+  var factoryRequest = isMixerFactoryRequest();
+  document.getElementById('mix-concrete-fields').style.display = factoryRequest ? 'none' : '';
+  document.getElementById('mix-concrete-price-block').style.display = factoryRequest ? 'none' : '';
+  document.getElementById('mix-factory-request-hint').style.display = factoryRequest ? '' : 'none';
+  updateMixTotals();
+}
+
+function syncMixerDifference(){
+  var checked = document.getElementById('mix-difference').checked;
+  document.getElementById('mix-client-facts').style.display = checked ? '' : 'none';
+  if(!checked){
+    document.getElementById('mix-volume').value = '';
+    document.querySelectorAll('#mix-client-facts .chip.on').forEach(function(chip){ chip.classList.remove('on'); });
+  }
+  updateMixTotals();
+}
+
+function calculateMixerDelivery(km, volume){
+  var distance = Number(String(km || '').replace(',', '.'));
+  if(!Number.isFinite(distance) || distance <= 0) return null;
+  var actualVolume = Number(String(volume || '').replace(',', '.'));
+  var billableM3 = Math.max(6, Number.isFinite(actualVolume) ? actualVolume : 0);
+  var perM3 = distance * 35 + 650;
+  return {perM3:perM3, billableM3:billableM3, amount:Math.round(perM3 * billableM3)};
+}
+
+var mixDeliveryManualOverride = false;
+
+// Живой подсчёт: доставку предлагаем по километрам; ручную цену не перезаписываем.
 function updateMixTotals(){
-  var vol = parseFloat((document.getElementById('mix-volume')||{}).value) || 0;
+  var factoryRequest = isMixerFactoryRequest();
+  var different = document.getElementById('mix-difference').checked;
+  var volumeField = different ? 'mix-volume' : 'mix-plant-volume';
+  var vol = factoryRequest ? 0 : (parseFloat((document.getElementById(volumeField)||{}).value) || 0);
   var price = parseFloat((document.getElementById('mix-concrete-price')||{}).value) || 0;
-  var delivery = parseFloat((document.getElementById('mix-delivery-cost')||{}).value) || 0;
+  var deliveryInput = document.getElementById('mix-delivery-cost');
+  var quote = calculateMixerDelivery(document.getElementById('mix-route-km').value, vol);
+  var quoteHint = document.getElementById('mix-delivery-quote-hint');
+  var useQuote = document.getElementById('mix-delivery-use-quote');
+  if(quote){
+    if(!mixDeliveryManualOverride) deliveryInput.value = quote.amount;
+    quoteHint.textContent = 'Расчёт: (' + document.getElementById('mix-route-km').value + ' км × 35 + 650) × '
+      + quote.billableM3 + ' м³ = ' + quote.amount.toLocaleString('ru-RU') + ' ₽'
+      + (mixDeliveryManualOverride ? ' · цена изменена вручную' : ' · минимум 6 м³');
+    useQuote.style.display = mixDeliveryManualOverride ? '' : 'none';
+  } else {
+    quoteHint.textContent = '';
+    useQuote.style.display = 'none';
+  }
+  var delivery = parseFloat(deliveryInput.value) || 0;
   var hint = document.getElementById('mix-concrete-total-hint');
   if(!hint) return;
-  if(price > 0 && vol > 0){
+  if(!factoryRequest && price > 0 && vol > 0){
     var concrete = Math.round(price * vol);
     var total = concrete + delivery;
     var fmt = function(n){ return n.toLocaleString('ru-RU'); };
@@ -4765,10 +4827,10 @@ function submitMixerTrip(btn){
   btn.disabled = true;
 
   // Порядок .form-block в DOM:
-  // 0:Дата 1:Автомобиль 2:Водитель 3:Завод 4:Тип_смеси 5:Марка 6:ПМД 7:pmd-temp(скрытый)
-  // 8:Объём 9:Заказчик 10:Адрес 11:Время_прибытия 12:Время_убытия
-  // 13:Стоимость_бетона 14:Стоимость_доставки 15:Тип_расчёта 16:dengi(cash_received)
-  // 17:№ТН 18:Фото 19:Оплата
+  // 0:Дата 1:Автомобиль 2:Водитель 3:Завод 4:Заказчик 5:Тип_смеси
+  // 6:Марка_клиента 7:Объём_клиента 8:ПМД 9:pmd-temp 10:Адрес
+  // 11:Километры 12:Прибытие 13:Убытие 14:Цена_бетона 15:Доставка
+  // 16:Расчёт 17:Получено 18:№ТН 19:Фото 20:Оплата
   var form = btn.closest('.sub-screen');
   var blocks = form.querySelectorAll('.form-block');
   function inp(i){
@@ -4782,59 +4844,87 @@ function submitMixerTrip(btn){
   // Доставка — фиксированная за рейс (не умножается). Считаем итог на клиенте,
   // чтобы касса/долги/дашборд (concrete_cost + delivery_cost) получили верную
   // сумму: раньше отправлялась цена за куб как есть → «один куб + доставка».
-  var mixVolume = parseFloat(inp(8)) || 0;
+  var factoryRequest = getFieldValue(blocks[4]) === 'Заводская заявка';
+  var different = !factoryRequest && document.getElementById('mix-difference').checked;
   var factoryGrade = (document.getElementById('mix-plant-grade').value || '').trim().toUpperCase();
   var factoryVolume = (document.getElementById('mix-plant-volume').value || '').trim();
-  var topupDeclared = document.getElementById('mix-topup').value;
-  var clientGrade = getFieldValue(blocks[5]);
-  if(!/^М\d{2,4}$/i.test(factoryGrade) || !(parseFloat(factoryVolume.replace(',', '.')) > 0)
-      || !clientGrade || !(mixVolume > 0) || !topupDeclared){
+  var clientGrade = different ? getFieldValue(blocks[6]) : factoryGrade;
+  var clientVolume = different ? inp(7) : factoryVolume;
+  var mixVolume = parseFloat(String(clientVolume).replace(',', '.')) || 0;
+  var distanceKm = (document.getElementById('mix-route-km').value || '').trim();
+  var delivery = inp(15);
+  if(!(parseFloat(distanceKm.replace(',', '.')) > 0)){
     btn.textContent = orig;
     btn.disabled = false;
-    showNotification('Укажите марку и объём на заводе и у клиента, затем выберите догрузку');
+    showNotification('Укажите километры от завода до объекта');
     return;
   }
-  var mixConcretePrice = parseFloat(inp(13)) || 0;
-  var mixConcreteTotal = (mixConcretePrice > 0 && mixVolume > 0)
-    ? Math.round(mixConcretePrice * mixVolume)
-    : inp(13);
+  if(factoryRequest && !(parseFloat(String(delivery).replace(',', '.')) > 0)){
+    btn.textContent = orig;
+    btn.disabled = false;
+    showNotification('Для заводской заявки укажите стоимость доставки');
+    return;
+  }
+  if(!factoryRequest && (!/^[МM]\d{2,4}$/i.test(factoryGrade)
+      || !(parseFloat(factoryVolume.replace(',', '.')) > 0)
+      || !/^[МM]\d{2,4}$/i.test(clientGrade) || !(mixVolume > 0))){
+    btn.textContent = orig;
+    btn.disabled = false;
+    showNotification('Укажите марку и объём на заводе' + (different ? ' и у клиента' : ''));
+    return;
+  }
+  if(different && clientGrade.replace(/^М/, 'M') === factoryGrade.replace(/^М/, 'M')
+      && mixVolume === parseFloat(factoryVolume.replace(',', '.'))){
+    btn.textContent = orig;
+    btn.disabled = false;
+    showNotification('Отличие отмечено, но марка и объём совпадают с заводом');
+    return;
+  }
+  var mixConcretePrice = factoryRequest ? 0 : (parseFloat(inp(14)) || 0);
+  var mixConcreteTotal = mixConcretePrice > 0 && mixVolume > 0
+    ? Math.round(mixConcretePrice * mixVolume) : 0;
 
   var data = {
     date: dateState['mix-date'] || new Date().toLocaleDateString('ru'),
     truck:        getFieldValue(blocks[1]),
     driver:       getFieldValue(blocks[2]),
     plant:        getFieldValue(blocks[3]),
-    mix_type:     getFieldValue(blocks[4]),
-    grade:        clientGrade,
-    plant_loaded_grade: factoryGrade,
-    plant_loaded_volume_m3: factoryVolume,
-    client_delivered_grade: clientGrade,
-    client_delivered_volume_m3: inp(8),
-    topup_declared: topupDeclared,
-    pmd:          getFieldValue(blocks[6]),
+    mix_type:     factoryRequest ? '' : getFieldValue(blocks[5]),
+    grade:        factoryRequest ? '' : clientGrade,
+    pmd:          factoryRequest ? 'Нет' : getFieldValue(blocks[8]),
     // Температуру берём только если блок ПМД видим (ПМД=Да). Иначе залипший
     // дефолтный чип отдавал -5° даже когда противоморозной добавки нет.
-    pmd_temp:     (blocks[7] && blocks[7].offsetParent !== null) ? getFieldValue(blocks[7]) : '',
-    volume:       inp(8),
-    client:       getFieldValue(blocks[9]),
+    pmd_temp:     !factoryRequest && blocks[9] && blocks[9].offsetParent !== null ? getFieldValue(blocks[9]) : '',
+    volume:       factoryRequest ? '' : clientVolume,
+    client:       getFieldValue(blocks[4]),
+    transport_only: factoryRequest ? 'Да' : 'Нет',
     address:      inp(10),
-    arrive_time:  inp(11),
-    depart_time:  inp(12),
+    arrive_time:  inp(12),
+    depart_time:  inp(13),
     concrete_cost: mixConcreteTotal,
-    delivery_cost: inp(14),
-    payment_type: getFieldValue(blocks[15]),
+    delivery_cost: delivery,
+    distance_km:  distanceKm,
+    payment_type: getFieldValue(blocks[16]),
     money_with:   '',
-    tn_number:    inp(17),
+    tn_number:    inp(18),
     tn_photo:     getPhotoArray('mix-tn'),
     report_photo: getPhotoArray('mix-raport'),
     paid: (document.getElementById('mix-paid') && document.getElementById('mix-paid').checked) ? 'Да' : 'Нет',
     cash_received: (document.getElementById('mix-cash-received') && document.getElementById('mix-cash-received').value) || '',
     status: 'ok'
   };
+  if(!factoryRequest){
+    data.plant_loaded_grade = factoryGrade;
+    data.plant_loaded_volume_m3 = factoryVolume;
+    data.client_delivered_grade = clientGrade;
+    data.client_delivered_volume_m3 = clientVolume;
+    data.topup_declared = different ? 'Да' : 'Нет';
+  }
 
   sendToAPI('mixer_trip', data, function(res){
     btn.textContent = '✅ Сохранено!';
     btn.style.background = 'var(--green)';
+    mixDeliveryManualOverride = false;
     showNotification('Рейс миксера сохранён' + (res.id ? ' ('+res.id+')' : ''));
     pushMixerRecent(data);
     renderMixerRecent();
