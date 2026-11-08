@@ -989,7 +989,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="other-input">
         <input class="inp" type="text" placeholder="Введите заказчика">
       </div>
-      <div id="mix-factory-request-hint" style="display:none;font-size:12px;color:var(--t4);margin-top:8px">Заказчик — выбранный завод. Бетон в нашу выручку не входит: укажите только доставку и километры.</div>
+      <div id="mix-factory-request-hint" style="display:none;font-size:12px;color:var(--t4);margin-top:8px">Заказчик — выбранный завод. Укажите доставку и километры; оплату клиента заводу здесь не фиксируем.</div>
     </div>
 
     <div id="mix-concrete-fields">
@@ -1093,7 +1093,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <button type="button" id="mix-delivery-use-quote" style="display:none;margin-top:6px" onclick="mixDeliveryManualOverride=false;updateMixTotals()">Вернуть расчётную сумму</button>
     </div>
 
-    <div class="form-block">
+    <div class="form-block" id="mix-payment-type-block">
       <div class="form-lbl">Тип расчёта</div>
       <div class="chips">
         <button class="chip on" onclick="sel(this);toggleDengi(true)">Нал</button>
@@ -1132,7 +1132,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       </div>
     </div>
 
-    <div class="form-block">
+    <div class="form-block" id="mix-paid-block">
       <div class="form-lbl">Оплата</div>
       <label class="pay-toggle-row">
         <input type="checkbox" id="mix-paid">
@@ -3754,7 +3754,7 @@ function togglePmd(show){
 
 function toggleDengi(show){
   const b = document.getElementById('dengi-block');
-  if(b) b.style.display = show ? 'block' : 'none';
+  if(b) b.style.display = show && !isMixerFactoryRequest() ? 'block' : 'none';
 }
 
 var dirPeriod = 'month';
@@ -4761,6 +4761,9 @@ function syncMixerRequestMode(){
   var factoryRequest = isMixerFactoryRequest();
   document.getElementById('mix-concrete-fields').style.display = factoryRequest ? 'none' : '';
   document.getElementById('mix-concrete-price-block').style.display = factoryRequest ? 'none' : '';
+  document.getElementById('mix-payment-type-block').style.display = factoryRequest ? 'none' : '';
+  document.getElementById('mix-paid-block').style.display = factoryRequest ? 'none' : '';
+  toggleDengi(getActiveChipText(document.getElementById('mix-payment-type-block')) === 'Нал');
   document.getElementById('mix-factory-request-hint').style.display = factoryRequest ? '' : 'none';
   updateMixTotals();
 }
@@ -4865,6 +4868,12 @@ function submitMixerTrip(btn){
     showNotification('Для заводской заявки укажите стоимость доставки');
     return;
   }
+  if(factoryRequest && (!inp(10).trim() || !inp(12) || !inp(13) || !inp(18).trim())){
+    btn.textContent = orig;
+    btn.disabled = false;
+    showNotification('Для заводской заявки укажите объект, время прибытия и убытия, номер ТН');
+    return;
+  }
   if(!factoryRequest && (!/^[МM]\d{2,4}$/i.test(factoryGrade)
       || !(parseFloat(factoryVolume.replace(',', '.')) > 0)
       || !/^[МM]\d{2,4}$/i.test(clientGrade) || !(mixVolume > 0))){
@@ -4904,13 +4913,13 @@ function submitMixerTrip(btn){
     concrete_cost: mixConcreteTotal,
     delivery_cost: delivery,
     distance_km:  distanceKm,
-    payment_type: getFieldValue(blocks[16]),
+    payment_type: factoryRequest ? '' : getFieldValue(blocks[16]),
     money_with:   '',
     tn_number:    inp(18),
     tn_photo:     getPhotoArray('mix-tn'),
     report_photo: getPhotoArray('mix-raport'),
-    paid: (document.getElementById('mix-paid') && document.getElementById('mix-paid').checked) ? 'Да' : 'Нет',
-    cash_received: (document.getElementById('mix-cash-received') && document.getElementById('mix-cash-received').value) || '',
+    paid: factoryRequest ? '' : (document.getElementById('mix-paid') && document.getElementById('mix-paid').checked ? 'Да' : 'Нет'),
+    cash_received: factoryRequest ? '' : ((document.getElementById('mix-cash-received') && document.getElementById('mix-cash-received').value) || ''),
     status: 'ok'
   };
   if(!factoryRequest){

@@ -13,6 +13,8 @@ function submit({
   factoryGrade = 'М250', factoryVolume = '5.5', difference = false,
   clientGrade = 'М300', clientVolume = '6', client = 'Ч/Л (частник)',
   concretePrice = '6500', delivery = '1000', distanceKm = '12.5',
+  paymentType = 'Нал', cashReceived = '', paid = false,
+  tnNumber = 'TN-1', arriveTime = '12:40', departTime = '13:10', address = 'Тестовый объект',
 } = {}) {
   const fields = {
     'mix-plant-grade': { value: factoryGrade },
@@ -22,8 +24,8 @@ function submit({
     'mix-concrete-price': { value: concretePrice },
     'mix-delivery-cost': { value: delivery },
     'mix-route-km': { value: distanceKm },
-    'mix-paid': { checked: false },
-    'mix-cash-received': { value: '' },
+    'mix-paid': { checked: paid },
+    'mix-cash-received': { value: cashReceived },
   };
   const values = Array(21).fill('');
   values[4] = client;
@@ -31,8 +33,13 @@ function submit({
   values[6] = clientGrade;
   values[7] = clientVolume;
   values[8] = 'Нет';
+  values[10] = address;
+  values[12] = arriveTime;
+  values[13] = departTime;
   values[14] = concretePrice;
   values[15] = delivery;
+  values[16] = paymentType;
+  values[18] = tnNumber;
   const blocks = values.map((value, index) => ({
     value,
     offsetParent: index === 9 ? null : {},
@@ -105,7 +112,7 @@ test('checked difference requires customer facts and bills delivered volume once
 });
 
 test('factory request needs only delivery price and plant-to-site kilometres', () => {
-  const { sent } = submit({ client: 'Заводская заявка', factoryGrade: '', factoryVolume: '', clientGrade: '', clientVolume: '', concretePrice: '' });
+  const { sent } = submit({ client: 'Заводская заявка', factoryGrade: '', factoryVolume: '', clientGrade: '', clientVolume: '', concretePrice: '', cashReceived: '50000', paid: true });
   assert.equal(sent.data.client, 'Заводская заявка');
   assert.equal(sent.data.grade, '');
   assert.equal(sent.data.volume, '');
@@ -114,11 +121,24 @@ test('factory request needs only delivery price and plant-to-site kilometres', (
   assert.equal(sent.data.distance_km, '12.5');
   assert.equal(sent.data.transport_only, 'Да');
   assert.equal(sent.data.plant_loaded_grade, undefined);
-  for (const input of [{ delivery: '' }, { distanceKm: '' }]) {
+  assert.equal(sent.data.payment_type, '');
+  assert.equal(sent.data.cash_received, '');
+  assert.equal(sent.data.paid, '');
+  for (const input of [{ delivery: '' }, { distanceKm: '' }, { tnNumber: '' }, { arriveTime: '' }, { departTime: '' }, { address: '' }]) {
     const bad = submit({ client: 'Заводская заявка', ...input });
     assert.equal(bad.sent, null);
     assert.equal(bad.button.disabled, false);
   }
+});
+
+test('factory mode hides every payment control but keeps trip and document fields', () => {
+  const form = html.slice(html.indexOf('<div class="sub-screen" id="mix-new">'), html.indexOf('<!-- ═══════════════════════════════ ДЛИННОМЕРЫ'));
+  assert.match(form, /id="mix-payment-type-block"/);
+  assert.match(form, /id="dengi-block"/);
+  assert.match(form, /id="mix-paid-block"/);
+  assert.match(form, /№ ТН/);
+  assert.match(form, /Время прибытия/);
+  assert.match(form, /Время убытия/);
 });
 
 test('ordinary trip still requires plant grade and volume', () => {
