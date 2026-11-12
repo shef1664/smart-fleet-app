@@ -8,6 +8,10 @@ const start = html.indexOf('function submitMixerTrip(btn){');
 const end = html.indexOf('// ═══════════════════ СЛЕСАРЬ', start);
 assert.ok(start > 0 && end > start);
 const source = html.slice(start, end);
+const helperStart = html.indexOf('function normalizeMixerGrade(value){');
+const helperEnd = html.indexOf('function setMixerVolumePart(', helperStart);
+assert.ok(helperStart > 0 && helperEnd > helperStart);
+const helpers = html.slice(helperStart, helperEnd);
 
 function submit({
   factoryGrade = 'М250', factoryVolume = '5.5', difference = false,
@@ -56,7 +60,7 @@ function submit({
     showNotification: (message) => { notice = message; },
   };
   vm.createContext(context);
-  const run = vm.runInContext(`${source}\nsubmitMixerTrip`, context);
+  const run = vm.runInContext(`${helpers}\n${source}\nsubmitMixerTrip`, context);
   const button = { textContent: 'Сохранить', disabled: false, closest: () => ({ querySelectorAll: () => blocks }) };
   run(button);
   return { sent, notice, button };
@@ -147,4 +151,48 @@ test('ordinary trip still requires plant grade and volume', () => {
     assert.equal(sent, null);
     assert.equal(button.disabled, false);
   }
+});
+
+test('plant grade is chosen with buttons without opening a keyboard', () => {
+  const form = html.slice(html.indexOf('<div class="sub-screen" id="mix-new">'), html.indexOf('<!-- ═══════════════════════════════ ДЛИННОМЕРЫ'));
+  assert.match(form, /id="mix-plant-grade-chips"[\s\S]*?>М200<\/button>/);
+  assert.match(form, /id="mix-plant-grade"[^>]*readonly/);
+  assert.match(form, /id="mix-plant-grade-manual"/);
+});
+
+test('manual grade accepts a number without requiring the driver to type M', () => {
+  const { sent } = submit({ factoryGrade: '250' });
+  assert.equal(sent.data.plant_loaded_grade, 'М250');
+  assert.equal(sent.data.grade, 'М250');
+});
+
+test('plant and customer volumes have button pickers with optional manual entry', () => {
+  const form = html.slice(html.indexOf('<div class="sub-screen" id="mix-new">'), html.indexOf('<!-- ═══════════════════════════════ ДЛИННОМЕРЫ'));
+  for (const field of ['mix-plant-volume', 'mix-volume']) {
+    assert.match(form, new RegExp(`id="${field}-picker"`));
+    assert.match(form, new RegExp(`id="${field}"[^>]*inputmode="decimal"[^>]*autocomplete="off"`));
+    assert.match(form, new RegExp(`id="${field}-manual"`));
+  }
+  assert.match(form, /setMixerVolumePart\('mix-plant-volume', 'whole', 6/);
+  assert.match(form, /setMixerVolumePart\('mix-plant-volume', 'tenth', 7/);
+});
+
+test('phone-like or malformed volume cannot be sent as a mixer trip', () => {
+  for (const factoryVolume of ['9236218521', '5abc', '0', '-1']) {
+    const { sent, button } = submit({ factoryVolume });
+    assert.equal(sent, null, `factory volume ${factoryVolume}`);
+    assert.equal(button.disabled, false);
+  }
+  for (const clientVolume of ['9236218521', '5abc', '0', '-1']) {
+    const { sent, button } = submit({ difference: true, clientVolume });
+    assert.equal(sent, null, `customer volume ${clientVolume}`);
+    assert.equal(button.disabled, false);
+  }
+});
+
+test('Telegram keyboard resize does not force-scroll and dismiss focused numeric input', () => {
+  const begin = html.indexOf('function initKeyboardInset(){');
+  const end = html.indexOf('/* ── Pulsar v3 UI init', begin);
+  assert.ok(begin > 0 && end > begin);
+  assert.doesNotMatch(html.slice(begin, end), /scrollIntoView|viewportChanged/);
 });

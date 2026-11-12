@@ -296,6 +296,12 @@ input,textarea,select{font:inherit;}
 .chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);}
 .chip.green.on {background:var(--green); border-color:var(--green); color:#0A0F0B;}
 .chip.orange.on{background:var(--orange);border-color:var(--orange);color:#1A1108;}
+.mixer-volume-picker .chips{gap:6px;margin:8px 0 12px;}
+.mixer-volume-picker .chip{min-width:48px;padding:10px 12px;text-align:center;}
+.mixer-picker-label{font-size:12px;color:var(--t3);margin-top:10px;}
+.mixer-picker-value{font-size:15px;font-weight:700;color:var(--t1);margin:8px 0;}
+.mixer-manual-button{background:none;border:0;color:var(--accent);padding:8px 2px;font-size:13px;font-weight:700;cursor:pointer;}
+.mixer-volume-picker .inp[hidden]{display:none;}
 
 .inp{
   width:100%;
@@ -1011,11 +1017,54 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div style="font-size:12px;color:var(--t4);margin-bottom:10px">В обычном рейсе этого достаточно. Клиентские параметры заполняются только при отличии.</div>
         <div style="margin-bottom:12px">
           <label class="form-lbl" for="mix-plant-grade">Марка на заводе</label>
-          <input class="inp" id="mix-plant-grade" type="text" placeholder="Например: М250" autocomplete="off" inputmode="text">
+          <div class="chips" id="mix-plant-grade-chips">
+            <button type="button" class="chip" onclick="setMixerPlantGrade(this)">М100</button>
+            <button type="button" class="chip" onclick="setMixerPlantGrade(this)">М150</button>
+            <button type="button" class="chip" onclick="setMixerPlantGrade(this)">М200</button>
+            <button type="button" class="chip" onclick="setMixerPlantGrade(this)">М250</button>
+            <button type="button" class="chip" onclick="setMixerPlantGrade(this)">М300</button>
+            <button type="button" class="chip" onclick="setMixerPlantGrade(this)">М350</button>
+            <button type="button" class="chip" onclick="setMixerPlantGrade(this)">М400</button>
+          </div>
+          <input class="inp" id="mix-plant-grade" type="text" placeholder="Выберите марку кнопкой" autocomplete="off" inputmode="text" readonly tabindex="-1" style="margin-top:8px" onblur="this.value=normalizeMixerGrade(this.value)">
+          <button type="button" class="mixer-manual-button" id="mix-plant-grade-manual" onclick="enableMixerPlantGradeManual()">Другая марка — ввести вручную</button>
         </div>
         <div style="margin-bottom:12px">
           <label class="form-lbl" for="mix-plant-volume">Объём на заводе, м³</label>
-          <input class="inp" id="mix-plant-volume" type="number" min="0.001" step="0.001" placeholder="Например: 5,5" inputmode="decimal" oninput="updateMixTotals()">
+          <div class="mixer-volume-picker" id="mix-plant-volume-picker">
+            <div class="mixer-picker-label">Целые кубы</div>
+            <div class="chips mixer-volume-whole">
+              <button type="button" class="chip" data-value="0" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 0, this)">0</button>
+              <button type="button" class="chip" data-value="1" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 1, this)">1</button>
+              <button type="button" class="chip" data-value="2" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 2, this)">2</button>
+              <button type="button" class="chip" data-value="3" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 3, this)">3</button>
+              <button type="button" class="chip" data-value="4" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 4, this)">4</button>
+              <button type="button" class="chip" data-value="5" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 5, this)">5</button>
+              <button type="button" class="chip" data-value="6" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 6, this)">6</button>
+              <button type="button" class="chip" data-value="7" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 7, this)">7</button>
+              <button type="button" class="chip" data-value="8" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 8, this)">8</button>
+              <button type="button" class="chip" data-value="9" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 9, this)">9</button>
+              <button type="button" class="chip" data-value="10" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 10, this)">10</button>
+              <button type="button" class="chip" data-value="11" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 11, this)">11</button>
+              <button type="button" class="chip" data-value="12" onclick="setMixerVolumePart('mix-plant-volume', 'whole', 12, this)">12</button>
+            </div>
+            <div class="mixer-picker-label">Десятые доли, если нужны</div>
+            <div class="chips mixer-volume-tenth">
+              <button type="button" class="chip" data-value="0" onclick="setMixerVolumePart('mix-plant-volume', 'tenth', 0, this)">,0</button>
+              <button type="button" class="chip" data-value="1" onclick="setMixerVolumePart('mix-plant-volume', 'tenth', 1, this)">,1</button>
+              <button type="button" class="chip" data-value="2" onclick="setMixerVolumePart('mix-plant-volume', 'tenth', 2, this)">,2</button>
+              <button type="button" class="chip" data-value="3" onclick="setMixerVolumePart('mix-plant-volume', 'tenth', 3, this)">,3</button>
+              <button type="button" class="chip" data-value="4" onclick="setMixerVolumePart('mix-plant-volume', 'tenth', 4, this)">,4</button>
+              <button type="button" class="chip" data-value="5" onclick="setMixerVolumePart('mix-plant-volume', 'tenth', 5, this)">,5</button>
+              <button type="button" class="chip" data-value="6" onclick="setMixerVolumePart('mix-plant-volume', 'tenth', 6, this)">,6</button>
+              <button type="button" class="chip" data-value="7" onclick="setMixerVolumePart('mix-plant-volume', 'tenth', 7, this)">,7</button>
+              <button type="button" class="chip" data-value="8" onclick="setMixerVolumePart('mix-plant-volume', 'tenth', 8, this)">,8</button>
+              <button type="button" class="chip" data-value="9" onclick="setMixerVolumePart('mix-plant-volume', 'tenth', 9, this)">,9</button>
+            </div>
+            <div class="mixer-picker-value" id="mix-plant-volume-summary">Выберите объём</div>
+            <input class="inp" id="mix-plant-volume" type="text" placeholder="Например: 5,5" inputmode="decimal" autocomplete="off" enterkeyhint="done" oninput="onMixerVolumeManualInput(this)" hidden>
+            <button type="button" class="mixer-manual-button" id="mix-plant-volume-manual" onclick="enableMixerVolumeManual('mix-plant-volume')">Другой объём — ввести вручную</button>
+          </div>
         </div>
         <label class="pay-toggle-row" style="margin-bottom:12px">
           <input id="mix-difference" type="checkbox" onchange="syncMixerDifference()">
@@ -1039,7 +1088,40 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         </div>
         <div class="form-block">
           <div class="form-lbl">Объём, который получил клиент (м³)</div>
-          <input class="inp" type="number" min="0.001" step="0.001" placeholder="Например: 6" inputmode="decimal" id="mix-volume" oninput="updateMixTotals()">
+          <div class="mixer-volume-picker" id="mix-volume-picker">
+            <div class="mixer-picker-label">Целые кубы</div>
+            <div class="chips mixer-volume-whole">
+              <button type="button" class="chip" data-value="0" onclick="setMixerVolumePart('mix-volume', 'whole', 0, this)">0</button>
+              <button type="button" class="chip" data-value="1" onclick="setMixerVolumePart('mix-volume', 'whole', 1, this)">1</button>
+              <button type="button" class="chip" data-value="2" onclick="setMixerVolumePart('mix-volume', 'whole', 2, this)">2</button>
+              <button type="button" class="chip" data-value="3" onclick="setMixerVolumePart('mix-volume', 'whole', 3, this)">3</button>
+              <button type="button" class="chip" data-value="4" onclick="setMixerVolumePart('mix-volume', 'whole', 4, this)">4</button>
+              <button type="button" class="chip" data-value="5" onclick="setMixerVolumePart('mix-volume', 'whole', 5, this)">5</button>
+              <button type="button" class="chip" data-value="6" onclick="setMixerVolumePart('mix-volume', 'whole', 6, this)">6</button>
+              <button type="button" class="chip" data-value="7" onclick="setMixerVolumePart('mix-volume', 'whole', 7, this)">7</button>
+              <button type="button" class="chip" data-value="8" onclick="setMixerVolumePart('mix-volume', 'whole', 8, this)">8</button>
+              <button type="button" class="chip" data-value="9" onclick="setMixerVolumePart('mix-volume', 'whole', 9, this)">9</button>
+              <button type="button" class="chip" data-value="10" onclick="setMixerVolumePart('mix-volume', 'whole', 10, this)">10</button>
+              <button type="button" class="chip" data-value="11" onclick="setMixerVolumePart('mix-volume', 'whole', 11, this)">11</button>
+              <button type="button" class="chip" data-value="12" onclick="setMixerVolumePart('mix-volume', 'whole', 12, this)">12</button>
+            </div>
+            <div class="mixer-picker-label">Десятые доли, если нужны</div>
+            <div class="chips mixer-volume-tenth">
+              <button type="button" class="chip" data-value="0" onclick="setMixerVolumePart('mix-volume', 'tenth', 0, this)">,0</button>
+              <button type="button" class="chip" data-value="1" onclick="setMixerVolumePart('mix-volume', 'tenth', 1, this)">,1</button>
+              <button type="button" class="chip" data-value="2" onclick="setMixerVolumePart('mix-volume', 'tenth', 2, this)">,2</button>
+              <button type="button" class="chip" data-value="3" onclick="setMixerVolumePart('mix-volume', 'tenth', 3, this)">,3</button>
+              <button type="button" class="chip" data-value="4" onclick="setMixerVolumePart('mix-volume', 'tenth', 4, this)">,4</button>
+              <button type="button" class="chip" data-value="5" onclick="setMixerVolumePart('mix-volume', 'tenth', 5, this)">,5</button>
+              <button type="button" class="chip" data-value="6" onclick="setMixerVolumePart('mix-volume', 'tenth', 6, this)">,6</button>
+              <button type="button" class="chip" data-value="7" onclick="setMixerVolumePart('mix-volume', 'tenth', 7, this)">,7</button>
+              <button type="button" class="chip" data-value="8" onclick="setMixerVolumePart('mix-volume', 'tenth', 8, this)">,8</button>
+              <button type="button" class="chip" data-value="9" onclick="setMixerVolumePart('mix-volume', 'tenth', 9, this)">,9</button>
+            </div>
+            <div class="mixer-picker-value" id="mix-volume-summary">Выберите объём</div>
+            <input class="inp" id="mix-volume" type="text" placeholder="Например: 6" inputmode="decimal" autocomplete="off" enterkeyhint="done" oninput="onMixerVolumeManualInput(this)" hidden>
+            <button type="button" class="mixer-manual-button" id="mix-volume-manual" onclick="enableMixerVolumeManual('mix-volume')">Другой объём — ввести вручную</button>
+          </div>
         </div>
       </div>
 
@@ -4757,6 +4839,85 @@ function isMixerFactoryRequest(){
   return getActiveChipText(document.getElementById('mix-client-block')) === 'Заводская заявка';
 }
 
+function setMixerPlantGrade(button){
+  sel(button);
+  var field = document.getElementById('mix-plant-grade');
+  field.value = button.textContent.trim();
+  field.readOnly = true;
+  field.tabIndex = -1;
+}
+
+function enableMixerPlantGradeManual(){
+  document.querySelectorAll('#mix-plant-grade-chips .chip.on').forEach(function(chip){ chip.classList.remove('on'); });
+  var field = document.getElementById('mix-plant-grade');
+  field.value = '';
+  field.readOnly = false;
+  field.removeAttribute('tabindex');
+  field.placeholder = 'Например: М250 или 250';
+  field.focus();
+}
+
+function normalizeMixerGrade(value){
+  var raw = String(value || '').trim().toUpperCase();
+  if (/^\d{2,4}$/.test(raw)) return 'М' + raw;
+  if (/^[MМ]\s*\d{2,4}$/.test(raw)) return 'М' + raw.replace(/^[MМ]\s*/, '');
+  return raw;
+}
+
+function parseMixerVolume(value){
+  var raw = String(value || '').trim().replace(',', '.');
+  if (!/^\d{1,3}(?:\.\d{1,3})?$/.test(raw)) return 0;
+  var volume = Number(raw);
+  return Number.isFinite(volume) && volume > 0 && volume <= 100 ? volume : 0;
+}
+
+function setMixerVolumePart(fieldId, part, digit, button){
+  var picker = document.getElementById(fieldId + '-picker');
+  sel(button);
+  var wholeChip = picker.querySelector('.mixer-volume-whole .chip.on');
+  var tenthChip = picker.querySelector('.mixer-volume-tenth .chip.on');
+  if (!wholeChip && part === 'tenth') {
+    wholeChip = picker.querySelector('.mixer-volume-whole .chip[data-value="0"]');
+    wholeChip.classList.add('on');
+  }
+  var whole = wholeChip ? Number(wholeChip.dataset.value) : 0;
+  var tenth = tenthChip ? Number(tenthChip.dataset.value) : 0;
+  var volume = whole + tenth / 10;
+  var field = document.getElementById(fieldId);
+  field.value = volume > 0 ? String(Number(volume.toFixed(1))) : '';
+  field.hidden = true;
+  document.getElementById(fieldId + '-summary').textContent = field.value
+    ? field.value.replace('.', ',') + ' м³' : 'Выберите объём больше нуля';
+  updateMixTotals();
+}
+
+function enableMixerVolumeManual(fieldId){
+  var picker = document.getElementById(fieldId + '-picker');
+  picker.querySelectorAll('.chip.on').forEach(function(chip){ chip.classList.remove('on'); });
+  var field = document.getElementById(fieldId);
+  field.value = '';
+  field.hidden = false;
+  document.getElementById(fieldId + '-summary').textContent = 'Введите объём вручную';
+  field.focus();
+  updateMixTotals();
+}
+
+function onMixerVolumeManualInput(field){
+  var volume = parseMixerVolume(field.value);
+  document.getElementById(field.id + '-summary').textContent = volume
+    ? String(volume).replace('.', ',') + ' м³' : 'Объём: от 0,001 до 100 м³';
+  updateMixTotals();
+}
+
+function resetMixerVolumePicker(fieldId){
+  var picker = document.getElementById(fieldId + '-picker');
+  picker.querySelectorAll('.chip.on').forEach(function(chip){ chip.classList.remove('on'); });
+  var field = document.getElementById(fieldId);
+  field.value = '';
+  field.hidden = true;
+  document.getElementById(fieldId + '-summary').textContent = 'Выберите объём';
+}
+
 function syncMixerRequestMode(){
   var factoryRequest = isMixerFactoryRequest();
   document.getElementById('mix-concrete-fields').style.display = factoryRequest ? 'none' : '';
@@ -4772,7 +4933,7 @@ function syncMixerDifference(){
   var checked = document.getElementById('mix-difference').checked;
   document.getElementById('mix-client-facts').style.display = checked ? '' : 'none';
   if(!checked){
-    document.getElementById('mix-volume').value = '';
+    resetMixerVolumePicker('mix-volume');
     document.querySelectorAll('#mix-client-facts .chip.on').forEach(function(chip){ chip.classList.remove('on'); });
   }
   updateMixTotals();
@@ -4794,7 +4955,7 @@ function updateMixTotals(){
   var factoryRequest = isMixerFactoryRequest();
   var different = document.getElementById('mix-difference').checked;
   var volumeField = different ? 'mix-volume' : 'mix-plant-volume';
-  var vol = factoryRequest ? 0 : (parseFloat((document.getElementById(volumeField)||{}).value) || 0);
+  var vol = factoryRequest ? 0 : parseMixerVolume((document.getElementById(volumeField)||{}).value);
   var price = parseFloat((document.getElementById('mix-concrete-price')||{}).value) || 0;
   var deliveryInput = document.getElementById('mix-delivery-cost');
   var quote = calculateMixerDelivery(document.getElementById('mix-route-km').value, vol);
@@ -4849,11 +5010,11 @@ function submitMixerTrip(btn){
   // сумму: раньше отправлялась цена за куб как есть → «один куб + доставка».
   var factoryRequest = getFieldValue(blocks[4]) === 'Заводская заявка';
   var different = !factoryRequest && document.getElementById('mix-difference').checked;
-  var factoryGrade = (document.getElementById('mix-plant-grade').value || '').trim().toUpperCase();
+  var factoryGrade = normalizeMixerGrade(document.getElementById('mix-plant-grade').value);
   var factoryVolume = (document.getElementById('mix-plant-volume').value || '').trim();
   var clientGrade = different ? getFieldValue(blocks[6]) : factoryGrade;
   var clientVolume = different ? inp(7) : factoryVolume;
-  var mixVolume = parseFloat(String(clientVolume).replace(',', '.')) || 0;
+  var mixVolume = parseMixerVolume(clientVolume);
   var distanceKm = (document.getElementById('mix-route-km').value || '').trim();
   var delivery = inp(15);
   if(!(parseFloat(distanceKm.replace(',', '.')) > 0)){
@@ -4875,11 +5036,11 @@ function submitMixerTrip(btn){
     return;
   }
   if(!factoryRequest && (!/^[МM]\d{2,4}$/i.test(factoryGrade)
-      || !(parseFloat(factoryVolume.replace(',', '.')) > 0)
+      || !parseMixerVolume(factoryVolume)
       || !/^[МM]\d{2,4}$/i.test(clientGrade) || !(mixVolume > 0))){
     btn.textContent = orig;
     btn.disabled = false;
-    showNotification('Укажите марку и объём на заводе' + (different ? ' и у клиента' : ''));
+    showNotification('Выберите марку и объём от 0,001 до 100 м³ на заводе' + (different ? ' и у клиента' : ''));
     return;
   }
   if(different && clientGrade.replace(/^М/, 'M') === factoryGrade.replace(/^М/, 'M')
@@ -6326,15 +6487,9 @@ function initKeyboardInset(){
   try { if (typeof tg.disableVerticalSwipes === 'function') tg.disableVerticalSwipes(); } catch(e) {}
   // Подтверждение закрытия — на случай если свайпы не отключились
   try { if (typeof tg.enableClosingConfirmation === 'function') tg.enableClosingConfirmation(); } catch(e) {}
-  function apply(){
-    var kb = Math.max(0, (tg.viewportStableHeight || 0) - (tg.viewportHeight || 0));
-    document.documentElement.style.setProperty('--kb', kb + 'px');
-    if (kb > 0 && document.activeElement && document.activeElement.tagName === 'INPUT') {
-      try { document.activeElement.scrollIntoView({block:'center', behavior:'smooth'}); } catch(e) {}
-    }
-  }
-  try { tg.onEvent('viewportChanged', apply); } catch(e) {}
-  apply();
+  // Android Telegram WebView сам поднимает сфокусированное поле над клавиатурой.
+  // Принудительный плавный scroll на каждом изменении высоты мог сбивать фокус
+  // и оставлять вместо клавиатуры системную подсказку из буфера обмена.
 }
 
 /* ── Pulsar v3 UI init ──────────────────────────────────────────────
