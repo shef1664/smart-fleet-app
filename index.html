@@ -746,6 +746,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
   <div class="sub-screen" id="ton-new">
     <button class="back-btn" onclick="hideSub('ton-menu','ton-new')">‹ Тонары</button>
     <div class="page-title" style="margin-bottom:20px">Новый рейс</div>
+    <div id="tonar-form-access" role="status"></div>
 
     <div class="form-block">
       <div class="form-lbl">Дата рейса</div>
@@ -3188,7 +3189,7 @@ function loadDriverStats(driverKey) {
 
 var ROLE_HOME = {
   "login": "s-login",
-  "driver": "s-driver-dash",
+  "driver": "s-tonary",
   "mixer": "s-mixer",
   "mechanic": "s-mechanic-dash",
   "director": "s-director"
@@ -3196,10 +3197,10 @@ var ROLE_HOME = {
 
 var ROLE_NAV = {
   "driver": [
-    {icon:"🏠", label:"Кабинет", screen:"s-driver-dash"},
-    {icon:"🚛", label:"Тонары", screen:"s-tonary"},
+    {icon:"🚛", label:"Рейсы", screen:"s-tonary"},
     {icon:"⛽", label:"Топливо", screen:"s-dt"},
-    {icon:"🧾", label:"Расходы", screen:"s-expense"}
+    {icon:"🧾", label:"Расходы", screen:"s-expense"},
+    {icon:"👤", label:"Кабинет", screen:"s-driver-dash"}
   ],
   "mixer": [
     {icon:"🏠", label:"Главная", screen:"s-driver-dash"},
@@ -3261,7 +3262,7 @@ window.addEventListener('error', function(e) {
 });
 
 function go(id){
-  if (id === 's-home' && FLEET_WORKSPACE === 'tonars') id = 's-driver-dash';
+  if (id === 's-home' && FLEET_WORKSPACE === 'tonars') id = 's-tonary';
   if (id === 's-home' && currentRole === 'mixer') id = 's-mixer';
   if (id === 's-home' && currentRole === 'mechanic') id = 's-mechanic-dash';
   if (!canOpenFleetScreen(FLEET_WORKSPACE, currentRole, id)) return;
@@ -4638,6 +4639,12 @@ function submitTonarTrip(btn){
     return;
   }
   var personal = FLEET_WORKSPACE === 'tonars';
+  if (personal && !data.driver) {
+    btn.textContent = orig;
+    btn.disabled = false;
+    showNotification('Выберите водителя из списка.');
+    return;
+  }
   sendToAPI(personal ? 'tonar_cabinet_trip' : 'tonar_trip', data, function(res){
     btn.textContent = '✅ Сохранено!';
     btn.style.background = 'var(--green)';
@@ -5763,7 +5770,7 @@ function activeVehiclesByType(type) {
 
 function refreshDirectoryChips() {
   if (FLEET_WORKSPACE === 'tonars' && typeof tonarLive !== 'undefined' && tonarLive.initialized) {
-    tonarDriverFields(tonarLive.dashboard);
+    tonarDriverFields(tonarLive.options);
     return;
   }
   buildDriversMap(DIRECTORY.users);
@@ -6563,6 +6570,6 @@ window.addEventListener('DOMContentLoaded', function(){
   if (typeof renderMixerRecent === 'function') renderMixerRecent();
 });
 </script>
-<script src="./tonar-cabinet.js"></script>
+<script src="./tonar-cabinet.js?v=2"></script>
 </body>
 </html>

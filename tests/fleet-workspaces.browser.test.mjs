@@ -69,7 +69,11 @@ test('mobile: separate driver, signed mechanic and reserve entrypoints', { skip:
           expenses.unshift({description:req.data.description, date:'2026-11-24', amount:Number(req.data.amount)});
         }
         const tonnes = reports.reduce((sum, trip) => sum + trip.tonnes, 0);
-        const result = req.action === 'get_tonar_cabinet' ? {status:'ok', dashboard: {
+        const result = req.action === 'get_tonar_form_options' ? {status:'ok', options:{
+          director:role === 'director', profile:role === 'director' ? null : {name:'Сотрудник',truck:'803'},
+          drivers:role === 'director' ? ['Алексеев О.Е.','Колмаков Е.В.'] : ['Сотрудник'],
+          trucks:['803','143','008','555','709','729']
+        }} : req.action === 'get_tonar_cabinet' ? {status:'ok', dashboard: {
           profile:{name:role === 'second-driver' ? 'Второй сотрудник' : 'Сотрудник', truck:'803'},
           trucks:['803','143','709','729'], date:'2026-11-24',
           today:{trips:reports.length, tonnes, litres:fuel},
@@ -91,14 +95,14 @@ test('mobile: separate driver, signed mechanic and reserve entrypoints', { skip:
     }
     const main = await newPage('driver');
     await main.page.goto(origin + '/');
-    await main.page.locator('#tonar-today').getByText('0 л', {exact:true}).waitFor();
+    await main.page.locator('#s-tonary.active').waitFor();
     assert.equal(await main.page.locator('#open-mechanic').isVisible(), false);
     assert.equal(await main.page.locator('#s-login').isVisible(), false);
     assert.equal(await main.page.locator('#legacy-driver-cabinet').isVisible(), false);
     assert.deepEqual(await main.page.locator('#bottom-nav button').evaluateAll(
-      (buttons) => buttons.map((button) => button.dataset.screen)), ['s-driver-dash','s-tonary','s-dt','s-expense']);
-    await main.page.locator('#bottom-nav [data-screen="s-tonary"]').tap();
+      (buttons) => buttons.map((button) => button.dataset.screen)), ['s-tonary','s-dt','s-expense','s-driver-dash']);
     await main.page.locator('#ton-menu button[onclick="showSub(\'ton-new\')"]').tap();
+    await main.page.locator('#ton-truck-chips button').getByText('143').waitFor();
     assert.deepEqual(await main.page.locator('#ton-truck-chips button').allTextContents(), ['803', '143']);
     await main.page.evaluate(() => {
       APP_SESSION = { profile: { default_truck:'709' } };
@@ -156,6 +160,7 @@ test('mobile: separate driver, signed mechanic and reserve entrypoints', { skip:
     await main.page.locator('#bottom-nav [data-screen="s-expense"]').tap();
     await main.page.getByRole('button', {name:/Новый расход/}).tap();
     await main.page.locator('#tonar-exp-form-recent').getByText('Антифриз').waitFor();
+    assert.deepEqual(await main.page.locator('#exp-new [data-tonar-truck] button').allTextContents(), ['803','143']);
     await main.page.locator('#exp-new [data-tonar-truck] button').getByText('143').tap();
     await main.page.locator('#tonar-exp-form-recent').getByText('Расход 143').waitFor();
     assert.equal(await main.page.locator('#tonar-exp-form-recent').getByText('Антифриз').isVisible(), false);
@@ -167,9 +172,19 @@ test('mobile: separate driver, signed mechanic and reserve entrypoints', { skip:
     assert.deepEqual(await main.page.locator('#tonar-exp-recent .row-title').allTextContents(), ['Новый фильтр','Антифриз']);
     const otherDriver = await newPage('second-driver');
     await otherDriver.page.goto(origin + '/');
+    await otherDriver.page.locator('#bottom-nav [data-screen="s-driver-dash"]').tap();
     await otherDriver.page.locator('#tonar-live-cabinet').getByText('Второй сотрудник').waitFor();
     await otherDriver.page.locator('#tonar-today').getByText('0 л', {exact:true}).waitFor();
     assert.equal(await otherDriver.page.getByText('Тестовый объект', {exact:false}).isVisible(), false);
+
+    const director = await newPage('director');
+    await director.page.goto(origin + '/');
+    await director.page.getByRole('button', {name:/Новый рейс/}).tap();
+    await director.page.getByRole('button', {name:'Колмаков Е.В.',exact:true}).tap();
+    await director.page.locator('#ton-truck-chips button').getByText('143').tap();
+    await director.page.locator('#ton-new .submit').tap();
+    await director.page.locator('#tonar-last-trip').getByText('Тестовый карьер → Тестовый объект').waitFor();
+    assert.equal(director.actions.find((v) => v.action === 'tonar_cabinet_trip').data.driver, 'Колмаков Е.В.');
 
     const mechanic = await newPage('mechanic');
     await mechanic.page.goto(origin + '/mechanic.html#tgWebAppData=fixture');

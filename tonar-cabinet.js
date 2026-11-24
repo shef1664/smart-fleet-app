@@ -1,8 +1,9 @@
 /* Tonar-only workspace. The old mechanic/mixer entrypoints keep their own UI. */
 var tonarLive = {
   dashboard: null, dashboardSeq: 0, trucksKey: null, initialized: false,
-  historySeq: {}, submissionIds: {}, lastFuel: null
+  historySeq: {}, submissionIds: {}, lastFuel: null, options: null, optionsRequest: null
 };
+var TONAR_ENTRY_TRUCKS = ['803', '143'];
 
 function tonarRequest(action, data) {
   var auth = buildAuthData();
@@ -104,7 +105,9 @@ function tonarInit() {
   tonarLive.initialized = true;
   document.getElementById('legacy-driver-cabinet').style.display = 'none';
   document.getElementById('tonar-live-cabinet').style.display = 'block';
-  document.title = 'Кабинет водителя · Тонары';
+  document.title = 'Рейсы · Тонары';
+  var rootBack = document.querySelector('#s-tonary .topbar .back-btn');
+  if (rootBack) rootBack.style.display = 'none';
   var oldTrip = document.querySelector('#ton-menu .repeat-card');
   if (oldTrip) oldTrip.remove();
   document.getElementById('ton-menu').insertAdjacentHTML('beforeend',
@@ -123,6 +126,7 @@ function tonarInit() {
   });
   tonarRenderDashboard(null);
   tonarDriverFields(null);
+  tonarLoadOptions();
   document.addEventListener('click', function(event) {
     var edit = event.target.closest('[data-tonar-edit]');
     if (edit) tonarOpenEdit(edit.dataset.tonarEdit);
@@ -132,16 +136,33 @@ function tonarInit() {
     if (chip) tonarLoadHistory(chip.parentElement.dataset.tonarTruck, chip.textContent.trim());
   });
   document.addEventListener('visibilitychange', function() {
-    if (!document.hidden && currentRole === 'driver') tonarRefresh();
+    if (!document.hidden && currentRole === 'driver') {
+      tonarLoadOptions();
+      tonarRefresh();
+    }
   });
 }
 
-function tonarDriverFields(dashboard) {
-  var trucks = (dashboard && dashboard.trucks || []).filter(function(truck) {
-    return !/(^|[^0-9])(709|729)([^0-9]|$)/.test(truck);
-  });
-  var profile = dashboard && dashboard.profile || {};
-  var key = JSON.stringify([profile.name, profile.truck, trucks]);
+function tonarLoadOptions() {
+  if (tonarLive.optionsRequest) return tonarLive.optionsRequest;
+  tonarLive.optionsRequest = tonarRequest('get_tonar_form_options').then(function(result) {
+    tonarLive.options = result.options;
+    tonarDriverFields(tonarLive.options);
+    tonarSetHTML('tonar-form-access', '');
+    if (document.querySelector('#s-dt.active')) tonarCurrentHistory('dt');
+    if (document.querySelector('#s-expense.active')) tonarCurrentHistory('exp');
+  }).catch(function(error) {
+    if (!tonarLive.options) tonarSetHTML('tonar-form-access', tonarEmpty(error.message));
+  }).finally(function() { tonarLive.optionsRequest = null; });
+  return tonarLive.optionsRequest;
+}
+
+function tonarDriverFields(options) {
+  var trucks = (options && options.trucks || []).filter(function(truck) { return TONAR_ENTRY_TRUCKS.includes(truck); });
+  var profile = options && options.profile || {};
+  var roster = options && options.drivers || [];
+  var director = options && options.director;
+  var key = JSON.stringify([profile.name, profile.truck, trucks, roster, director]);
   if (tonarLive.trucksKey === key) return;
   tonarLive.trucksKey = key;
   ['ton', 'dt', 'exp'].forEach(function(kind) {
@@ -168,8 +189,23 @@ function tonarDriverFields(dashboard) {
     });
     if (driverField) {
       var driverChips = driverField.querySelector('.chips');
-      driverChips.innerHTML = profile.name ? '<span class="chip on">' + esc(profile.name) + '</span>' : '';
+      var previous = driverChips.querySelector('.on');
+      var selectedDriver = previous && previous.textContent.trim();
+      if (kind === 'ton' && director) {
+        driverChips.innerHTML = roster.map(function(name) {
+          return '<button type="button" class="chip' + (name === selectedDriver ? ' on' : '')
+            + '" onclick="sel(this)">' + esc(name) + '</button>';
+        }).join('');
+      } else {
+        driverChips.innerHTML = profile.name ? '<span class="chip on">' + esc(profile.name) + '</span>' : '';
+      }
       driverField.querySelectorAll('.other-input').forEach(function(el){ el.remove(); });
+      if (kind !== 'ton') {
+        var operatorHint = driverField.querySelector('.tonar-operator-hint');
+        if (director && !operatorHint) driverField.insertAdjacentHTML('beforeend',
+          '<p class="row-sub tonar-operator-hint">Новый отчёт отправляет водитель из своего Telegram.</p>');
+        if (!director && operatorHint) operatorHint.remove();
+      }
     }
   });
 }
@@ -181,7 +217,6 @@ function tonarRefresh() {
     var data = result.dashboard;
     tonarLive.dashboard = data;
     tonarRenderDashboard(data);
-    tonarDriverFields(data);
     tonarSetHTML('tonar-last-trip', data.last_trip ? tonarTripCard(data.last_trip) : tonarEmpty('Отчётов пока нет'));
     if (document.querySelector('#s-dt.active')) tonarCurrentHistory('dt');
     if (document.querySelector('#s-expense.active')) tonarCurrentHistory('exp');
@@ -202,6 +237,7 @@ function tonarScreenOpened(screen) {
 function tonarFormOpened(form) {
   var key = {'ton-new': 'ton', 'dt-new': 'dt', 'exp-new': 'exp'}[form];
   if (key) {
+    if (!tonarLive.options) tonarLoadOptions();
     var todayChip = document.querySelector('#' + form + ' [onclick*="' + key + '-date"][onclick*="today"].on');
     if (todayChip) setDate(key + '-date', 'today', todayChip);
   }
@@ -310,7 +346,7 @@ function tonarOpenEdit(id) {
     + '<form id="tonar-edit-form">' + fields.map(function(field) {
       var key = field[0], label = field[1], type = field[2];
       return '<label class="form-block" style="display:block"><span class="form-lbl">' + esc(label) + '</span>'
-        + (type === 'select' ? '<select class="inp" name="' + key + '">' + Array.from(new Set([trip.truck].concat(data.trucks))).map(function(car) {
+        + (type === 'select' ? '<select class="inp" name="' + key + '">' + (data.trucks || []).filter(function(car) { return TONAR_ENTRY_TRUCKS.includes(car); }).map(function(car) {
           return '<option' + (trip.truck === car ? ' selected' : '') + '>' + esc(car) + '</option>';
         }).join('') + '</select>' : '<input class="inp" type="' + (type === 'date' ? 'date' : 'text')
           + '" name="' + key + '" value="' + esc(trip[key] || '') + '"' + (type === 'decimal' ? ' inputmode="decimal"' : '') + '>')
