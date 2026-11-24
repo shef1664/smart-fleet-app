@@ -59,6 +59,12 @@ function tonarDate(iso) {
   return parts.length === 3 ? parts.reverse().join('.') : iso || '';
 }
 
+function tonarTruckCode(value) {
+  var raw = String(value || '').replace(/\s+/g, '').toUpperCase();
+  var plate = raw.match(/^[А-ЯA-Z](\d{3})[А-ЯA-Z]{2}\d{2,3}$/);
+  return plate ? plate[1] : raw;
+}
+
 function tonarTripCard(trip) {
   return '<div class="list-row"><div class="row-info"><div class="row-title">'
     + esc(trip.quarry || '—') + ' → ' + esc(trip.object || trip.client || '—') + '</div>'
@@ -334,6 +340,7 @@ function tonarOpenEdit(id) {
   if (!data) return;
   var trip = data.trips.concat(data.last_trip || []).find(function(item) { return item.id === id; });
   if (!trip) return;
+  var originalTruck = tonarTruckCode(trip.truck);
   go('s-tonary');
   hideSub('ton-menu', 'ton-new');
   var panel = document.getElementById('ton-edit');
@@ -347,7 +354,7 @@ function tonarOpenEdit(id) {
       var key = field[0], label = field[1], type = field[2];
       return '<label class="form-block" style="display:block"><span class="form-lbl">' + esc(label) + '</span>'
         + (type === 'select' ? '<select class="inp" name="' + key + '">' + (data.trucks || []).filter(function(car) { return TONAR_ENTRY_TRUCKS.includes(car); }).map(function(car) {
-          return '<option' + (trip.truck === car ? ' selected' : '') + '>' + esc(car) + '</option>';
+          return '<option' + (originalTruck === car ? ' selected' : '') + '>' + esc(car) + '</option>';
         }).join('') + '</select>' : '<input class="inp" type="' + (type === 'date' ? 'date' : 'text')
           + '" name="' + key + '" value="' + esc(trip[key] || '') + '"' + (type === 'decimal' ? ' inputmode="decimal"' : '') + '>')
         + '</label>';
@@ -363,7 +370,8 @@ function tonarOpenEdit(id) {
     var patch = {};
     new FormData(form).forEach(function(value, key) {
       var clean = value.trim();
-      if (clean !== String(trip[key] || '')) patch[key] = clean;
+      var previous = key === 'truck' ? originalTruck : String(trip[key] || '');
+      if (clean !== previous) patch[key] = clean;
     });
     if (!Object.keys(patch).length) {
       hideSub('ton-menu', 'ton-edit');

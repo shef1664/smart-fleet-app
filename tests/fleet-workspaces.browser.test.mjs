@@ -54,6 +54,7 @@ test('mobile: separate driver, signed mechanic and reserve entrypoints', { skip:
         const profile = { id:'fixture', name:'Сотрудник', role, active:true, default_truck:'', vehicle_type:'tonar' };
         if (req.action === 'tonar_cabinet_trip') {
           reports.push({...req.data, id:'TNR-1001', date:'2026-11-24', time:'10:15',
+            truck:req.data.truck === '803' ? 'А803МА142' : req.data.truck,
             tonnes:40, quarry:'Тестовый карьер', object:'Тестовый объект', material:'Щебень', version:'v1'});
         }
         if (req.action === 'update_tonar_trip') {
