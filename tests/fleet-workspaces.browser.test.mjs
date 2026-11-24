@@ -105,6 +105,28 @@ test('mobile: separate driver, signed mechanic and reserve entrypoints', { skip:
       (buttons) => buttons.map((button) => button.dataset.screen)), ['s-tonary','s-dt','s-expense','s-driver-dash']);
     await main.page.locator('#ton-menu button[onclick="showSub(\'ton-new\')"]').tap();
     await main.page.locator('#ton-truck-chips button').getByText('143').waitFor();
+    const expectedAddress = 'Технобетон, ул. Макаренко, 8';
+    const checkRoute = async (quarry) => {
+      assert.equal(await main.page.locator('#quarry-chips .on').textContent(), quarry);
+      assert.equal(await main.page.locator('#client-chips .on').textContent(), 'Технобетон');
+      assert.equal(await main.page.locator('#object-chips .on').textContent(), expectedAddress);
+    };
+    assert.deepEqual((await main.page.locator('#quarry-chips button').allTextContents()).slice(0, 2), ['СДЕ ККК', 'ГДК']);
+    await checkRoute('СДЕ ККК');
+    await main.page.locator('#quarry-chips').getByRole('button', {name:'ГДК', exact:true}).tap();
+    await checkRoute('ГДК');
+    await main.page.locator('#object-chips').getByRole('button', {name:'+ Другое', exact:true}).tap();
+    await main.page.locator('#object-other input').fill('Ручной адрес для предыдущего карьера');
+    await main.page.locator('#mat-chips').getByRole('button', {name:'Песок', exact:true}).tap();
+    await checkRoute('Морозовский');
+    const sandClients = await main.page.locator('#client-chips button').allTextContents();
+    assert.equal(sandClients[0], 'Технобетон');
+    assert.equal(sandClients.at(-2), 'Меркурий');
+    assert.equal(await main.page.locator('#object-other input').inputValue(), '');
+    await main.page.locator('#quarry-chips').getByRole('button', {name:'ВНК (Березовка)', exact:true}).tap();
+    await checkRoute('ВНК (Березовка)');
+    await main.page.locator('#mat-chips').getByRole('button', {name:'Щебень', exact:true}).tap();
+    await checkRoute('СДЕ ККК');
     assert.deepEqual(await main.page.locator('#ton-truck-chips button').allTextContents(), ['803', '143']);
     await main.page.evaluate(() => {
       APP_SESSION = { profile: { default_truck:'709' } };
@@ -123,12 +145,19 @@ test('mobile: separate driver, signed mechanic and reserve entrypoints', { skip:
     for (const id of ['s-director', 's-dlinn', 's-mixer', 's-mechanic-dash'])
       assert.equal(await main.page.locator('#' + id).isVisible(), false);
     await main.page.locator('#ton-truck-chips').getByRole('button', { name: '803', exact: true }).tap();
+    await main.page.getByPlaceholder('Например: 32', {exact:true}).fill('40.5');
+    await main.page.getByPlaceholder('Например: 31.5', {exact:true}).fill('40');
     const saved = main.page.waitForResponse((r) =>
       r.request().method() === 'POST' && r.request().postDataJSON().action === 'tonar_cabinet_trip');
     await main.page.locator('#ton-new button[onclick="submitTonarTrip(this)"]').tap();
     assert.equal((await saved).ok(), true);
     assert.deepEqual(main.actions.filter((v) => v.action.startsWith('tonar_cabinet_'))
       .map((v) => [v.action, v.data.truck]), [['tonar_cabinet_trip', '803']]);
+    const tripFields = main.actions.find((v) => v.action === 'tonar_cabinet_trip').data;
+    assert.equal(tripFields.material, 'Щебень');
+    assert.equal(tripFields.quarry, 'СДЕ ККК');
+    assert.equal(tripFields.client, 'Технобетон');
+    assert.equal(tripFields.object, expectedAddress);
     await main.page.locator('#tonar-trip-receipt').getByText('Тестовый карьер → Тестовый объект').waitFor();
     assert.equal(await main.page.locator('#tonar-trip-receipt').getByRole('button', {name:'Новый рейс'}).isVisible(), true);
     await main.page.locator('#tonar-trip-receipt').getByRole('button', {name:'Исправить отчёт'}).tap();
@@ -140,6 +169,10 @@ test('mobile: separate driver, signed mechanic and reserve entrypoints', { skip:
     await main.page.locator('#tonar-trip-receipt').getByRole('button', {name:'Новый рейс'}).tap();
     await main.page.locator('#ton-new.active').waitFor();
     assert.equal(await main.page.locator('#ton-new input[type=number]').last().inputValue(), '');
+    await main.page.reload();
+    await main.page.locator('#tonar-last-trip').getByRole('button', {name:'Исправить отчёт'}).tap();
+    assert.equal(await main.page.locator('#ton-edit input[name="unload_tonnage"]').inputValue(), '41.5');
+    await main.page.locator('#tonar-edit-close').tap();
 
     await main.page.locator('#bottom-nav [data-screen="s-dt"]').tap();
     await main.page.getByRole('button', {name:/Новая заправка/}).tap();

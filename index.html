@@ -795,11 +795,11 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="form-block" id="quarry-block">
       <div class="form-lbl">Карьер</div>
       <div class="chips" id="quarry-chips">
-        <button class="chip on" onclick="sel(this);checkQuarryOther(this)">СДЕ Мозжуха</button>
-        <button class="chip" onclick="sel(this);checkQuarryOther(this)">СДЕ ККК</button>
+        <button class="chip on" onclick="sel(this);checkQuarryOther(this)">СДЕ ККК</button>
+        <button class="chip" onclick="sel(this);checkQuarryOther(this)">ГДК</button>
+        <button class="chip" onclick="sel(this);checkQuarryOther(this)">СДЕ Мозжуха</button>
         <button class="chip" onclick="sel(this);checkQuarryOther(this)">ВНК (Березовка)</button>
         <button class="chip" onclick="sel(this);checkQuarryOther(this)">Барзасский</button>
-        <button class="chip" onclick="sel(this);checkQuarryOther(this)">ГДК</button>
         <button class="chip" onclick="sel(this);checkQuarryOther(this)">+ Другое</button>
       </div>
       <div class="other-input" id="quarry-other">
@@ -836,9 +836,9 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="form-block" id="client-block">
       <div class="form-lbl">Заказчик</div>
       <div class="chips" id="client-chips">
-        <button class="chip on" onclick="sel(this);updateObjects(this)">Меркурий</button>
+        <button class="chip on" onclick="sel(this);updateObjects(this)">Технобетон</button>
+        <button class="chip" onclick="sel(this);updateObjects(this)">Меркурий</button>
         <button class="chip" onclick="sel(this);updateObjects(this)">СП авто</button>
-        <button class="chip" onclick="sel(this);updateObjects(this)">Технобетон</button>
         <button class="chip" onclick="sel(this);updateObjects(this)">+ Другое</button>
       </div>
       <div class="other-input" id="client-other">
@@ -849,9 +849,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="form-block" id="object-block">
       <div class="form-lbl">Объект / адрес</div>
       <div class="chips" id="object-chips">
-        <button class="chip on" onclick="sel(this);checkObjectOther(this)">Сибирский бетон</button>
-        <button class="chip" onclick="sel(this);checkObjectOther(this)">Кузбассдорстрой</button>
-        <button class="chip" onclick="sel(this);checkObjectOther(this)">МСТ</button>
+        <button class="chip on" onclick="sel(this);checkObjectOther(this)">Технобетон, ул. Макаренко, 8</button>
         <button class="chip" onclick="sel(this);checkObjectOther(this)">+ Другое</button>
       </div>
       <div class="other-input" id="object-other">
@@ -3391,7 +3389,10 @@ function renderObjectChips(items){
   objChips.innerHTML = items.map((o,i)=>
     `<button class="chip${i===0?' on':''}" onclick="sel(this);checkObjectOther(this)">${o}</button>`
   ).join('\n');
-  if(objOther) objOther.classList.remove('show');
+  if(objOther) {
+    objOther.classList.remove('show');
+    objOther.querySelector('input').value='';
+  }
   // Если первый — Другое, сразу показать поле ручного ввода
   if(items[0]==='+ Другое' && objOther) objOther.classList.add('show');
 }
@@ -3423,7 +3424,10 @@ function updateObjects(el){
   if(cfg && cfg.type === 'fixed'){
     objBlock.style.display='block';
     objChips.innerHTML = `<div class="auto-row" style="margin:0"><span class="auto-lbl">Адрес</span><span class="auto-val">${cfg.value}<span class="auto-tag">AUTO</span></span></div>`;
-    if(objOther) objOther.classList.remove('show');
+    if(objOther) {
+      objOther.classList.remove('show');
+      objOther.querySelector('input').value='';
+    }
     return;
   }
 
@@ -3446,7 +3450,7 @@ function checkObjectOther(el){
 }
 
 const QUARRIES = {
-  'Щебень': ['СДЕ Мозжуха','СДЕ ККК','ВНК (Березовка)','Барзасский','ГДК','+ Другое'],
+  'Щебень': ['СДЕ ККК','ГДК','СДЕ Мозжуха','ВНК (Березовка)','Барзасский','+ Другое'],
   'Песок':  ['Морозовский','ВНК (Березовка)','+ Другое'],
   'Уголь':  ['+ Другое'],
   'Керамзит':['+ Другое'],
@@ -3462,7 +3466,10 @@ function updateQuarries(el){
   ).join('\n');
   // Скрыть поле ввода при смене материала
   const oi = document.getElementById('quarry-other');
-  if(oi) oi.classList.remove('show');
+  if(oi) {
+    oi.classList.remove('show');
+    oi.querySelector('input').value='';
+  }
   if(list[0]==='+ Другое' && oi) oi.classList.add('show');
 
   // Показать фракцию только для щебня
@@ -3501,6 +3508,17 @@ function checkQuarryOther(el){
   updateClientsByQuarry(val);
 }
 
+function prioritizeTonarClients(items, material){
+  if(material !== 'Щебень' && material !== 'Песок') return items;
+  const out = items.slice();
+  const preferred = out.indexOf('Технобетон');
+  const mercury = out.indexOf('Меркурий');
+  if(material === 'Песок' && preferred !== -1 && mercury !== -1){
+    [out[mercury],out[preferred]] = [out[preferred],out[mercury]];
+  }
+  return ['Технобетон', ...out.filter(client=>client !== 'Технобетон')];
+}
+
 function updateClientsByQuarry(quarry){
   const clientChips = document.getElementById('client-chips');
   const clientOther = document.getElementById('client-other');
@@ -3508,25 +3526,19 @@ function updateClientsByQuarry(quarry){
   if(!clientChips) return;
 
   const forced = QUARRY_CLIENTS[quarry];
-  if(forced){
-    // Подставить заказчиков для этого карьера
-    clientChips.innerHTML = forced.map((c,i)=>
-      `<button class="chip${i===0?' on':''}" onclick="sel(this);updateObjects(this)">${c}</button>`
-    ).join('\n');
-    if(clientOther) clientOther.classList.remove('show');
-    if(objBlock) objBlock.style.display='none';
-    // Автоматически обновить объекты для первого заказчика
-    const firstBtn = clientChips.querySelector('.chip.on');
-    if(firstBtn) updateObjects(firstBtn);
-  } else {
-    // Вернуть стандартный список заказчиков
-    const defaultClients = ['Морозовский','Бетон М','Меркурий','Штенцель (Топки)','СП авто','Технобетон','+ Другое'];
-    clientChips.innerHTML = defaultClients.map((c,i)=>
-      `<button class="chip${i===0?' on':''}" onclick="sel(this);updateObjects(this)">${c}</button>`
-    ).join('\n');
-    if(clientOther) clientOther.classList.remove('show');
-    if(objBlock) objBlock.style.display='none';
+  const material = document.querySelector('#mat-chips .chip.on')?.textContent.trim();
+  const defaultClients = ['Морозовский','Бетон М','Меркурий','Штенцель (Топки)','СП авто','Технобетон','+ Другое'];
+  const clients = prioritizeTonarClients(forced || defaultClients, material);
+  clientChips.innerHTML = clients.map((c,i)=>
+    `<button class="chip${i===0?' on':''}" onclick="sel(this);updateObjects(this)">${c}</button>`
+  ).join('\n');
+  if(clientOther) {
+    clientOther.classList.remove('show');
+    clientOther.querySelector('input').value='';
   }
+  if(objBlock) objBlock.style.display='none';
+  const firstBtn = clientChips.querySelector('.chip.on');
+  if(firstBtn && (forced || material === 'Щебень' || material === 'Песок')) updateObjects(firstBtn);
 }
 
 // ───── КАЛЕНДАРЬ ─────
