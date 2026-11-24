@@ -1,7 +1,7 @@
 /* Tonar-only workspace. The old mechanic/mixer entrypoints keep their own UI. */
 var tonarLive = {
   dashboard: null, dashboardSeq: 0, trucksKey: null, initialized: false,
-  historySeq: {}, submissionIds: {}, lastFuel: null, options: null, optionsRequest: null
+  historySeq: {}, submissionIds: {}, lastFuel: null, options: null, optionsRequest: null, receipt: null
 };
 var TONAR_ENTRY_TRUCKS = ['803', '143'];
 
@@ -40,7 +40,7 @@ function tonarSubmit(action, data) {
   }
   return tonarRequest(action, Object.assign({}, data, {submission_id: nonce})).then(function(result) {
     delete tonarLive.submissionIds[action];
-    return result;
+    return { ...result, submissionId: nonce };
   });
 }
 
@@ -70,7 +70,16 @@ function tonarTripCard(trip) {
     + esc(trip.quarry || '—') + ' → ' + esc(trip.object || trip.client || '—') + '</div>'
     + '<div class="row-sub">' + esc([tonarDate(trip.date), trip.time, trip.material, trip.fraction, trip.truck].filter(Boolean).join(' · '))
     + '</div></div><div class="row-right"><div class="row-val">' + esc(tonarFmt(trip.tonnes)) + ' т</div>'
-    + '<button type="button" class="chip" data-tonar-edit="' + esc(trip.id) + '">Исправить</button></div></div>';
+    + '<button type="button" class="chip" data-tonar-edit="' + esc(trip.id) + '">Исправить отчёт</button></div></div>';
+}
+
+function tonarCompactTrip(trip) {
+  return '<li style="padding:5px 11px;border-bottom:1px solid var(--sep);font-size:12px;line-height:1.3;">'
+    + '<div style="display:flex;gap:8px;justify-content:space-between;"><span style="min-width:0;overflow-wrap:anywhere;">'
+    + esc(trip.quarry || '—') + ' → ' + esc(trip.object || trip.client || '—') + '</span>'
+    + '<strong style="flex-shrink:0;">' + esc(tonarFmt(trip.tonnes)) + ' т</strong></div>'
+    + '<div style="font-size:11px;color:var(--t3)">' + esc([trip.time, trip.material, trip.fraction].filter(Boolean).join(' · '))
+    + '</div></li>';
 }
 
 function tonarEmpty(message) {
@@ -100,7 +109,8 @@ function tonarRenderDashboard(data, error) {
     + (data ? '<div class="sec-lbl">Сегодня · ' + esc(tonarDate(data.date)) + '</div>'
       + '<div id="tonar-today">' + tonarMetrics(data.today) + '</div>'
       + '<div class="sec-lbl">Рейсы за сегодня</div><div class="card" id="tonar-today-trips">'
-      + (data.trips.length ? data.trips.map(tonarTripCard).join('') : tonarEmpty('Сегодня рейсов нет')) + '</div>'
+      + (data.trips.length ? '<ul style="list-style:none;margin:0;padding:0;">'
+        + data.trips.map(tonarCompactTrip).join('') + '</ul>' : tonarEmpty('Сегодня рейсов нет')) + '</div>'
       + '<div class="sec-lbl">С начала месяца</div><div id="tonar-month">'
       + tonarMetrics(data.month) + '</div>'
       : (!error ? tonarEmpty('Загружаем ваши отчёты…') : ''));
@@ -135,9 +145,22 @@ function tonarInit() {
   tonarLoadOptions();
   document.addEventListener('click', function(event) {
     var edit = event.target.closest('[data-tonar-edit]');
-    if (edit) tonarOpenEdit(edit.dataset.tonarEdit);
+    if (edit) {
+      var receipt = tonarLive.receipt;
+      if (receipt && receipt.id === edit.dataset.tonarEdit) {
+        tonarReadReceipt(receipt).then(function(trip) { tonarOpenEdit(trip.id, receipt); })
+          .catch(function(error) { showNotification(error.message); });
+      } else {
+        tonarOpenEdit(edit.dataset.tonarEdit);
+      }
+    }
     if (event.target.closest('#tonar-fuel-edit-open')) tonarOpenFuelEdit();
     if (event.target.closest('#tonar-refresh')) tonarRefresh();
+    if (event.target.closest('#tonar-receipt-next')) {
+      hideSub('ton-menu', 'tonar-trip-receipt');
+      showSub('ton-new');
+    }
+    if (event.target.closest('#tonar-receipt-close')) hideSub('ton-menu', 'tonar-trip-receipt');
     var chip = event.target.closest('[data-tonar-truck] .chip');
     if (chip) tonarLoadHistory(chip.parentElement.dataset.tonarTruck, chip.textContent.trim());
   });
@@ -229,7 +252,10 @@ function tonarRefresh() {
   }).catch(function(error) {
     if (seq !== tonarLive.dashboardSeq || currentRole !== 'driver') return;
     tonarRenderDashboard(tonarLive.dashboard, (tonarLive.dashboard ? 'Данные не обновились. ' : '') + error.message);
-    if (!tonarLive.dashboard) tonarSetHTML('tonar-last-trip', tonarEmpty(error.message));
+    if (!tonarLive.dashboard) {
+      var receipt = tonarLive.receipt;
+      tonarSetHTML('tonar-last-trip', receipt ? tonarTripCard(receipt.trip || receipt.draft) : tonarEmpty(error.message));
+    }
   });
 }
 
@@ -294,6 +320,51 @@ function tonarAfterSave(kind, truck) {
   if (kind) tonarLoadHistory(kind, truck);
 }
 
+function tonarTripSaved(result, form) {
+  var draft = { ...form, id: result.id, tonnes: Number(String(form.unload_tonnage).replace(',', '.')) };
+  var receipt = { id: result.id, driver: form.driver, submissionId: result.submissionId, draft: draft };
+  tonarLive.receipt = receipt;
+  var blocks = document.querySelectorAll('#ton-new .form-block');
+  [blocks[9], blocks[10]].forEach(function(block) {
+    var field = block && block.querySelector('input');
+    if (field) field.value = '';
+  });
+  tonarShowReceipt(receipt);
+  tonarSetHTML('tonar-last-trip', tonarTripCard(draft));
+  tonarReadReceipt(receipt).catch(function(){});
+  tonarAfterSave();
+}
+
+function tonarShowReceipt(receipt) {
+  document.getElementById('ton-menu').style.display = 'none';
+  var panel = document.getElementById('tonar-trip-receipt');
+  var trip = receipt.trip || receipt.draft;
+  panel.innerHTML = '<button type="button" class="back-btn" id="tonar-receipt-close">‹ Рейсы</button>'
+    + '<div class="page-title">Рейс сохранён</div><div class="page-sub">' + esc(receipt.driver) + '</div>'
+    + '<div class="card">' + tonarTripCard(trip) + '</div>'
+    + '<button type="button" class="submit" id="tonar-receipt-next">Новый рейс</button>';
+  panel.classList.add('active');
+}
+
+function tonarReceiptPayload(receipt) {
+  return { trip_id: receipt.id, driver: receipt.driver, submission_id: receipt.submissionId };
+}
+
+function tonarReadReceipt(receipt) {
+  if (receipt.trip) return Promise.resolve(receipt.trip);
+  if (!receipt.pending) {
+    receipt.pending = tonarRequest('get_tonar_trip_receipt', tonarReceiptPayload(receipt)).then(function(result) {
+      receipt.trip = result.trip;
+      if (tonarLive.receipt === receipt) {
+        if (document.querySelector('#tonar-trip-receipt.active')) tonarShowReceipt(receipt);
+        if (!tonarLive.dashboard) tonarSetHTML('tonar-last-trip', tonarTripCard(receipt.trip));
+      }
+      return receipt.trip;
+    }).finally(function(){ receipt.pending = null; });
+  }
+  return receipt.pending;
+}
+
 function tonarOpenFuelEdit() {
   var data = tonarLive.lastFuel;
   if (!data) return;
@@ -335,14 +406,15 @@ function tonarOpenFuelEdit() {
   };
 }
 
-function tonarOpenEdit(id) {
-  var data = tonarLive.dashboard;
-  if (!data) return;
-  var trip = data.trips.concat(data.last_trip || []).find(function(item) { return item.id === id; });
+function tonarOpenEdit(id, receipt) {
+  var data = tonarLive.dashboard || {};
+  var trip = receipt ? receipt.trip : data.last_trip;
+  if (trip && trip.id !== id) return;
   if (!trip) return;
   var originalTruck = tonarTruckCode(trip.truck);
   go('s-tonary');
   hideSub('ton-menu', 'ton-new');
+  hideSub('ton-menu', 'tonar-trip-receipt');
   var panel = document.getElementById('ton-edit');
   var fields = [['date', 'Дата', 'date'], ['truck', 'Автомобиль', 'select'], ['quarry', 'Карьер'],
     ['object', 'Объект / адрес'], ['material', 'Материал'], ['fraction', 'Фракция'],
@@ -353,7 +425,7 @@ function tonarOpenEdit(id) {
     + '<form id="tonar-edit-form">' + fields.map(function(field) {
       var key = field[0], label = field[1], type = field[2];
       return '<label class="form-block" style="display:block"><span class="form-lbl">' + esc(label) + '</span>'
-        + (type === 'select' ? '<select class="inp" name="' + key + '">' + (data.trucks || []).filter(function(car) { return TONAR_ENTRY_TRUCKS.includes(car); }).map(function(car) {
+        + (type === 'select' ? '<select class="inp" name="' + key + '">' + (tonarLive.options && tonarLive.options.trucks || data.trucks || []).filter(function(car) { return TONAR_ENTRY_TRUCKS.includes(car); }).map(function(car) {
           return '<option' + (originalTruck === car ? ' selected' : '') + '>' + esc(car) + '</option>';
         }).join('') + '</select>' : '<input class="inp" type="' + (type === 'date' ? 'date' : 'text')
           + '" name="' + key + '" value="' + esc(trip[key] || '') + '"' + (type === 'decimal' ? ' inputmode="decimal"' : '') + '>')
@@ -361,7 +433,11 @@ function tonarOpenEdit(id) {
     }).join('') + '<button type="submit" class="submit">Сохранить исправление</button><p role="status" id="tonar-edit-status"></p></form>';
   document.getElementById('ton-menu').style.display = 'none';
   panel.classList.add('active');
-  document.getElementById('tonar-edit-close').onclick = function() { hideSub('ton-menu', 'ton-edit'); };
+  var close = function() {
+    hideSub('ton-menu', 'ton-edit');
+    if (receipt) tonarShowReceipt(receipt);
+  };
+  document.getElementById('tonar-edit-close').onclick = close;
   var form = document.getElementById('tonar-edit-form');
   form.onsubmit = async function(event) {
     event.preventDefault();
@@ -374,15 +450,24 @@ function tonarOpenEdit(id) {
       if (clean !== previous) patch[key] = clean;
     });
     if (!Object.keys(patch).length) {
-      hideSub('ton-menu', 'ton-edit');
+      close();
       return;
     }
     button.disabled = true;
     var status = document.getElementById('tonar-edit-status');
     status.textContent = 'Сохраняем…';
     try {
-      await tonarRequest('update_tonar_trip', { trip_id: trip.id, version: trip.version, patch: patch });
-      hideSub('ton-menu', 'ton-edit');
+      var auth = receipt ? tonarReceiptPayload(receipt) : { trip_id: trip.id };
+      await tonarRequest('update_tonar_trip', { ...auth, version: trip.version, patch: patch });
+      close();
+      if (receipt) {
+        receipt.draft = { ...trip, ...patch, tonnes: patch.unload_tonnage
+          ? Number(String(patch.unload_tonnage).replace(',', '.')) : trip.tonnes };
+        receipt.trip = null;
+        tonarShowReceipt(receipt);
+        tonarSetHTML('tonar-last-trip', tonarTripCard(receipt.draft));
+        tonarReadReceipt(receipt).catch(function(){});
+      }
       showNotification('Исправление сохранено');
       tonarAfterSave();
     } catch (error) {

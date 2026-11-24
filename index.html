@@ -892,6 +892,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <button class="submit" onclick="submitTonarTrip(this)">Отправить рейс</button>
   </div>
   <div class="sub-screen" id="ton-edit"></div>
+  <div class="sub-screen" id="tonar-trip-receipt"></div>
 </div>
 
 <!-- ═══════════════════════════════ МИКСЕРЫ ═══════════════════════════════ -->
@@ -4649,7 +4650,14 @@ function submitTonarTrip(btn){
     btn.textContent = '✅ Сохранено!';
     btn.style.background = 'var(--green)';
     showNotification('Рейс тонара сохранён' + (res.id ? ' ('+res.id+')' : ''));
-    if (personal) tonarAfterSave();
+    if (personal) {
+      hideSub('ton-menu','ton-new');
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.disabled = false;
+      tonarTripSaved(res, data);
+      return;
+    }
     setTimeout(function(){
       hideSub('ton-menu','ton-new');
       btn.textContent = orig;
@@ -6570,6 +6578,6 @@ window.addEventListener('DOMContentLoaded', function(){
   if (typeof renderMixerRecent === 'function') renderMixerRecent();
 });
 </script>
-<script src="./tonar-cabinet.js?v=2"></script>
+<script src="./tonar-cabinet.js?v=3"></script>
 </body>
 </html>

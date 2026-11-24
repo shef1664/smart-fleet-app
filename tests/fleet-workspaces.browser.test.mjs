@@ -70,7 +70,8 @@ test('mobile: separate driver, signed mechanic and reserve entrypoints', { skip:
           expenses.unshift({description:req.data.description, date:'2026-11-24', amount:Number(req.data.amount)});
         }
         const tonnes = reports.reduce((sum, trip) => sum + trip.tonnes, 0);
-        const result = req.action === 'get_tonar_form_options' ? {status:'ok', options:{
+        const result = req.action === 'get_tonar_trip_receipt' ? {status:'ok', trip:reports.find(r => r.id === req.data.trip_id)}
+        : req.action === 'get_tonar_form_options' ? {status:'ok', options:{
           director:role === 'director', profile:role === 'director' ? null : {name:'Сотрудник',truck:'803'},
           drivers:role === 'director' ? ['Алексеев О.Е.','Колмаков Е.В.'] : ['Сотрудник'],
           trucks:['803','143','008','555','709','729']
@@ -128,13 +129,17 @@ test('mobile: separate driver, signed mechanic and reserve entrypoints', { skip:
     assert.equal((await saved).ok(), true);
     assert.deepEqual(main.actions.filter((v) => v.action.startsWith('tonar_cabinet_'))
       .map((v) => [v.action, v.data.truck]), [['tonar_cabinet_trip', '803']]);
-    await main.page.locator('#tonar-last-trip').getByText('Тестовый карьер → Тестовый объект').waitFor();
-    await main.page.locator('#tonar-last-trip').getByRole('button', {name:'Исправить'}).tap();
+    await main.page.locator('#tonar-trip-receipt').getByText('Тестовый карьер → Тестовый объект').waitFor();
+    assert.equal(await main.page.locator('#tonar-trip-receipt').getByRole('button', {name:'Новый рейс'}).isVisible(), true);
+    await main.page.locator('#tonar-trip-receipt').getByRole('button', {name:'Исправить отчёт'}).tap();
     await main.page.locator('#ton-edit input[name="unload_tonnage"]').fill('41.5');
     await main.page.getByRole('button', {name:'Сохранить исправление'}).tap();
-    await main.page.locator('#tonar-last-trip').getByText('41,5 т', {exact:true}).waitFor();
+    await main.page.locator('#tonar-trip-receipt').getByText('41,5 т', {exact:true}).waitFor();
     assert.equal(main.actions.filter((v) => v.action === 'tonar_cabinet_trip').length, 1);
     assert.deepEqual(main.actions.find((v) => v.action === 'update_tonar_trip').data.patch, {unload_tonnage:'41.5'});
+    await main.page.locator('#tonar-trip-receipt').getByRole('button', {name:'Новый рейс'}).tap();
+    await main.page.locator('#ton-new.active').waitFor();
+    assert.equal(await main.page.locator('#ton-new input[type=number]').last().inputValue(), '');
 
     await main.page.locator('#bottom-nav [data-screen="s-dt"]').tap();
     await main.page.getByRole('button', {name:/Новая заправка/}).tap();
@@ -149,6 +154,8 @@ test('mobile: separate driver, signed mechanic and reserve entrypoints', { skip:
     await main.page.locator('#tonar-today').getByText('300 л', {exact:true}).waitFor();
     assert.match(await main.page.locator('#tonar-month').textContent(), /1\s500 л/);
     assert.match(await main.page.locator('#tonar-today').textContent(), /41,5 т/);
+    assert.equal(await main.page.locator('#tonar-today-trips li').count(), 1);
+    assert.equal(await main.page.locator('#tonar-today-trips button').count(), 0);
     await main.page.locator('#bottom-nav [data-screen="s-dt"]').tap();
     await main.page.locator('#tonar-fuel-edit-open').tap();
     await main.page.locator('#tonar-fuel-edit input[name="litres"]').fill('250');
@@ -184,8 +191,14 @@ test('mobile: separate driver, signed mechanic and reserve entrypoints', { skip:
     await director.page.getByRole('button', {name:'Колмаков Е.В.',exact:true}).tap();
     await director.page.locator('#ton-truck-chips button').getByText('143').tap();
     await director.page.locator('#ton-new .submit').tap();
-    await director.page.locator('#tonar-last-trip').getByText('Тестовый карьер → Тестовый объект').waitFor();
+    await director.page.locator('#tonar-trip-receipt').getByText('Тестовый карьер → Тестовый объект').waitFor();
     assert.equal(director.actions.find((v) => v.action === 'tonar_cabinet_trip').data.driver, 'Колмаков Е.В.');
+    await director.page.locator('#tonar-trip-receipt').getByRole('button', {name:'Исправить отчёт'}).tap();
+    await director.page.locator('#ton-edit input[name="unload_tonnage"]').fill('42');
+    await director.page.getByRole('button', {name:'Сохранить исправление'}).tap();
+    await director.page.locator('#tonar-trip-receipt').getByText('42 т', {exact:true}).waitFor();
+    assert.equal(director.actions.find((v) => v.action === 'update_tonar_trip').data.submission_id,
+      director.actions.find((v) => v.action === 'tonar_cabinet_trip').data.submission_id);
 
     const mechanic = await newPage('mechanic');
     await mechanic.page.goto(origin + '/mechanic.html#tgWebAppData=fixture');
