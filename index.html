@@ -694,16 +694,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <div class="btn-body"><div class="btn-title">Тонары</div><div class="btn-sub">Новый рейс · история</div></div>
     <span class="chevron">›</span>
   </button>
-  <button class="big-btn purple" id="btn-dlinn" onclick="go('s-dlinn')">
-    <div class="btn-ico">🚚</div>
-    <div class="btn-body"><div class="btn-title">Длинномеры</div><div class="btn-sub">Маршрут · груз · ТН</div></div>
-    <span class="chevron">›</span>
-  </button>
-  <button class="big-btn green" id="btn-mixer" onclick="go('s-mixer')">
-    <div class="btn-ico">🔄</div>
-    <div class="btn-body"><div class="btn-title">Миксеры</div><div class="btn-sub">Бетон · раствор · рейс</div></div>
-    <span class="chevron">›</span>
-  </button>
 
   <div class="grid2">
     <button class="grid-item" onclick="go('s-dt')">
@@ -776,7 +766,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="chips" id="ton-truck-chips">
         <button class="chip" onclick="sel(this)">803</button>
         <button class="chip" onclick="sel(this)">143</button>
-        <button class="chip" onclick="sel(this)">709</button>
       </div>
     </div>
 
@@ -2571,46 +2560,21 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
 <div class="screen active" id="s-login">
   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:20px;">
     <div class="app-logo">📋</div>
-    <div class="page-title" style="text-align:center;margin-bottom:6px;">Ежедневный отчёт</div>
+    <div class="page-title" id="login-title" style="text-align:center;margin-bottom:6px;">Ежедневный отчёт · Тонары</div>
     <div class="page-sub" id="login-subtitle" style="text-align:center;margin-bottom:40px;">Пульсар · Кемерово</div>
 
     <div style="width:100%;max-width:320px;">
-      <div class="form-block">
-        <div class="form-lbl">Выберите свою роль</div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <button class="role-btn" onclick="loginAs('driver')">
-            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
-            <div class="role-info"><div class="role-name">Водитель</div><div class="role-sub">Рейсы · топливо · кабинет</div></div>
-            <span style="color:var(--t4);">›</span>
-          </button>
-          <button class="role-btn" onclick="loginAs('mechanic')">
-            <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
-            <div class="role-info"><div class="role-name">Слесарь</div><div class="role-sub">Ремонты · запчасти · кабинет</div></div>
-            <span style="color:var(--t4);">›</span>
-          </button>
-
-          <button class="role-btn" onclick="loginAs('director')" style="border-color:rgba(48,209,88,.3);">
-            <span class="role-icon" style="font-size:20px;color:var(--green);">○</span>
-            <div class="role-info"><div class="role-name" style="color:var(--green);">Директор</div><div class="role-sub">Полный доступ</div></div>
-            <span style="color:var(--t4);">›</span>
-          </button>
-        </div>
-      </div>
-      <div id="login-status" style="text-align:center;margin-top:16px;font-size:12px;color:var(--t4);">
-        Выберите роль для входа
-      </div>
-
-      <!-- PIN modal — для ролей с защитой -->
-      <div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;padding:20px;">
-        <div style="background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--r2);padding:24px;width:100%;max-width:320px;">
-          <div class="form-lbl" id="pin-modal-title" style="margin-bottom:12px;">Введите PIN-код</div>
-          <input id="pin-modal-input" class="inp" type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="8" placeholder="••••" style="text-align:center;font-size:24px;letter-spacing:8px;margin-bottom:8px;">
-          <div id="pin-modal-error" style="display:none;font-size:13px;color:var(--red);margin-bottom:8px;text-align:center;">Неверный PIN</div>
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="submit" type="button" onclick="cancelPinModal()" style="background:var(--bg5);">Отмена</button>
-            <button class="submit" type="button" onclick="confirmPinModal()">Войти</button>
-          </div>
-        </div>
+      <button class="role-btn" id="open-tonars" onclick="loginAs('driver')">
+        <span class="role-icon" style="font-size:20px;color:var(--t3);">○</span>
+        <div class="role-info"><div class="role-name">Водитель</div><div class="role-sub">Рейсы · топливо · кабинет</div></div>
+        <span style="color:var(--t4);">›</span>
+      </button>
+      <button class="role-btn" id="open-mechanic" type="button" style="display:none" onclick="openMechanicWorkspace()">
+        <div class="role-info"><div class="role-name">Войти как слесарь</div><div class="role-sub">Ремонты · запчасти · кабинет</div></div>
+        <span style="color:var(--t4);">›</span>
+      </button>
+      <div id="login-status" role="status" style="text-align:center;margin-top:16px;font-size:12px;color:var(--t4);">
+        Рейсы, заправки и расходы
       </div>
     </div>
   </div>
@@ -3075,9 +3039,6 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
   <button class="nav-item" onclick="nav(this,'s-tonary')">
     <span class="nav-icon">🚛</span>Тонары
   </button>
-  <button class="nav-item" onclick="nav(this,'s-dlinn')">
-    <span class="nav-icon">🚚</span>Длинномеры
-  </button>
   <button class="nav-item" onclick="nav(this,'s-dt')">
     <span class="nav-icon">⛽</span>ДТ
   </button>
@@ -3101,7 +3062,28 @@ function esc(s) {
   });
 }
 
+function getFleetWorkspace(search) {
+  var app = new URLSearchParams(search).get('app');
+  return app === 'mechanic' || app === 'mixer-reserve' ? app : 'tonars';
+}
+
+function canOpenFleetScreen(workspace, role, screen) {
+  if (screen === 's-login') return true;
+  if (workspace === 'tonars' && role === 'driver')
+    return ['s-home', 's-tonary', 's-dt', 's-expense', 's-driver-dash'].includes(screen);
+  if (workspace === 'mechanic' && role === 'mechanic')
+    return ['s-mechanic-dash', 's-service', 's-parts'].includes(screen);
+  if (workspace === 'mixer-reserve' && role === 'mixer')
+    return ['s-mixer', 's-dt', 's-expense', 's-driver-dash'].includes(screen);
+  return false;
+}
+
+function isUnavailableTonar(truck) {
+  return /(^|[^0-9])709([^0-9]|$)/.test(String(truck || ''));
+}
+
 var currentRole = "login";
+var FLEET_WORKSPACE = getFleetWorkspace(window.location.search);
 
 // ═══════════════════ СПРАВОЧНИК ВОДИТЕЛЕЙ ═══════════════════
 var DRIVERS = {
@@ -3144,9 +3126,6 @@ function applyDriverLayout() {
     if (s) s.textContent = '\u0417\u041F, \u0440\u0435\u0439\u0441\u044B, \u0442\u043E\u043D\u043D\u044B \u0438 \u043E\u0441\u0442\u0430\u0442\u043A\u0438 \u043F\u043B\u0430\u043D\u043E\u0432';
     if (b) b.textContent = '\u041E\u0442\u043A\u0440\u044B\u0442\u044C';
   }
-
-  // btn-mixer теперь всегда видим у водителей (Миксеры — раздел рядом с Тонарами/Длинномерами).
-  // Раньше эта строка прятала кнопку (когда mixer был отдельной ролью). Оставлено намеренно пустым.
 
   var homeStatsTitle = document.querySelector('#s-home .sec-lbl:last-of-type');
   var homeStats = document.querySelector('#s-home .stats2');
@@ -3191,19 +3170,6 @@ function updateHomeScreen(driverKey) {
   if (homeInfo) homeInfo.textContent = 'Дашборд водителя';
   applyDriverLayout();
   loadDriverStats(driverKey);
-  return;
-  
-  document.getElementById('home-greeting').textContent = 'Добрый день, ' + driver.name.split(' ')[0] + '!';
-  document.getElementById('home-driver-info').textContent = driver.name + ' · КамАЗ ' + driver.truck;
-  if (driver.type === 'mixer') {
-    document.getElementById('btn-tonary').style.display = 'none';
-    document.getElementById('btn-mixer').style.display = 'flex';
-  } else {
-    document.getElementById('btn-tonary').style.display = 'flex';
-    document.getElementById('btn-mixer').style.display = 'none';
-  }
-  
-  loadDriverStats(driverKey);
 }
 
 function loadDriverStats(driverKey) {
@@ -3228,14 +3194,14 @@ var ROLE_NAV = {
   "driver": [
     {icon:"🏠", label:"Главная", screen:"s-home"},
     {icon:"🚛", label:"Тонары", screen:"s-tonary"},
-    {icon:"🚚", label:"Длинномеры", screen:"s-dlinn"},
-    {icon:"🔄", label:"Миксеры", screen:"s-mixer"},
     {icon:"⛽", label:"ДТ", screen:"s-dt"},
     {icon:"🧾", label:"Расходы", screen:"s-expense"}
   ],
   "mixer": [
     {icon:"🏠", label:"Главная", screen:"s-driver-dash"},
-    {icon:"🔄", label:"Миксеры", screen:"s-mixer"}
+    {icon:"🔄", label:"Миксеры", screen:"s-mixer"},
+    {icon:"⛽", label:"ДТ", screen:"s-dt"},
+    {icon:"🧾", label:"Расходы", screen:"s-expense"}
   ],
   "mechanic": [
     {icon:"🔧", label:"Ремонты", screen:"s-service"},
@@ -3251,131 +3217,40 @@ var ROLE_NAV = {
   ]
 };
 
-// PIN-коды для защищённых ролей. Хранятся локально в JS — это косметическая
-// защита для внутреннего инструмента (10 пользователей в Telegram-боте).
-// Любой, кто откроет DevTools, увидит эти значения. Для усиления — заменить
-// на серверную проверку через apiRequest.
-var ROLE_PINS = {
-  director: '3084',
-  mechanic: '4040'
-};
-
-// Контекст pending-входа после нажатия защищённой роли
-var _pendingPinLogin = null;
-
-function openPinModal(role, srcBtn) {
-  var titles = { director: 'PIN директора', mechanic: 'PIN слесаря' };
-  _pendingPinLogin = { role: role, btn: srcBtn };
-  var modal = document.getElementById('pin-modal');
-  var input = document.getElementById('pin-modal-input');
-  var err = document.getElementById('pin-modal-error');
-  var title = document.getElementById('pin-modal-title');
-  if (title) title.textContent = titles[role] || 'PIN-код';
-  if (input) { input.value = ''; }
-  if (err) err.style.display = 'none';
-  if (modal) {
-    modal.style.display = 'flex';
-    setTimeout(function(){ if (input) input.focus(); }, 50);
-  }
-}
-
-function cancelPinModal() {
-  _pendingPinLogin = null;
-  var modal = document.getElementById('pin-modal');
-  if (modal) modal.style.display = 'none';
-}
-
-function confirmPinModal() {
-  if (!_pendingPinLogin) { cancelPinModal(); return; }
-  var input = document.getElementById('pin-modal-input');
-  var err = document.getElementById('pin-modal-error');
-  var entered = input ? String(input.value || '').trim() : '';
-  var role = _pendingPinLogin.role;
-  if (entered === ROLE_PINS[role]) {
-    var btn = _pendingPinLogin.btn;
-    _pendingPinLogin = null;
-    var modal = document.getElementById('pin-modal');
-    if (modal) modal.style.display = 'none';
-    loginAs(role, btn, true);
-  } else {
-    if (err) err.style.display = 'block';
-    if (input) { input.value = ''; input.focus(); }
-  }
-}
-
-function loginAs(role, srcBtn, pinVerified) {
-  // PIN-гейт для защищённых ролей. Если пришёл клик из login-экрана —
-  // открываем модалку и выходим; реальный вход произойдёт в confirmPinModal.
-  if (ROLE_PINS[role] && !pinVerified) {
-    var btn = srcBtn || (typeof event !== 'undefined' && event ? event.currentTarget : null);
-    openPinModal(role, btn);
-    return;
-  }
-
-  currentRole = role;
-
-  var roleButtons = document.querySelectorAll('.role-btn');
-  roleButtons.forEach(function(btn) {
-    btn.classList.remove('selected');
-    var icon = btn.querySelector('.role-icon');
-    if (icon) icon.textContent = '○';
-  });
-
-  var selectedBtn = srcBtn || (typeof event !== 'undefined' && event ? event.currentTarget : null);
-  if (selectedBtn && selectedBtn.classList) {
-    selectedBtn.classList.add('selected');
-    var selectedIcon = selectedBtn.querySelector('.role-icon');
-    if (selectedIcon) selectedIcon.textContent = '●';
-  }
-
-  var all = document.querySelectorAll(".screen");
-  for (var i = 0; i < all.length; i++) all[i].classList.remove("active");
-  var homeId = ROLE_HOME[role] || "s-login";
-  var el = document.getElementById(homeId);
-  if (el) el.classList.add("active");
-  window.scrollTo(0, 0);
-  updateNav(role);
-
-  // Если водитель — определяем и обновляем главный экран
-  if (role === 'driver') {
+function loginAs(role) {
+  if (role === 'login') { logout(); return; }
+  if (role !== 'driver' || FLEET_WORKSPACE === 'mechanic') return;
+  currentRole = FLEET_WORKSPACE === 'mixer-reserve' ? 'mixer' : 'driver';
+  if (currentRole === 'driver') {
     var firstDriverKey = Object.keys(DRIVERS || {})[0];
     if (firstDriverKey) updateHomeScreen(firstDriverKey);
   }
+  updateNav(currentRole);
+  go(ROLE_HOME[currentRole]);
 }
 
 function updateNav(role) {
   var nav = document.getElementById("bottom-nav");
   if (!nav) return;
-  if (role === "login") { nav.style.display = "none"; return; }
-  nav.style.display = "flex";
-  var items = ROLE_NAV[role] || ROLE_NAV["driver"];
-  if (role === "driver") {
-    items = [
-      {icon:"🏠", label:"Главная", screen:"s-home"},
-      {icon:"🚛", label:"Тонары", screen:"s-tonary"},
-      {icon:"🚚", label:"Длинномеры", screen:"s-dlinn"},
-      {icon:"🔄", label:"Миксеры", screen:"s-mixer"},
-      {icon:"⛽", label:"ДТ", screen:"s-dt"},
-      {icon:"🧾", label:"Расходы", screen:"s-expense"}
-    ];
+  var homeId = ROLE_HOME[role];
+  if (!homeId || role === "login" || !canOpenFleetScreen(FLEET_WORKSPACE, role, homeId)) {
+    nav.style.display = "none";
+    return;
   }
+  nav.style.display = "flex";
+  var items = (ROLE_NAV[role] || []).filter(function(item){
+    return canOpenFleetScreen(FLEET_WORKSPACE, role, item.screen);
+  });
   var html = "";
   for (var i = 0; i < items.length; i++) {
-    html += "<button class=\"nav-item" + (i===0?" active":"") + "\" onclick=\"switchToScreen('" + items[i].screen + "',this)\">";
+    html += "<button class=\"nav-item" + (items[i].screen===homeId?" active":"") + "\" data-screen=\"" + items[i].screen + "\" onclick=\"switchToScreen('" + items[i].screen + "',this)\">";
     html += "<span class=\"nav-icon\">" + items[i].icon + "</span>" + items[i].label + "</button>";
   }
   nav.innerHTML = html;
 }
 
 function switchToScreen(screenId, btn) {
-  var all = document.querySelectorAll(".screen");
-  for (var i = 0; i < all.length; i++) all[i].classList.remove("active");
-  var el = document.getElementById(screenId);
-  if (el) el.classList.add("active");
-  var btns = document.querySelectorAll(".nav-item");
-  for (var i = 0; i < btns.length; i++) btns[i].classList.remove("active");
-  if (btn) btn.classList.add("active");
-  window.scrollTo(0, 0);
+  go(screenId);
 }
 
 
@@ -3386,20 +3261,18 @@ window.addEventListener('error', function(e) {
 });
 
 function go(id){
+  if (id === 's-home' && currentRole === 'mixer') id = 's-mixer';
+  if (id === 's-home' && currentRole === 'mechanic') id = 's-mechanic-dash';
+  if (!canOpenFleetScreen(FLEET_WORKSPACE, currentRole, id)) return;
   try {
     document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
     var el = document.getElementById(id);
     if(el) el.classList.add('active');
     window.scrollTo(0,0);
-    var map={'s-home':0,'s-tonary':1,'s-dlinn':2,'s-mixer':3,'s-dt':4,'s-expense':5,'s-driver-dash':-1,'s-director':0,'s-service':0};
-    document.querySelectorAll('.nav-item').forEach(function(n,i){n.classList.toggle('active',i===map[id]);});
+    document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.screen===id);});
   } catch(e) { console.error('go error:',e); }
 }
-function nav(el,id){
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  el.classList.add('active');
-  go(id);
-}
+function nav(el,id){ go(id); }
 function showSub(subId){
   try {
     var sub=document.getElementById(subId);
@@ -4459,6 +4332,7 @@ function toggleRepairType(type){
 function logout(){
   // Очистить локальный кэш сессии, чтобы при следующем входе спросило телефон
   try { localStorage.removeItem('pulsar_session_v2'); } catch(e){}
+  APP_SESSION = null;
   currentRole = null;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('s-login').classList.add('active');
@@ -4749,6 +4623,12 @@ function submitTonarTrip(btn){
     comment: modulRaw ? ('Модуль крупности: ' + modulRaw) : ''
   };
 
+  if (!data.truck || isUnavailableTonar(data.truck)) {
+    btn.textContent = orig;
+    btn.disabled = false;
+    showNotification('Выберите действующий автомобиль для нового рейса.');
+    return;
+  }
   sendToAPI('tonar_trip', data, function(res){
     btn.textContent = '✅ Сохранено!';
     btn.style.background = 'var(--green)';
@@ -5569,14 +5449,15 @@ function addQuarryPlan(){
 function autofillTonForm() {
   if (!currentDriver) return;
   document.getElementById('ton-driver-auto').textContent = currentDriver.name;
-  document.getElementById('ton-truck-auto').textContent = currentDriver.truck;
+  var truck = isUnavailableTonar(currentDriver.truck) ? '' : currentDriver.truck;
+  document.getElementById('ton-truck-auto').textContent = truck || 'Выберите автомобиль';
   var now = new Date();
   var timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
   document.getElementById('ton-datetime-auto').textContent = 'Сегодня, ' + timeStr;
   var truckChips = document.querySelectorAll('#ton-truck-chips .chip');
   truckChips.forEach(function(chip) {
     chip.classList.remove('on');
-    if (chip.textContent.trim() === currentDriver.truck) chip.classList.add('on');
+    if (truck && chip.textContent.trim() === truck) chip.classList.add('on');
   });
 }
 
@@ -5683,7 +5564,7 @@ function parseVoiceTrip(text) {
 
 function applyVoiceTripToForm(text) {
   var parsed = parseVoiceTrip(text);
-  if (parsed.truck) setChipByText('#ton-truck-chips', parsed.truck);
+  if (parsed.truck && !isUnavailableTonar(parsed.truck)) setChipByText('#ton-truck-chips', parsed.truck);
   if (parsed.driver) setChipByText('#ton-new .form-block:nth-of-type(3) .chips', parsed.driver);
   if (parsed.material) {
     setChipByText('#mat-chips', parsed.material);
@@ -5866,7 +5747,9 @@ function activeVehiclesByType(type) {
 
 function refreshDirectoryChips() {
   buildDriversMap(DIRECTORY.users);
-  replaceChipsInScreen('#ton-new', 'Автомобиль', activeVehiclesByType('tonary').map(function(v){ return v.truck; }), APP_SESSION && APP_SESSION.profile ? APP_SESSION.profile.default_truck : '', false);
+  var tonarVehicles = activeVehiclesByType('tonary').filter(function(v){ return !isUnavailableTonar(v.truck); });
+  var defaultTonar = APP_SESSION && APP_SESSION.profile ? APP_SESSION.profile.default_truck : '';
+  replaceChipsInScreen('#ton-new', 'Автомобиль', tonarVehicles.map(function(v){ return v.truck; }), defaultTonar, false);
   replaceChipsInScreen('#ton-new', 'Водитель', activeUsersByType('tonary').map(function(u){ return u.name; }), APP_SESSION && APP_SESSION.profile ? APP_SESSION.profile.name : '', true);
   replaceChipsInScreen('#mix-new', 'Автомобиль', activeVehiclesByType('mixer').map(function(v){ return v.truck; }), '', true);
   replaceChipsInScreen('#mix-new', 'Водитель', activeUsersByType('mixer').map(function(u){ return u.name; }), '', true);
@@ -5976,6 +5859,7 @@ function effectiveRole(profile) {
 
 function activateRoleForProfile(profile) {
   var role = effectiveRole(profile);
+  if (!canOpenFleetScreen(FLEET_WORKSPACE, role, ROLE_HOME[role])) return;
   currentRole = role;
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
   var homeId = ROLE_HOME[role] || 's-login';
@@ -6458,8 +6342,7 @@ function bootstrapFromSession(res) {
 }
 
 function showPhoneBindScreen(message) {
-  // No-op. Раньше скрывал кнопки ролей при ошибке бэка — теперь не нужно:
-  // авторизация переехала на role+PIN, телефон-бинд убран из UI.
+  // Привязку сотрудника ведёт администратор, а не экран ежедневного отчёта.
   var loginScreen = document.getElementById('s-login');
   if (loginScreen) loginScreen.classList.add('active');
 }
@@ -6470,13 +6353,44 @@ function submitPhoneLogin(btn) {
 }
 
 function initTelegramSession() {
-  // Раньше: дёргала бэк get_session и при ошибке показывала привязку телефона.
-  // Теперь: только показываем login-экран и инициализируем Telegram WebApp.
-  // Юзер нажимает свою роль → loginAs(). Для роли с ROLE_PINS — модалка PIN.
   var tg = tgWebApp();
   if (tg) { try { tg.ready(); } catch (e) {} }
   var loginScreen = document.getElementById('s-login');
   if (loginScreen) loginScreen.classList.add('active');
+  if (FLEET_WORKSPACE === 'mechanic') {
+    document.title = 'Кабинет слесаря · Пульсар';
+    document.getElementById('login-title').textContent = 'Кабинет слесаря';
+    document.getElementById('open-tonars').style.display = 'none';
+    document.getElementById('open-mechanic').style.display = 'flex';
+    openMechanicWorkspace();
+  } else if (FLEET_WORKSPACE === 'mixer-reserve') {
+    document.title = 'Миксеры · резервный отчёт';
+    document.getElementById('login-title').textContent = 'Миксеры · резервный отчёт';
+  }
+}
+
+function openMechanicWorkspace() {
+  if (FLEET_WORKSPACE !== 'mechanic') return;
+  var status = document.getElementById('login-status');
+  var button = document.getElementById('open-mechanic');
+  var tg = tgWebApp();
+  if (!tg || !tg.initData) {
+    status.textContent = 'Откройте этот кабинет через Telegram.';
+    return;
+  }
+  if (button.disabled) return;
+  button.disabled = true;
+  status.textContent = 'Проверяем доступ…';
+  apiRequest('get_session', {}).then(function(res){
+    if (res.status !== 'ok' || !res.profile || !res.profile.active || effectiveRole(res.profile) !== 'mechanic') {
+      status.textContent = 'Кабинет доступен только назначенному слесарю.';
+      return;
+    }
+    bootstrapFromSession(res);
+    status.textContent = 'Доступ подтверждён';
+  }).catch(function(){
+    status.textContent = 'Не удалось проверить доступ. Попробуйте ещё раз.';
+  }).finally(function(){ button.disabled = false; });
 }
 
 function initKeyboardInset(){
