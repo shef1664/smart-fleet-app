@@ -890,6 +890,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
 
     <button class="submit" onclick="submitTonarTrip(this)">Отправить рейс</button>
   </div>
+  <div class="sub-screen" id="ton-edit"></div>
 </div>
 
 <!-- ═══════════════════════════════ МИКСЕРЫ ═══════════════════════════════ -->
@@ -1936,6 +1937,8 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
 
 <!-- ═══════════════════════════════ КАБИНЕТ ВОДИТЕЛЯ ═══════════════════════════════ -->
 <div class="screen" id="s-driver-dash">
+  <div id="tonar-live-cabinet" style="display:none"></div>
+  <div id="legacy-driver-cabinet">
 
   <div class="topbar">
     <div>
@@ -2168,6 +2171,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <button class="submit red" onclick="submitDrvCashRepair(this)">Записать расход</button>
   </div>
 
+  </div>
 </div>
 
 
@@ -3184,7 +3188,7 @@ function loadDriverStats(driverKey) {
 
 var ROLE_HOME = {
   "login": "s-login",
-  "driver": "s-home", 
+  "driver": "s-driver-dash",
   "mixer": "s-mixer",
   "mechanic": "s-mechanic-dash",
   "director": "s-director"
@@ -3192,9 +3196,9 @@ var ROLE_HOME = {
 
 var ROLE_NAV = {
   "driver": [
-    {icon:"🏠", label:"Главная", screen:"s-home"},
+    {icon:"🏠", label:"Кабинет", screen:"s-driver-dash"},
     {icon:"🚛", label:"Тонары", screen:"s-tonary"},
-    {icon:"⛽", label:"ДТ", screen:"s-dt"},
+    {icon:"⛽", label:"Топливо", screen:"s-dt"},
     {icon:"🧾", label:"Расходы", screen:"s-expense"}
   ],
   "mixer": [
@@ -3221,10 +3225,6 @@ function loginAs(role) {
   if (role === 'login') { logout(); return; }
   if (role !== 'driver' || FLEET_WORKSPACE === 'mechanic') return;
   currentRole = FLEET_WORKSPACE === 'mixer-reserve' ? 'mixer' : 'driver';
-  if (currentRole === 'driver') {
-    var firstDriverKey = Object.keys(DRIVERS || {})[0];
-    if (firstDriverKey) updateHomeScreen(firstDriverKey);
-  }
   updateNav(currentRole);
   go(ROLE_HOME[currentRole]);
 }
@@ -3261,6 +3261,7 @@ window.addEventListener('error', function(e) {
 });
 
 function go(id){
+  if (id === 's-home' && FLEET_WORKSPACE === 'tonars') id = 's-driver-dash';
   if (id === 's-home' && currentRole === 'mixer') id = 's-mixer';
   if (id === 's-home' && currentRole === 'mechanic') id = 's-mechanic-dash';
   if (!canOpenFleetScreen(FLEET_WORKSPACE, currentRole, id)) return;
@@ -3270,6 +3271,7 @@ function go(id){
     if(el) el.classList.add('active');
     window.scrollTo(0,0);
     document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active',n.dataset.screen===id);});
+    if (FLEET_WORKSPACE === 'tonars' && typeof tonarScreenOpened === 'function') tonarScreenOpened(id);
   } catch(e) { console.error('go error:',e); }
 }
 function nav(el,id){ go(id); }
@@ -3281,6 +3283,7 @@ function showSub(subId){
     if(menu) menu.style.display='none';
     sub.classList.add('active');
     if(subId === 'mix-new') syncMixerRequestMode();
+    if (FLEET_WORKSPACE === 'tonars' && typeof tonarFormOpened === 'function') tonarFormOpened(subId);
     window.scrollTo(0,0);
   } catch(e) { console.error('showSub error:',e); }
 }
@@ -3537,8 +3540,9 @@ function formatDate(d){
 }
 
 function setDate(id, mode, btn){
-  const today = new Date();
-  const yesterday = new Date(); yesterday.setDate(today.getDate()-1);
+  const today = FLEET_WORKSPACE === 'tonars' && ['ton-date', 'dt-date', 'exp-date'].includes(id)
+    ? tonarLocalDay() : new Date();
+  const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
   const cal = document.getElementById(id+'-cal');
   const valEl = document.getElementById(id+'-val');
   const display = document.getElementById(id+'-display');
@@ -4461,6 +4465,10 @@ var API_URL = 'https://worker-production-96a0.up.railway.app/api';
 var API_KEY = 'pulsar-api-secret-2026';
 
 function sendToAPI(action, data, onSuccess, onError) {
+  if (action.startsWith('tonar_cabinet_')) {
+    tonarSubmit(action, data).then(onSuccess, onError);
+    return;
+  }
   if (window.Telegram && window.Telegram.WebApp && !window.location.hostname) {
     Telegram.WebApp.sendData(JSON.stringify({action: action, data: data}));
     if (onSuccess) onSuccess({fallback: true});
@@ -4629,10 +4637,12 @@ function submitTonarTrip(btn){
     showNotification('Выберите действующий автомобиль для нового рейса.');
     return;
   }
-  sendToAPI('tonar_trip', data, function(res){
+  var personal = FLEET_WORKSPACE === 'tonars';
+  sendToAPI(personal ? 'tonar_cabinet_trip' : 'tonar_trip', data, function(res){
     btn.textContent = '✅ Сохранено!';
     btn.style.background = 'var(--green)';
     showNotification('Рейс тонара сохранён' + (res.id ? ' ('+res.id+')' : ''));
+    if (personal) tonarAfterSave();
     setTimeout(function(){
       hideSub('ton-menu','ton-new');
       btn.textContent = orig;
@@ -5179,7 +5189,9 @@ function submitDlinnFuel(btn){
     comment: getFieldValue(blocks[1]) ? ('\u0412\u043e\u0434\u0438\u0442\u0435\u043b\u044c: ' + getFieldValue(blocks[1])) : ''
   };
 
-  sendToAPI('dlinn_fuel', data, function(res){
+  var personal = FLEET_WORKSPACE === 'tonars';
+  sendToAPI(personal ? 'tonar_cabinet_fuel' : 'dlinn_fuel', data, function(res){
+    if (personal) tonarAfterSave('dt', data.truck);
     showNotification('\u0417\u0430\u043f\u0440\u0430\u0432\u043a\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0430' + (res.id ? ' (' + res.id + ')' : ''));
     finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
     setTimeout(function(){ hideSub('dt-menu','dt-new'); }, 1200);
@@ -5202,6 +5214,8 @@ function submitDlinnExpense(btn){
     amount: amountInput ? amountInput.value.trim() : '',
     description: descInput ? descInput.value.trim() : '',
     photo: getPhotoArray('expense-check'),
+    truck: getFieldValue(blocks[0]),
+    place: getFieldValue(blocks[6]),
     comment: [
       getFieldValue(blocks[0]) ? ('\u041c\u0430\u0448\u0438\u043d\u0430: ' + getFieldValue(blocks[0])) : '',
       getFieldValue(blocks[1]) ? ('\u0412\u043e\u0434\u0438\u0442\u0435\u043b\u044c: ' + getFieldValue(blocks[1])) : '',
@@ -5209,7 +5223,9 @@ function submitDlinnExpense(btn){
     ].filter(Boolean).join(' | ')
   };
 
-  sendToAPI('dlinn_expense', data, function(res){
+  var personal = FLEET_WORKSPACE === 'tonars';
+  sendToAPI(personal ? 'tonar_cabinet_expense' : 'dlinn_expense', data, function(res){
+    if (personal) tonarAfterSave('exp', data.truck);
     showNotification('\u0420\u0430\u0441\u0445\u043e\u0434 \u0441\u043e\u0445\u0440\u0430\u043d\u0451\u043d' + (res.id ? ' (' + res.id + ')' : ''));
     finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
     setTimeout(function(){ hideSub('exp-menu','exp-new'); }, 1200);
@@ -5746,6 +5762,10 @@ function activeVehiclesByType(type) {
 }
 
 function refreshDirectoryChips() {
+  if (FLEET_WORKSPACE === 'tonars' && typeof tonarLive !== 'undefined' && tonarLive.initialized) {
+    tonarDriverFields(tonarLive.dashboard);
+    return;
+  }
   buildDriversMap(DIRECTORY.users);
   var tonarVehicles = activeVehiclesByType('tonary').filter(function(v){ return !isUnavailableTonar(v.truck); });
   var defaultTonar = APP_SESSION && APP_SESSION.profile ? APP_SESSION.profile.default_truck : '';
@@ -6357,6 +6377,10 @@ function initTelegramSession() {
   if (tg) { try { tg.ready(); } catch (e) {} }
   var loginScreen = document.getElementById('s-login');
   if (loginScreen) loginScreen.classList.add('active');
+  if (FLEET_WORKSPACE === 'tonars') {
+    loginAs('driver');
+    return;
+  }
   if (FLEET_WORKSPACE === 'mechanic') {
     document.title = 'Кабинет слесаря · Пульсар';
     document.getElementById('login-title').textContent = 'Кабинет слесаря';
@@ -6539,5 +6563,6 @@ window.addEventListener('DOMContentLoaded', function(){
   if (typeof renderMixerRecent === 'function') renderMixerRecent();
 });
 </script>
+<script src="./tonar-cabinet.js"></script>
 </body>
 </html>
